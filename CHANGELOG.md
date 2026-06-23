@@ -1,11 +1,16 @@
 # Changelog
 
+### Security
+- CLI announce output logs resource type and ID only; no longer marshals and prints full resource JSON (fixes CodeQL clear-text logging of password and other sensitive fields)
+- Health probe debug logging records HTTP status only; no longer logs response body on non-OK status (avoids clear-text logging of password and other sensitive fields from test output)
+
 ### Fixed
 - Integration test fixtures: removed duplicate `service: apache2` / `service: httpd` definitions between `goss-shared.yaml` and `goss-service.yaml`; eliminates duplicate-key warnings during `validate` in CI
 
 - updated workflows
   - actions/checkout@v6.0.3 to 7.0.0
   - softprops/action-gh-release@v3.0.0 to softprops/action-gh-release@v3.0.1
+  - Added permissions
 ---
 
 ## [0.5.0] - 2026-06-09
