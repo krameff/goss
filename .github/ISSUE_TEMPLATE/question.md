@@ -3,7 +3,7 @@ name: Question
 about: Ask a question about goss
 title: ''
 labels: question
-assignees: ''
+assignees: 'uk-bolly'
 
 ---
 

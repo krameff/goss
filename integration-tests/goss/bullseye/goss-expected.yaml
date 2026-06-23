@@ -13,7 +13,7 @@ package:
   apache2:
     installed: true
     versions:
-    - 2.4.67-1~deb11u2
+    - 2.4.67-1~deb11u3
   foobar:
     installed: false
   vim-tiny:

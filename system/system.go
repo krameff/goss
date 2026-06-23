@@ -5,6 +5,7 @@ import (
 	"context"
 	"os"
 	"os/exec"
+	"runtime"
 	"strconv"
 	"sync"
 
@@ -35,6 +36,7 @@ type System struct {
 	NewMount       func(context.Context, string, *System, util2.Config) Mount
 	NewInterface   func(context.Context, string, *System, util2.Config) Interface
 	NewHTTP        func(context.Context, string, *System, util2.Config) HTTP
+	NewRegistry    func(context.Context, string, *System, util2.Config) Registry
 	ports          map[string][]GOnetstat.Process
 	portsOnce      sync.Once
 	procMap        map[string][]ps.Process
@@ -73,6 +75,7 @@ func New(packageManager string) *System {
 		NewMount:       NewDefMount,
 		NewInterface:   NewDefInterface,
 		NewHTTP:        NewDefHTTP,
+		NewRegistry:    NewDefRegistry,
 	}
 
 	sys.detectService()
@@ -109,6 +112,8 @@ func (sys *System) detectService() {
 		sys.NewService = NewServiceSystemdLegacy
 	case "alpineinit":
 		sys.NewService = NewAlpineServiceInit
+	case "windows":
+		sys.NewService = NewServiceWindows
 	default:
 		sys.NewService = NewServiceInit
 	}
@@ -160,6 +165,9 @@ func DetectPackageManager() string {
 // command to detect systemd, and falls back on DetectDistro otherwise. If it can't
 // decide, it returns "init".
 func DetectService() string {
+	if runtime.GOOS == "windows" {
+		return "windows"
+	}
 	if HasCommand("systemctl") {
 		if isLegacySystemd() {
 			return "systemdlegacy"

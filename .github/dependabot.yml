@@ -11,16 +11,33 @@ updates:
       - "uk-bolly"
     reviewers:
       - "uk-bolly"
-    open-pull-requests-limit: 0
 
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "saturday"
+    assignees:
+      - "uk-bolly"
+    reviewers:
+      - "uk-bolly"
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "saturday"
+    assignees:
+      - "uk-bolly"
+    reviewers:
+      - "uk-bolly"
 
   - package-ecosystem: "pip"
     directory: "/docs"
     schedule:
       interval: "weekly"
       day: "saturday"
+    assignees:
+      - "uk-bolly"
+    reviewers:
+      - "uk-bolly"

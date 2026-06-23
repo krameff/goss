@@ -1,15 +1,71 @@
-# Change log from original goss-org/goss
+# Changelog
 
-## Documentation
+### Security
+- CLI announce output logs resource type and ID only; no longer marshals and prints full resource JSON (fixes CodeQL clear-text logging of password and other sensitive fields)
+- Health probe debug logging records HTTP status only; no longer logs response body on non-OK status (avoids clear-text logging of password and other sensitive fields from test output)
+
+### Fixed
+- Integration test `add.goss.yaml` expectations updated for announce output change (resource type and ID only, not full marshaled YAML)
+- `bullseye` apache2 version bumped to `2.4.67-1~deb11u3` in `vars.yaml` (Debian security update)
+- Integration test fixtures: removed duplicate `service: apache2` / `service: httpd` definitions between `goss-shared.yaml` and `goss-service.yaml`; eliminates duplicate-key warnings during `validate` in CI
+
+- updated workflows
+  - actions/checkout@v6.0.3 to 7.0.0
+  - softprops/action-gh-release@v3.0.0 to softprops/action-gh-release@v3.0.1
+  - Added permissions
+---
+
+## [0.5.0] - 2026-06-09
+
+### Security
+- `Dockerfile` final stage bumped from `alpine:3.19` to `alpine:3.21`; resolves CVE-2026-40200, CVE-2026-6042 (`musl-utils`) and CVE-2025-46394, CVE-2024-58251 (`ssl_client`/busybox)
+- `Dockerfile` build stage `GO_VERSION` updated from `1.22` to `1.26`
+- `SECURITY.md` added with vulnerability reporting policy and response timeline
+- `CODE_OF_CONDUCT.md` added based on Contributor Covenant 2.1
+
+### Added
+- `linux/arm64` integration tests via native `ubuntu-24.04-arm` GitHub Actions runner
+- `linux/ppc64le` integration tests via QEMU binfmt_misc emulation on `ubuntu-latest`
+- `linux/ppc64le` binary added to release builds
+- `integration-tests/goss/linux-arm64/` and `integration-tests/goss/linux-ppc64le/` test directories covering commands, addr, dns, file, group, kernel-param, http, and process resources
+- `docker/setup-qemu-action` in CI to support transparent ppc64le binary execution without a container wrapper
+- `.claude/agents/test-runner.md` agent for running integration tests in parallel
+
+### PRs Incorporated
+
+- [#1013](https://github.com/goss-org/goss/pull/1013) -- `http` resource: `request-query-params` added to support URL query parameters with proper encoding and duplicate key support; thanks to [@riton](https://github.com/riton)
+- [#1017](https://github.com/goss-org/goss/pull/1017) -- `service` resource: Windows service checks implemented via PowerShell (`Get-Service`); supports `enabled`, `running`, and `exists`; `skip: true` removed from Windows integration test; thanks to [@cthiel42](https://github.com/cthiel42)
+- [#1053](https://github.com/goss-org/goss/pull/1053) -- `registry` resource added for Windows registry validation; supports `exists`, `value`, and `type` checks; uses native `golang.org/x/sys/windows/registry` API (no PowerShell); five hives supported (HKLM, HKCU, HKCR, HKU, HKCC); six data types (REG_SZ, REG_EXPAND_SZ, REG_DWORD, REG_QWORD, REG_BINARY, REG_MULTI_SZ); `::` separator for value names containing backslashes; thanks to [@Blankf](https://github.com/Blankf)
+
+### Changed
+- `CODEOWNERS` updated to `@uk-bolly`
+- `dependabot.yml` -- `docker` ecosystem added for Dockerfile base image tracking; assignees and reviewers added to all entries; `open-pull-requests-limit: 0` removed from gomod entry
+- `ISSUE_TEMPLATE` -- all templates assigned to `uk-bolly`; `config.yml` added to redirect security reports to GitHub private vulnerability reporting
+- `pull_request_template.md` -- `make test-all` corrected to `make test`
+- `run-validate-tests.sh` Linux block narrowed to `linux-amd64` only; non-amd64 Linux architectures now testable via this path
+- All platform command test files normalised: `--use-alpha=1` removed from exec commands (env var `GOSS_USE_ALPHA=1` is sufficient); `help.goss.yaml` stdout check unified to `validate` across all platforms
+- Per-distro Makefile targets now depend on `release/goss-linux-amd64` only instead of the full `build` target
+
+### Fixed
+- `bullseye` apache2 updated to `2.4.67-1~deb11u2` in `vars.yaml` and expected files
+- `generate_goss.sh` strips `::1` from generated localhost DNS entry; docker injects `::1` but podman does not, causing golden file mismatches in CI
+- Service key order corrected for `rockylinux9` and `almalinux10`: `httpd` before `webservice` (alphabetical)
+- `Dockerfile_jammy` and `Dockerfile_bullseye`: tinyproxy overridden to `Type=simple` with foreground mode; fixes startup failure in Docker CI due to `Type=forking` and `PrivateDevices=yes`
+
+---
+
+## [0.4.0] - Initial fork from goss-org/goss
+
+### Documentation
 - `README.md` updated to show origins, credits, and Apache 2.0 license retention
 
-## Release pipeline
+### Release pipeline
 - `release.yaml` `TRAVIS_TAG` renamed to `RELEASE_TAG`
 - `release.yaml` `attach-assets` job file glob corrected to match actual download paths
 - `release-build.sh` fixed so `-p` flag correctly sets target platform, `os`, `arch`, and output filename
 - `Makefile` release rule updated to pass `-p` and `-v` flags to `release-build.sh`
 
-## CI
+### CI
 - `integration-test-linux-arm64` job added using native `ubuntu-24.04-arm` GitHub Actions runner; tests `goss-linux-arm64` binary via `run-validate-tests.sh` and `run-serve-tests.sh`
 - `integration-test-linux-ppc64le` job added using QEMU binfmt_misc emulation on `ubuntu-latest`; `docker/setup-qemu-action` registers ppc64le handlers so the binary runs transparently without a container wrapper
 - `run-validate-tests.sh` Linux block narrowed from all Linux to `linux-amd64` only; non-amd64 Linux architectures are now testable via this path
@@ -24,22 +80,22 @@
 - `dependabot.yml` assignee and reviewer updated to `uk-bolly`
 - `docker-integration-tests` workflow build context corrected to `integration-tests/`
 
-## Security
+### Security
 - `Dockerfile` final stage bumped from `alpine:3.19` to `alpine:3.21`; resolves CVE-2026-40200 and CVE-2026-6042 (`musl-utils`) and CVE-2025-46394 and CVE-2024-58251 (`ssl_client`/busybox), all fixed in Alpine 3.21
 - `Dockerfile` build stage `GO_VERSION` default updated from `1.22` to `1.26` to match `go.mod` requirement
 
-## Build targets
+### Build targets
 - `linux/ppc64le` binary added to release builds
 - `darwin/arm64` (Apple Silicon) binary added to release builds
 - Removed 32-bit build and testing support
 
-## Markdown lint fixes
+### Markdown lint fixes
 - `README.md` attribution blockquote moved below heading (MD041); long lines wrapped (MD013); `[here]` link text made descriptive (MD059)
 - `docs/gossfile.md` long admonition line wrapped (MD013); `[here]` link text made descriptive (MD059)
 - `extras/dgoss/README.md` long line wrapped (MD013)
 - `extras/kgoss/README.md` table pipe separators spaced correctly (MD060)
 
-## Go and dependencies
+### Go and dependencies
 - Updated to Go 1.26
 - Replaced `github.com/achanda/go-sysctl` with `github.com/lorenzosaino/go-sysctl v0.3.1`
 - Upgraded `github.com/BurntSushi/toml` v1.3.2 => v1.6.0
@@ -47,7 +103,7 @@
 - GitHub Actions updated to later versions
 - 386 build targets removed
 
-## Linter
+### Linter
 - `.golangci.yaml` migrated from v1 to v2 format
 - CI updated to golangci-lint v2.12.2
 - `go install` of golangci-lint removed from Makefile
@@ -55,7 +111,7 @@
 - Golden files updated for `TestMatchers` (`iter.Seq/iter.Seq2` support)
 - `semver_constraint_test.go` assertions updated to match lowercased strings
 
-## Integration tests
+### Integration tests
 - `generate_goss.sh` strips `::1` from the generated localhost DNS entry after `goss add`; docker injects `::1` into `/etc/hosts` but podman does not, causing golden file mismatches
 - `goss-expected.yaml` and `goss-expected-q.yaml` localhost DNS entries updated to remove `::1` across all distros to match the normalised generated output
 - `goss-expected.yaml` and `goss-expected-q.yaml` service key order corrected for `rockylinux9` and `almalinux10`: `httpd` before `webservice` (alphabetical, matching goss output)

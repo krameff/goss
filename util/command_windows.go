@@ -28,3 +28,22 @@ func NewCommandForWindowsCmd(name string, arg ...string) *Command {
 
 	return command
 }
+
+func NewCommandForWindowsPowershell(name string, arg ...string) *Command {
+	command := new(Command)
+	command.name = "powershell"
+
+	cmdLine := "-NoProfile -Command " + name
+	if len(arg) > 0 {
+		cmdLine += " " + strings.Join(arg, " ")
+	}
+
+	command.Cmd = exec.Command("powershell")
+	command.Cmd.SysProcAttr = &syscall.SysProcAttr{
+		HideWindow:    false,
+		CmdLine:       cmdLine,
+		CreationFlags: 0,
+	}
+
+	return command
+}

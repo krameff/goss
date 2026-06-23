@@ -1,8 +1,4 @@
----
 service:
   MSDTC:
     enabled: true
     running: true
-
-    # needs implementation
-    skip: true
