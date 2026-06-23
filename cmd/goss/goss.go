@@ -43,7 +43,7 @@ func newRuntimeConfigFromCLI(c *cli.Command) *util.Config {
 		Spec:              c.String("gossfile"),
 		Timeout:           c.Duration("timeout"),
 		Username:          c.String("username"),
-		Vars:              c.String("vars"),
+		VarsFiles:         c.StringSlice("vars"),
 		VarsInline:        c.String("vars-inline"),
 	}
 
@@ -86,9 +86,9 @@ func main() {
 				Usage:   "Goss file to read from / write to",
 				Sources: cli.EnvVars("GOSS_FILE"),
 			},
-			&cli.StringFlag{
+			&cli.StringSliceFlag{
 				Name:    "vars",
-				Usage:   "json/yaml file containing variables for template",
+				Usage:   "json/yaml file containing variables for template. Can be specified multiple times. Later files override overlapping keys.",
 				Sources: cli.EnvVars("GOSS_VARS"),
 			},
 			&cli.StringFlag{

@@ -10,6 +10,7 @@ import (
 	"sort"
 	"strings"
 
+	"dario.cat/mergo"
 	"gopkg.in/yaml.v3"
 
 	"github.com/goss-org/goss/resource"
@@ -73,10 +74,17 @@ func (t *TmplVars) Env() map[string]string {
 	return env
 }
 
-func loadVars(varsFile string, varsInline string) (map[string]any, error) {
-	vars, err := varsFromFile(varsFile)
-	if err != nil {
-		return nil, fmt.Errorf("loading vars file '%s'\n%w", varsFile, err)
+func loadVars(varsFiles []string, varsInline string) (map[string]any, error) {
+	mergedVars := map[string]any{}
+
+	for _, varsFile := range varsFiles {
+		vars, err := varsFromFile(varsFile)
+		if err != nil {
+			return nil, fmt.Errorf("loading vars file '%s'\n%w", varsFile, err)
+		}
+		if err := mergo.Merge(&mergedVars, vars, mergo.WithOverride); err != nil {
+			return nil, fmt.Errorf("merging vars file '%s'\n%w", varsFile, err)
+		}
 	}
 
 	varsExtra, err := varsFromString(varsInline)
@@ -85,10 +93,10 @@ func loadVars(varsFile string, varsInline string) (map[string]any, error) {
 	}
 
 	for k, v := range varsExtra {
-		vars[k] = v
+		mergedVars[k] = v
 	}
 
-	return vars, nil
+	return mergedVars, nil
 }
 
 func varsFromFile(varsFile string) (map[string]any, error) {
@@ -162,7 +170,7 @@ func ReadJSONData(data []byte, detectFormat bool) (GossConfig, error) {
 func RenderJSON(c *util.Config) (string, error) {
 	var err error
 	debug = c.Debug
-	currentTemplateFilter, err = NewTemplateFilter(c.Vars, c.VarsInline)
+	currentTemplateFilter, err = NewTemplateFilter(c.VarsFiles, c.VarsInline)
 	if err != nil {
 		return "", err
 	}

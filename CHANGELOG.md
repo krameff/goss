@@ -9,6 +9,9 @@
 - `bullseye` apache2 version bumped to `2.4.67-1~deb11u3` in `vars.yaml` (Debian security update)
 - Integration test fixtures: removed duplicate `service: apache2` / `service: httpd` definitions between `goss-shared.yaml` and `goss-service.yaml`; eliminates duplicate-key warnings during `validate` in CI
 
+### Added
+- Multiple `--vars` files supported; vars are merged in flag order with later files overriding overlapping keys; `--vars-inline` still applies last ([#1023](https://github.com/goss-org/goss/issues/1023); thanks to [@Lirt](https://github.com/Lirt) for [PR #1024](https://github.com/goss-org/goss/pull/1024))
+
 ### PRs Incorporated
 
 - Thanks to [@kgaughan](https://github.com/kgaughan) for authoring the `urfave/cli` v3 migration

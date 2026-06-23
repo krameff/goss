@@ -895,7 +895,7 @@ to allow for dynamic or conditional tests.
 Available variables:
 
 * `{{.Env}}`  - Containing environment variables
-* `{{.Vars}}` - Containing the values defined in [--vars](#global-options) file
+* `{{.Vars}}` - Containing the values defined in [--vars](#global-options) files (merged in order)
 
 Available functions:
 
