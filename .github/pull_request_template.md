@@ -13,7 +13,7 @@ Contributors guide: ./CONTRIBUTING.md
 ##### Checklist
 <!-- Remove items that do not apply. For completed items, change [ ] to [x]. -->
 
-- [ ] `make test-all` (UNIX) passes. CI will also test this
+- [ ] `make test` passes locally. CI will also verify this
 - [ ] unit and/or integration tests are included (if applicable)
 - [ ] documentation is changed or added (if applicable)
 

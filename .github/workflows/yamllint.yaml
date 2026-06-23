@@ -11,7 +11,9 @@ on:
 jobs:
   validate-yaml:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v6.0.3
+      - uses: actions/checkout@v7.0.0
       - name: Validate YAML file
         run: make lint-yaml

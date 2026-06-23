@@ -87,12 +87,8 @@ func (h healthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	resp := h.processAndEnsureCached(negotiatedContentType, outputer)
 	w.Header().Set("Content-Type", negotiatedContentType)
 	w.WriteHeader(resp.statusCode)
-	logBody := ""
-	if resp.statusCode != http.StatusOK {
-		logBody = " - " + resp.body.String()
-	}
 	resp.body.WriteTo(w)
-	log.Printf("[DEBUG] %v: status %d%s", r.RemoteAddr, resp.statusCode, logBody)
+	log.Printf("[DEBUG] %v: status %d", r.RemoteAddr, resp.statusCode)
 }
 
 func (h healthHandler) processAndEnsureCached(negotiatedContentType string, outputer outputs.Outputer) res {
