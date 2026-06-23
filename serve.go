@@ -172,7 +172,7 @@ func (h healthHandler) negotiateResponseContentType(r *http.Request) (string, ou
 		}
 	}
 	if outputer == nil {
-		return "", nil, fmt.Errorf("accept header on request missing or invalid. Accept header: %v", acceptHeader)
+		return "", nil, fmt.Errorf("accept header on request missing or invalid")
 	}
 
 	return outputName, outputer, nil
