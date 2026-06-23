@@ -1,5 +1,10 @@
 # Changelog
 
+### Fixed
+- Integration test fixtures: removed duplicate `service: apache2` / `service: httpd` definitions between `goss-shared.yaml` and `goss-service.yaml`; eliminates duplicate-key warnings during `validate` in CI
+
+---
+
 ## [0.5.0] - 2026-06-09
 
 ### Security
