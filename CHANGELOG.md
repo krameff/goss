@@ -5,6 +5,8 @@
 - Health probe debug logging records HTTP status only; no longer logs response body on non-OK status (avoids clear-text logging of password and other sensitive fields from test output)
 
 ### Fixed
+- Integration test `add.goss.yaml` expectations updated for announce output change (resource type and ID only, not full marshaled YAML)
+- `bullseye` apache2 version bumped to `2.4.67-1~deb11u3` in `vars.yaml` (Debian security update)
 - Integration test fixtures: removed duplicate `service: apache2` / `service: httpd` definitions between `goss-shared.yaml` and `goss-service.yaml`; eliminates duplicate-key warnings during `validate` in CI
 
 - updated workflows

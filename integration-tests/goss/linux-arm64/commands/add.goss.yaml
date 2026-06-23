@@ -4,7 +4,7 @@ command:
     exit-status: 0
     exec: release/goss-linux-arm64 add addr 127.0.0.1
     stdout:
-    - "timeout: 500"
+    - "Adding Addr"
     stderr: []
     timeout: 5000
 
