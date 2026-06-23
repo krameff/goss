@@ -3,6 +3,7 @@
 ### Security
 - CLI announce output logs resource type and ID only; no longer marshals and prints full resource JSON (fixes CodeQL clear-text logging of password and other sensitive fields)
 - Health probe debug logging records HTTP status only; no longer logs response body on non-OK status (avoids clear-text logging of password and other sensitive fields from test output)
+- Health probe content negotiation errors no longer log the raw `Accept` header value from untrusted requests
 
 ### Fixed
 - Integration test `add.goss.yaml` expectations updated for announce output change (resource type and ID only, not full marshaled YAML)
