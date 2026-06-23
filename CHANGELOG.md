@@ -3,6 +3,9 @@
 ### Fixed
 - Integration test fixtures: removed duplicate `service: apache2` / `service: httpd` definitions between `goss-shared.yaml` and `goss-service.yaml`; eliminates duplicate-key warnings during `validate` in CI
 
+- updated workflows
+  - actions/checkout@v6.0.3 to 7.0.0
+  - softprops/action-gh-release@v3.0.0 to softprops/action-gh-release@v3.0.1
 ---
 
 ## [0.5.0] - 2026-06-09
