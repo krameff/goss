@@ -268,14 +268,11 @@ func WriteJSON(filePath string, gossConfig GossConfig) error {
 }
 
 func resourcePrint(fileName string, res resource.ResourceRead, announce bool) {
-	resMap := map[string]resource.ResourceRead{res.ID(): res}
-
-	oj, _ := marshal(resMap)
 	typ := reflect.TypeOf(res)
 	typs := strings.Split(typ.String(), ".")[1]
 
 	if announce {
-		fmt.Printf("Adding %s to '%s':\n\n%s\n\n", typs, fileName, string(oj))
+		fmt.Printf("Adding %s to '%s': %s\n", typs, fileName, res.ID())
 	}
 }
 

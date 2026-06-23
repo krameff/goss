@@ -68,12 +68,6 @@ service:
   dnsmasq:
     enabled: true
     running: true
-{{- range $name, $runlevels := index .Vars .Env.OS "services"}}
-  {{$name}}:
-    enabled: true
-    running: true
-    runlevels: {{toJson $runlevels}}
-{{end}}
 addr:
   tcp://httpbin:22:
     reachable: false
