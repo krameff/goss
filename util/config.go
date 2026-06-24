@@ -14,7 +14,7 @@ import (
 // ConfigOption manipulates Config
 type ConfigOption func(c *Config) error
 
-// Config is the runtime configuration for the goss system, the cli.Context gets
+// Config is the runtime configuration for the goss system, the cli.Command gets
 // converted to this and it allows other packages to embed goss by creating this
 // structure and using it when adding, validating etc.
 //
@@ -53,7 +53,7 @@ type Config struct {
 	CAFile                string
 	CertFile              string
 	KeyFile               string
-	Vars                  string
+	VarsFiles             []string
 	VarsInline            string
 	DisabledResourceTypes []string
 }
@@ -91,7 +91,7 @@ func NewConfig(opts ...ConfigOption) (rc *Config, err error) {
 		Spec:                  "",
 		Timeout:               0,
 		Username:              "",
-		Vars:                  "",
+		VarsFiles:             []string{},
 		VarsInline:            "",
 	}
 
@@ -207,12 +207,17 @@ func WithDebug() ConfigOption {
 	}
 }
 
-// WithVarsFile is a json or yaml file containing variables to pass to the validator
-func WithVarsFile(file string) ConfigOption {
+// WithVarsFiles are json or yaml files containing variables to pass to the validator
+func WithVarsFiles(files []string) ConfigOption {
 	return func(c *Config) error {
-		c.Vars = file
+		c.VarsFiles = files
 		return nil
 	}
+}
+
+// WithVarsFile is a json or yaml file containing variables to pass to the validator
+func WithVarsFile(file string) ConfigOption {
+	return WithVarsFiles([]string{file})
 }
 
 // WithVarsData uses v as variables to pass to the Validator

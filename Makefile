@@ -142,6 +142,11 @@ lint-yaml:
 	$(info INFO: Starting $@)
 	yamllint -c .yamllint .
 
+.PHONY: lint-markdown
+lint-markdown:
+	$(info INFO: Starting $@)
+	./ci/lint-markdown.sh
+
 $(PYTHON):
 	$(info Creating virtualenv in $(VENV))
 	@python -m venv $(VENV)
