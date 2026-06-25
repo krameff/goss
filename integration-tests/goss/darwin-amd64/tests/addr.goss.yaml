@@ -4,7 +4,7 @@ addr:
     reachable: true
     timeout: 1000
 
-  # TODO: needs implementation (or figure out a likely listening port on macOS/travis)
+  # TODO: needs implementation (or figure out a likely listening port on macOS CI hosts)
   # tcp://127.0.0.1:135:
   #   reachable: true
   #   timeout: 1000

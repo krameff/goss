@@ -96,7 +96,7 @@
 - `README.md` updated to show origins, credits, and Apache 2.0 license retention
 
 ### Release pipeline
-- `release.yaml` `TRAVIS_TAG` renamed to `RELEASE_TAG`
+- `release.yaml` release tag env var standardised as `RELEASE_TAG`
 - `release.yaml` `attach-assets` job file glob corrected to match actual download paths
 - `release-build.sh` fixed so `-p` flag correctly sets target platform, `os`, `arch`, and output filename
 - `Makefile` release rule updated to pass `-p` and `-v` flags to `release-build.sh`
@@ -110,7 +110,7 @@
 - All platform command test files (`darwin-amd64`, `darwin-arm64`, `linux-arm64`, `linux-ppc64le`, `windows`) normalised for consistency: `--use-alpha=1` removed from all `exec` commands (env var `GOSS_USE_ALPHA=1` set by `run-validate-tests.sh` is sufficient); `help.goss.yaml` stdout check changed from `alpha` to `validate` across all platforms
 - `bullseye` apache2 version updated to `2.4.67-1~deb11u2` in `vars.yaml`, `goss-expected.yaml`, and `goss-aa-expected.yaml`
 - `macos-13` (Intel) removed from CI matrix -- deprecated and no longer available on GitHub Actions; Apple Silicon testing continues via `macos-latest`
-- `.travis.yml` removed; CI fully on GitHub Actions
+- Legacy CI config removed; GitHub Actions is the sole CI pipeline
 - `docs.yaml` lint job re-enabled; build/deploy remains disabled
 - `preview-docs.yaml` disabled
 - `dependabot.yml` assignee and reviewer updated to `uk-bolly`

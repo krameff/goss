@@ -6,9 +6,7 @@
 > features and fixes to be developed and released. We are deeply grateful for the effort and care that went into the
 > original project and aim to continue it in the same spirit.
 
-[![Build Status](https://travis-ci.org/goss-org/goss.svg?branch=master)](https://travis-ci.org/goss-org/goss)
 [![Documentation](https://img.shields.io/badge/docs-docs-blue)](docs/index.md)
-**
 [![Blog](https://img.shields.io/badge/follow-blog-brightgreen.svg)](https://medium.com/@aelsabbahy)
 
 <!-- --8<-- [start:intro] -->
