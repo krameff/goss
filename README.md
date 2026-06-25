@@ -7,8 +7,7 @@
 > original project and aim to continue it in the same spirit.
 
 [![Build Status](https://travis-ci.org/goss-org/goss.svg?branch=master)](https://travis-ci.org/goss-org/goss)
-[![Github All Releases](https://img.shields.io/github/downloads/goss-org/goss/total.svg?maxAge=604800)](https://github.com/goss-org/goss/releases)
-[![Documentation Status](https://readthedocs.org/projects/goss/badge/)](https://goss.rocks/)
+[![Documentation](https://img.shields.io/badge/docs-docs-blue)](docs/index.md)
 **
 [![Blog](https://img.shields.io/badge/follow-blog-brightgreen.svg)](https://medium.com/@aelsabbahy)
 
@@ -20,9 +19,9 @@
 <a href="https://asciinema.org/a/4suhr8p42qcn6r7crfzt6cc3e?autoplay=1" target="_blank"><img src="https://cloud.githubusercontent.com/assets/6783261/17330426/ce7ad066-5894-11e6-84ea-29fd4207af58.gif" alt="asciicast"></a>
 <!-- markdownlint-enable line-length no-inline-html -->
 
-**Note:** For testing containers see the [dgoss](https://github.com/goss-org/goss/tree/master/extras/dgoss) wrapper.
-Also, user submitted wrapper scripts for Kubernetes [kgoss](https://github.com/goss-org/goss/tree/master/extras/kgoss)
-and Docker Compose [dcgoss](https://github.com/goss-org/goss/tree/master/extras/dcgoss).
+**Note:** For testing containers see the [dgoss](extras/dgoss/README.md) wrapper.
+Also, user submitted wrapper scripts for Kubernetes [kgoss](extras/kgoss/README.md)
+and Docker Compose [dcgoss](extras/dcgoss/README.md).
 
 **Note:** For some Docker/Kubernetes healthcheck, health endpoint, and
 container ordering examples, see the
@@ -39,55 +38,23 @@ Once the test suite is written they can be executed, waited-on, or served as a h
 ### Why use Goss?
 
 * Goss is EASY! - [Goss in 45 seconds](#goss-in-45-seconds)
-* Goss is FAST! - small-medium test suites are near instantaneous, see [benchmarks](https://github.com/goss-org/goss/wiki/Benchmarks)
+* Goss is FAST! - small-medium test suites are near instantaneous
 * Goss is SMALL! - <10MB single self-contained binary
 
 ## Installation
 
-**Note:** For macOS and Windows, see: [platform-feature-parity].
+**Note:** For macOS and Windows, see [platform support](docs/platforms.md).
 
-This will install goss and [dgoss](https://github.com/goss-org/goss/tree/master/extras/dgoss).
+Build from source or install release binaries — see [installation](docs/installation.md).
 
-**Note:** Using `curl | sh` is not recommended for production systems, use manual installation below.
-
-```bash
-# Install latest version to /usr/local/bin
-curl -fsSL https://goss.rocks/install | sh
-
-# Install v0.4.8 version to ~/bin
-curl -fsSL https://goss.rocks/install | GOSS_VER=v0.4.8 GOSS_DST=~/bin sh
-```
+This will install goss and [dgoss](extras/dgoss/README.md).
 
 <!-- --8<-- [end:intro] -->
 <!-- --8<-- [start:install] -->
 
 ### Manual installation
 
-#### Latest
-
-```bash
-curl -L https://github.com/goss-org/goss/releases/latest/download/goss-linux-amd64 -o /usr/local/bin/goss
-chmod +rx /usr/local/bin/goss
-
-curl -L https://github.com/goss-org/goss/releases/latest/download/dgoss -o /usr/local/bin/dgoss
-# Alternatively, using the latest master
-# curl -L https://raw.githubusercontent.com/goss-org/goss/master/extras/dgoss/dgoss -o /usr/local/bin/dgoss
-chmod +rx /usr/local/bin/dgoss
-```
-
-#### Specific Version
-
-```bash
-# See https://github.com/goss-org/goss/releases for release versions
-VERSION=v0.4.8
-curl -L "https://github.com/goss-org/goss/releases/download/${VERSION}/goss-linux-amd64" -o /usr/local/bin/goss
-chmod +rx /usr/local/bin/goss
-
-# (optional) dgoss docker wrapper (use 'master' for latest version)
-VERSION=v0.4.8
-curl -L "https://github.com/goss-org/goss/releases/download/${VERSION}/dgoss" -o /usr/local/bin/dgoss
-chmod +rx /usr/local/bin/dgoss
-```
+Download pre-built binaries and install wrappers as described in [installation](docs/installation.md).
 
 ### Build it yourself
 
@@ -99,11 +66,11 @@ make build
 
 ## Full Documentation
 
-[Full Documentation](https://goss.readthedocs.io/en/stable/)
+[Full documentation](docs/index.md)
 
 ## Using the container image
 
-[Using the Goss container image](https://goss.readthedocs.io/en/stable/container_image/)
+[Using the Goss container image](docs/container_image.md)
 
 ## Quick start
 
@@ -111,8 +78,8 @@ make build
 
 ### Writing a simple sshd test
 
-An initial set of tests can be derived from the system state by using the [add](https://goss.rocks/cli/#add)
-or [autoadd](https://goss.rocks/cli/#autoadd) commands.
+An initial set of tests can be derived from the system state by using the [add](docs/cli.md#add)
+or [autoadd](docs/cli.md#autoadd) commands.
 
 Let's write a simple sshd test using autoadd.
 
@@ -167,7 +134,7 @@ Total Duration: 0.021s # <- yeah, it's that fast..
 Count: 15, Failed: 0
 ```
 
-* Edit it to use [templates](https://goss.rocks/gossfile/#templates), and run with a vars file
+* Edit it to use [templates](docs/gossfile.md#templates), and run with a vars file
 
 ```console
 goss --vars vars.yaml validate
@@ -198,23 +165,23 @@ $ curl -H "Accept: application/vnd.goss-rspecish" localhost:8080/healthz
 
 Goss files can be manually edited to improve readability and expressiveness of tests.
 
-A [Json draft 7 schema](https://github.com/json-schema-org/json-schema-spec/blob/draft-07/schema.json) available
-at <https://goss.rocks/schema.yaml> makes it easier to edit simple goss.yaml files in IDEs,
+A [Json draft 7 schema](https://github.com/json-schema-org/json-schema-spec/blob/draft-07/schema.json) in
+[docs/schema.yaml](docs/schema.yaml) makes it easier to edit simple goss.yaml files in IDEs,
 providing usual coding assistance such as inline documentation, completion and static analysis.
 See #793 for screenshots.
 
 For example, to configure the Json schema in JetBrains intellij IDEA,
 follow [documented instructions](https://www.jetbrains.com/help/idea/json.html#ws_json_schema_add_custom),
 with arguments such as:
-* `schema url=https://goss.rocks/schema.yaml`
+* `schema url=docs/schema.yaml` (path from the repository root)
 * `schema version=Json schema version 7`
 * `file path pattern=*/goss.yaml`
 
 In addition, Goss files can also be further manually edited (without yet full json support) to use:
 
-* [Patterns](https://goss.rocks/gossfile/#patterns)
-* [Advanced Matchers](https://goss.rocks/gossfile/#advanced-matchers)
-* [Templates](https://goss.rocks/gossfile/#templates)
+* [Matchers and patterns](docs/gossfile.md#matchers)
+* [Advanced Matchers](docs/gossfile.md#advanced-matchers)
+* [Templates](docs/gossfile.md#templates)
 * `title` and `meta` (arbitrary data) attributes are persisted when adding other resources with `goss add`
 
 Some examples:
@@ -287,8 +254,8 @@ Full list of available Json schema validators can be found in <https://json-sche
 
 Run lightweight discovery checks before the main suite and use the results in templates, or declare
 `depends-on` to skip dependents when a prerequisite fails. See
-[gossfile — Discovery](https://goss.rocks/gossfile/#discovery) and
-[Test dependencies](https://goss.rocks/gossfile/#test-dependencies).
+[Discovery](docs/gossfile.md#discovery) and
+[Test dependencies](docs/gossfile.md#test-dependencies).
 
 ```bash
 # Pre-run discovery, then validate main gossfile (preferred)
@@ -350,7 +317,7 @@ Fixtures: [`integration-tests/goss/examples/discovery/`](integration-tests/goss/
 
 ## Limitations
 
-`goss` works well on Linux, but support on Windows & macOS is alpha. See [platform-feature-parity].
+`goss` works well on Linux, but support on Windows & macOS is alpha. See [platform support](docs/platforms.md).
 
 The following tests have limitations.
 
@@ -369,6 +336,5 @@ Service:
 * Upstart
 
 [kubernetes-simplified-health-checks]: https://medium.com/@aelsabbahy/docker-1-12-kubernetes-simplified-health-checks-and-container-ordering-with-goss-fa8debbe676c
-[platform-feature-parity]: https://goss.rocks/platforms
 
 <!-- --8<-- [end:about] -->
