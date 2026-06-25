@@ -22,7 +22,7 @@ require (
 	github.com/prometheus/common v0.68.1
 	github.com/samber/lo v1.53.0
 	github.com/stretchr/testify v1.11.1
-	github.com/tidwall/gjson v1.18.0
+	github.com/tidwall/gjson v1.19.0
 	github.com/urfave/cli/v3 v3.9.0
 	golang.org/x/sys v0.46.0
 	gopkg.in/yaml.v3 v3.0.1
