@@ -2,7 +2,7 @@
 # shellcheck source=../ci/lib/setup.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../ci/lib/setup.sh" || exit 67
 # shellcheck source=../ci/lib/goss-e2e-steps.sh
-source "$(dirname "${BASH_SOURCE[0]}")/../ci/lib/goss-e2e-steps.sh" || exit 67
+source "${REPO_ROOT}/ci/lib/goss-e2e-steps.sh" || exit 67
 # preserve current behaviour
 set -x
 
