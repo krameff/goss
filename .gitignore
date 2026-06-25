@@ -29,9 +29,5 @@ tmp/
 IMPROVEMENTS_PLAN.md
 .claude/
 .cursor/*
-!.cursor/hooks.json
-!.cursor/hooks/
-!.cursor/hooks/**
-.cursor/hooks/.md-lint-failed
 agent.md
 AGENT.md
