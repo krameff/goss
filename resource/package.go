@@ -9,6 +9,7 @@ import (
 )
 
 type Package struct {
+	DiscoveryMeta `yaml:",inline" json:",inline"`
 	Title     string  `json:"title,omitempty" yaml:"title,omitempty"`
 	Meta      meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
 	id        string  `json:"-" yaml:"-"`

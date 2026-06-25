@@ -147,6 +147,20 @@ lint-markdown:
 	$(info INFO: Starting $@)
 	./ci/lint-markdown.sh
 
+.PHONY: test-discovery-e2e
+test-discovery-e2e:
+	$(info INFO: Starting $@)
+	./ci/discovery-e2e.sh
+
+.PHONY: test-depends-on-e2e
+test-depends-on-e2e:
+	$(info INFO: Starting $@)
+	./ci/depends-on-e2e.sh
+
+.PHONY: check
+check: test test-discovery-e2e test-depends-on-e2e lint-markdown
+	$(info INFO: Starting $@)
+
 $(PYTHON):
 	$(info Creating virtualenv in $(VENV))
 	@python -m venv $(VENV)

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # shellcheck source=../ci/lib/setup.sh
 source "$(dirname "${BASH_SOURCE[0]}")/../ci/lib/setup.sh" || exit 67
+# shellcheck source=../ci/lib/goss-e2e-steps.sh
+source "$(dirname "${BASH_SOURCE[0]}")/../ci/lib/goss-e2e-steps.sh" || exit 67
 # preserve current behaviour
 set -x
 
@@ -54,6 +56,14 @@ if [[ $os == "arch" ]]; then
 else
     egrep -q 'Count: 127, Failed: 0, Skipped: 5' <<<"$out"
 fi
+
+goss_bin="/goss/$os/goss-linux-$arch"
+goss_runner() {
+  docker_exec "${goss_bin}" "$@"
+}
+
+run_discovery_e2e_steps "/goss/examples/discovery" goss_runner
+run_depends_on_e2e_steps "/goss/examples/depends-on" goss_runner
 
 if [[ ! $os == "arch" ]]; then
   docker_exec /goss/generate_goss.sh "$os" "$arch"

@@ -8,6 +8,7 @@ import (
 )
 
 type GossConfig struct {
+	Discovery    DiscoveryConfig         `json:"discovery,omitempty" yaml:"discovery,omitempty"`
 	Files        resource.FileMap        `json:"file,omitempty" yaml:"file,omitempty"`
 	Packages     resource.PackageMap     `json:"package,omitempty" yaml:"package,omitempty"`
 	Addrs        resource.AddrMap        `json:"addr,omitempty" yaml:"addr,omitempty"`
@@ -29,6 +30,24 @@ type GossConfig struct {
 
 func NewGossConfig() *GossConfig {
 	return &GossConfig{
+		Discovery: DiscoveryConfig{
+			Files:        make(resource.FileMap),
+			Packages:     make(resource.PackageMap),
+			Addrs:        make(resource.AddrMap),
+			Ports:        make(resource.PortMap),
+			Services:     make(resource.ServiceMap),
+			Users:        make(resource.UserMap),
+			Groups:       make(resource.GroupMap),
+			Commands:     make(resource.CommandMap),
+			DNS:          make(resource.DNSMap),
+			Processes:    make(resource.ProcessMap),
+			KernelParams: make(resource.KernelParamMap),
+			Mounts:       make(resource.MountMap),
+			Interfaces:   make(resource.InterfaceMap),
+			HTTPs:        make(resource.HTTPMap),
+			Matchings:    make(resource.MatchingMap),
+			Registries:   make(resource.RegistryMap),
+		},
 		Files:        make(resource.FileMap),
 		Packages:     make(resource.PackageMap),
 		Addrs:        make(resource.AddrMap),
@@ -52,6 +71,8 @@ func NewGossConfig() *GossConfig {
 // Merge consumes all the resources in g2 into c, duplicate resources
 // will be overwritten with the ones in g2
 func (c *GossConfig) Merge(g2 GossConfig) {
+	c.Discovery.Merge(g2.Discovery)
+
 	for k, v := range g2.Files {
 		mergeType(c.Files, "file", k, v)
 	}

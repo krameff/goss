@@ -1,5 +1,27 @@
 # Changelog
 
+25th June 2026
+
+### Added
+
+- **Discovery** — run lightweight checks before the main suite and expose results as template variables
+  - ([#784](https://github.com/goss-org/goss/issues/784); thanks to [@uk-bolly](https://github.com/uk-bolly) for raising the issue
+  - thanks to [@ekelali](https://github.com/ekelali) for the [`--vars` + `--format discovery` pipeline suggestion](https://github.com/goss-org/goss/issues/784#issuecomment-1251529683))
+  - `--discover <file>` runs discovery tests before the main gossfile and injects `.Discovered` for templates
+  - Inline `discovery:` in the main `-g` file is also supported; `--discover` wins when both are set
+  - `--format discovery` still exports `{"Discovered": {...}}` for tooling and CI vars files
+  - Examples: [`integration-tests/goss/examples/discovery/`](integration-tests/goss/examples/discovery/)
+- **`depends-on`** — declare test prerequisites on any resource; dependents are **skipped** (not failed) when a prerequisite test fails
+  - ([#1043](https://github.com/goss-org/goss/issues/1043); thanks to [@petkapou](https://github.com/petkapou) for raising the issue
+  - thanks to [@sshipway](https://github.com/sshipway) for the [explicit `depends-on` design feedback](https://github.com/goss-org/goss/issues/1043#issuecomment-3765767824))
+  - References use the gossfile map key, or `type:key` when the key is ambiguous across resource types
+  - Independent chains still run in parallel; only declared dependencies are serialized
+  - Composes with discovery: templates can gate which tests exist; `depends-on` orders and skips among tests in the main run
+  - Examples: [`integration-tests/goss/examples/depends-on/`](integration-tests/goss/examples/depends-on/), discover+depends-on in [`goss-with-deps.yml`](integration-tests/goss/examples/discovery/goss-with-deps.yml)
+
+---
+
+24th June 2026
 ### Security
 - CLI announce output logs resource type and ID only; no longer marshals and prints full resource JSON (fixes CodeQL clear-text logging of password and other sensitive fields)
 - Health probe debug logging records HTTP status only; no longer logs response body on non-OK status (avoids clear-text logging of password and other sensitive fields from test output)
@@ -11,6 +33,7 @@
 - Integration test fixtures: removed duplicate `service: apache2` / `service: httpd` definitions between `goss-shared.yaml` and `goss-service.yaml`; eliminates duplicate-key warnings during `validate` in CI
 
 ### Added
+
 - Multiple `--vars` files supported; vars are merged in flag order with later files overriding overlapping keys; `--vars-inline` still applies last ([#1023](https://github.com/goss-org/goss/issues/1023); thanks to [@Lirt](https://github.com/Lirt) for [PR #1024](https://github.com/goss-org/goss/pull/1024))
 
 ### PRs Incorporated

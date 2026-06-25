@@ -1,0 +1,7 @@
+{{ if .Discovered.hosts_exists }}
+file:
+  /etc/hosts:
+    exists: true
+    contents:
+      - localhost
+{{ end }}

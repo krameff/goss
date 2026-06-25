@@ -196,6 +196,7 @@ func Outputers() []string {
 	for name := range outputers {
 		list = append(list, name)
 	}
+	list = append(list, "discovery")
 	sort.Strings(list)
 	return list
 }
@@ -220,6 +221,9 @@ func FormatOptions() []string {
 
 // IsValidFormat determines if f is a valid format name based on Outputers()
 func IsValidFormat(f string) bool {
+	if f == "discovery" {
+		return true
+	}
 	for _, o := range Outputers() {
 		if o == f {
 			return true

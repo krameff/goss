@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/oleiade/reflections"
 )
 
 // ConfigOption manipulates Config
@@ -55,6 +54,7 @@ type Config struct {
 	KeyFile               string
 	VarsFiles             []string
 	VarsInline            string
+	DiscoverSpec          string
 	DisabledResourceTypes []string
 }
 
@@ -247,6 +247,14 @@ func WithVarsString(v string) ConfigOption {
 	}
 }
 
+// WithDiscoverFile sets a gossfile whose discovery: section runs before the main -g spec
+func WithDiscoverFile(f string) ConfigOption {
+	return func(c *Config) error {
+		c.DiscoverSpec = f
+		return nil
+	}
+}
+
 // WithDisabledResourceTypes ensures that any resource matching types listed will be skipped when validating
 func WithDisabledResourceTypes(t ...string) ConfigOption {
 	return func(c *Config) error {
@@ -289,13 +297,34 @@ func ValidateSections(unmarshal func(any) error, i any, whitelist map[string]boo
 
 func WhitelistAttrs(i any, format format) (map[string]bool, error) {
 	validAttrs := make(map[string]bool)
-	tags, err := reflections.Tags(i, string(format))
-	if err != nil {
-		return nil, err
+	t := reflect.TypeOf(i)
+	for t.Kind() == reflect.Ptr {
+		t = t.Elem()
 	}
-	for _, v := range tags {
-		validAttrs[strings.Split(v, ",")[0]] = true
+	if t.Kind() != reflect.Struct {
+		return validAttrs, nil
 	}
+
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		if field.Anonymous {
+			nested, err := WhitelistAttrs(reflect.New(field.Type).Elem().Interface(), format)
+			if err != nil {
+				return nil, err
+			}
+			for k, v := range nested {
+				validAttrs[k] = v
+			}
+			continue
+		}
+
+		tag := field.Tag.Get(string(format))
+		if tag == "" || tag == "-" {
+			continue
+		}
+		validAttrs[strings.Split(tag, ",")[0]] = true
+	}
+
 	return validAttrs, nil
 }
 

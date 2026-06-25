@@ -46,6 +46,12 @@ jobs:
       - name: Unit tests and coverage
         run: make cov
 
+      - name: Discovery E2E
+        run: make test-discovery-e2e
+
+      - name: Depends-on E2E
+        run: make test-depends-on-e2e
+
   integration-test-linux:
     needs: [coverage]
     name: Integration tests (linux/${{ matrix.distro }})

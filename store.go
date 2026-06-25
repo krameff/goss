@@ -62,7 +62,8 @@ func ReadJSON(filePath string) (GossConfig, error) {
 }
 
 type TmplVars struct {
-	Vars map[string]any
+	Vars       map[string]any
+	Discovered map[string]any
 }
 
 func (t *TmplVars) Env() map[string]string {
@@ -97,6 +98,44 @@ func loadVars(varsFiles []string, varsInline string) (map[string]any, error) {
 	}
 
 	return mergedVars, nil
+}
+
+func loadVarsForTemplates(varsFiles []string, varsInline string, discovered map[string]bool) (map[string]any, error) {
+	mergedVars, err := loadVars(varsFiles, "")
+	if err != nil {
+		return nil, err
+	}
+
+	if len(discovered) > 0 {
+		disc := discoveredFromVars(mergedVars)
+		for k, v := range discovered {
+			disc[k] = v
+		}
+		mergedVars["Discovered"] = disc
+	}
+
+	varsExtra, err := varsFromString(varsInline)
+	if err != nil {
+		return nil, fmt.Errorf("loading inline vars\n%w", err)
+	}
+
+	for k, v := range varsExtra {
+		mergedVars[k] = v
+	}
+
+	return mergedVars, nil
+}
+
+func discoveredFromVars(vars map[string]any) map[string]any {
+	discovered := map[string]any{}
+	if raw, ok := vars["Discovered"]; ok {
+		if typed, ok := raw.(map[string]any); ok {
+			for k, v := range typed {
+				discovered[k] = v
+			}
+		}
+	}
+	return discovered
 }
 
 func varsFromFile(varsFile string) (map[string]any, error) {
@@ -170,7 +209,7 @@ func ReadJSONData(data []byte, detectFormat bool) (GossConfig, error) {
 func RenderJSON(c *util.Config) (string, error) {
 	var err error
 	debug = c.Debug
-	currentTemplateFilter, err = NewTemplateFilter(c.VarsFiles, c.VarsInline)
+	currentTemplateFilter, err = NewTemplateFilter(c.VarsFiles, c.VarsInline, nil)
 	if err != nil {
 		return "", err
 	}

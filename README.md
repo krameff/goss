@@ -283,6 +283,26 @@ rendered_goss.yaml: fail: service.sshd: skip is required
 
 Full list of available Json schema validators can be found in <https://json-schema.org/implementations.html#validator-command%20line>
 
+### Discovery and test dependencies
+
+Run lightweight discovery checks before the main suite and use the results in templates, or declare
+`depends-on` to skip dependents when a prerequisite fails. See
+[gossfile — Discovery](https://goss.rocks/gossfile/#discovery) and
+[Test dependencies](https://goss.rocks/gossfile/#test-dependencies).
+
+```bash
+# Pre-run discovery, then validate main gossfile (preferred)
+goss validate -g goss.yml --discover discovery.yaml
+
+# Or inline discovery: in the same gossfile
+goss validate -g goss-inline.yml
+
+# Export discovery results for external tooling (unchanged)
+goss validate -g discovery.yaml --format discovery
+```
+
+Fixtures: [`integration-tests/goss/examples/discovery/`](integration-tests/goss/examples/discovery/)
+
 <!-- --8<-- [end:quickstart] -->
 <!-- --8<-- [start:about] -->
 

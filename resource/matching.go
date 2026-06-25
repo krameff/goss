@@ -12,6 +12,7 @@ import (
 )
 
 type Matching struct {
+	DiscoveryMeta `yaml:",inline" json:",inline"`
 	Title    string  `json:"title,omitempty" yaml:"title,omitempty"`
 	Meta     meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
 	Content  any     `json:"content,omitempty" yaml:"content,omitempty"`
