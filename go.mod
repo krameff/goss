@@ -19,7 +19,7 @@ require (
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pmezard/go-difflib v1.0.0
 	github.com/prometheus/client_golang v1.23.2
-	github.com/prometheus/common v0.68.1
+	github.com/prometheus/common v0.69.0
 	github.com/samber/lo v1.53.0
 	github.com/stretchr/testify v1.11.1
 	github.com/tidwall/gjson v1.19.0
