@@ -2,6 +2,10 @@
 
 25th June 2026
 
+### Updated
+
+- Workflows updated to march branch naming
+
 ### Added
 
 - **Discovery** — run lightweight checks before the main suite and expose results as template variables
