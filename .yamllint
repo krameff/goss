@@ -5,6 +5,9 @@ ignore:
   # uses go templates (these are invalid yaml files)
   - integration-tests/goss/goss-service.yaml
   - integration-tests/goss/goss-shared.yaml
+  - integration-tests/goss/examples/discovery/goss.yml
+  - integration-tests/goss/examples/discovery/goss-inline.yml
+  - integration-tests/goss/examples/discovery/goss-with-deps.yml
   - docs/goss.yaml
 
 rules:

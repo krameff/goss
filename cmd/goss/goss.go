@@ -45,6 +45,7 @@ func newRuntimeConfigFromCLI(c *cli.Command) *util.Config {
 		Username:          c.String("username"),
 		VarsFiles:         c.StringSlice("vars"),
 		VarsInline:        c.String("vars-inline"),
+		DiscoverSpec:      c.String("discover"),
 	}
 
 	if c.Bool("no-color") {
@@ -149,6 +150,11 @@ func main() {
 						Usage:   "Max number of tests to run concurrently",
 						Value:   50,
 						Sources: cli.EnvVars("GOSS_MAX_CONCURRENT"),
+					},
+					&cli.StringFlag{
+						Name:    "discover",
+						Usage:   "Gossfile with discovery: tests to run before the main -g gossfile",
+						Sources: cli.EnvVars("GOSS_DISCOVER"),
 					},
 				},
 				Action: func(ctx context.Context, c *cli.Command) error {

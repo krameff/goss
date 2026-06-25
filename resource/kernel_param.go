@@ -9,13 +9,14 @@ import (
 )
 
 type KernelParam struct {
-	Title string  `json:"title,omitempty" yaml:"title,omitempty"`
-	Meta  meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
-	id    string  `json:"-" yaml:"-"`
-	Name  string  `json:"name,omitempty" yaml:"name,omitempty"`
-	Key   string  `json:"-" yaml:"-"`
-	Value matcher `json:"value" yaml:"value"`
-	Skip  bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
+	DiscoveryMeta `yaml:",inline" json:",inline"`
+	Title         string  `json:"title,omitempty" yaml:"title,omitempty"`
+	Meta          meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
+	id            string  `json:"-" yaml:"-"`
+	Name          string  `json:"name,omitempty" yaml:"name,omitempty"`
+	Key           string  `json:"-" yaml:"-"`
+	Value         matcher `json:"value" yaml:"value"`
+	Skip          bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
 }
 
 const (

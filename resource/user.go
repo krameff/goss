@@ -9,17 +9,18 @@ import (
 )
 
 type User struct {
-	Title    string  `json:"title,omitempty" yaml:"title,omitempty"`
-	Meta     meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
-	id       string  `json:"-" yaml:"-"`
-	Username string  `json:"username,omitempty" yaml:"username,omitempty"`
-	Exists   matcher `json:"exists" yaml:"exists"`
-	UID      matcher `json:"uid,omitempty" yaml:"uid,omitempty"`
-	GID      matcher `json:"gid,omitempty" yaml:"gid,omitempty"`
-	Groups   matcher `json:"groups,omitempty" yaml:"groups,omitempty"`
-	Home     matcher `json:"home,omitempty" yaml:"home,omitempty"`
-	Shell    matcher `json:"shell,omitempty" yaml:"shell,omitempty"`
-	Skip     bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
+	DiscoveryMeta `yaml:",inline" json:",inline"`
+	Title         string  `json:"title,omitempty" yaml:"title,omitempty"`
+	Meta          meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
+	id            string  `json:"-" yaml:"-"`
+	Username      string  `json:"username,omitempty" yaml:"username,omitempty"`
+	Exists        matcher `json:"exists" yaml:"exists"`
+	UID           matcher `json:"uid,omitempty" yaml:"uid,omitempty"`
+	GID           matcher `json:"gid,omitempty" yaml:"gid,omitempty"`
+	Groups        matcher `json:"groups,omitempty" yaml:"groups,omitempty"`
+	Home          matcher `json:"home,omitempty" yaml:"home,omitempty"`
+	Shell         matcher `json:"shell,omitempty" yaml:"shell,omitempty"`
+	Skip          bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
 }
 
 const (

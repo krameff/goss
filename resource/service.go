@@ -9,14 +9,15 @@ import (
 )
 
 type Service struct {
-	Title     string  `json:"title,omitempty" yaml:"title,omitempty"`
-	Meta      meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
-	id        string  `json:"-" yaml:"-"`
-	Name      string  `json:"name,omitempty" yaml:"name,omitempty"`
-	Enabled   matcher `json:"enabled" yaml:"enabled"`
-	Running   matcher `json:"running" yaml:"running"`
-	Skip      bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
-	RunLevels matcher `json:"runlevels,omitempty" yaml:"runlevels,omitempty"`
+	DiscoveryMeta `yaml:",inline" json:",inline"`
+	Title         string  `json:"title,omitempty" yaml:"title,omitempty"`
+	Meta          meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
+	id            string  `json:"-" yaml:"-"`
+	Name          string  `json:"name,omitempty" yaml:"name,omitempty"`
+	Enabled       matcher `json:"enabled" yaml:"enabled"`
+	Running       matcher `json:"running" yaml:"running"`
+	Skip          bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
+	RunLevels     matcher `json:"runlevels,omitempty" yaml:"runlevels,omitempty"`
 }
 
 const (

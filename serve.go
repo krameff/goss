@@ -38,7 +38,7 @@ func newHealthHandler(c *util.Config) (*healthHandler, error) {
 	color.NoColor = true
 	cache := cache.New(c.Cache, 30*time.Second)
 
-	cfg, err := getGossConfig(c.VarsFiles, c.VarsInline, c.Spec)
+	cfg, err := getGossConfig(c.VarsFiles, c.VarsInline, c.Spec, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -127,7 +127,10 @@ func (h healthHandler) output(trc <-chan []resource.TestResult, outputer outputs
 func (h healthHandler) validate() [][]resource.TestResult {
 	h.sys = system.New(h.c.PackageManager)
 	res := make([][]resource.TestResult, 0)
-	tr := validate(h.sys, h.gossConfig, h.c.DisabledResourceTypes, h.maxConcurrent)
+	tr, err := runValidation(h.sys, h.gossConfig, h.c.DisabledResourceTypes, h.maxConcurrent)
+	if err != nil {
+		return res
+	}
 	for i := range tr {
 		res = append(res, i)
 	}

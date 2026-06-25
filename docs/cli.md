@@ -311,6 +311,7 @@ Exits with status 0 on success, non-0 otherwise.
     - `tap`
     - `prometheus` - Prometheus compatible output.
     - `silent` - No output. Avoids exposing system information (e.g. when serving tests as a healthcheck endpoint)
+    - `discovery` - JSON vars output from [discovery tests](../gossfile.md#discovery); always exits 0 on successful execution
 
 `--format-options`, `-o`
 :   Output format option:
@@ -332,6 +333,13 @@ Exits with status 0 on success, non-0 otherwise.
 
 `--max-concurrent <num>`
 :   Max number of tests to run concurrently
+
+`--discover <gossfile>`
+:   Gossfile containing `discovery:` tests to run before the main `-g` gossfile. Results are
+    injected as `.Discovered` for template rendering. When the main gossfile also has an inline
+    `discovery:` section, the `--discover` file wins. Environment variable: `GOSS_DISCOVER`.
+
+    See [discovery](../gossfile.md#discovery).
 
 `--color`/`--no-color`
 :   Force color or disable color
@@ -355,6 +363,21 @@ Exits with status 0 on success, non-0 otherwise.
     [...]
     Total Duration: 0.002s
     Count: 10, Failed: 2, Skipped: 0
+
+    $ goss validate -g goss.yml --discover discovery.yaml --format documentation
+    File: /etc/hosts: exists: matches expectation: true
+    File: /etc/hosts: contents: matches expectation: ["localhost"]
+    [...]
+    Total Duration: 0.000s
+    Count: 2, Failed: 0, Skipped: 0
+
+    $ goss --vars <(goss validate -g discovery.yaml --format discovery) \
+        validate -g goss.yml --format documentation
+    File: /etc/hosts: exists: matches expectation: true
+    File: /etc/hosts: contents: matches expectation: ["localhost"]
+    [...]
+    Total Duration: 0.000s
+    Count: 2, Failed: 0, Skipped: 0
 
     $ curl -s https://static/or/dynamic/goss.json | goss validate
     ...F.F

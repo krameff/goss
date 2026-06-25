@@ -1,0 +1,11 @@
+file:
+  base:
+    path: /nonexistent/goss-depends-on-base
+    exists: true
+
+command:
+  dependent:
+    depends-on:
+      - base
+    exec: /bin/false
+    exit-status: 0

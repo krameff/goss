@@ -11,16 +11,17 @@ import (
 )
 
 type DNS struct {
-	Title       string  `json:"title,omitempty" yaml:"title,omitempty"`
-	Meta        meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
-	id          string  `json:"-" yaml:"-"`
-	Resolve     string  `json:"resolve,omitempty" yaml:"resolve,omitempty"`
-	Resolveable matcher `json:"resolveable,omitempty" yaml:"resolveable,omitempty"`
-	Resolvable  matcher `json:"resolvable" yaml:"resolvable"`
-	Addrs       matcher `json:"addrs,omitempty" yaml:"addrs,omitempty"`
-	Timeout     int     `json:"timeout" yaml:"timeout"`
-	Server      string  `json:"server,omitempty" yaml:"server,omitempty"`
-	Skip        bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
+	DiscoveryMeta `yaml:",inline" json:",inline"`
+	Title         string  `json:"title,omitempty" yaml:"title,omitempty"`
+	Meta          meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
+	id            string  `json:"-" yaml:"-"`
+	Resolve       string  `json:"resolve,omitempty" yaml:"resolve,omitempty"`
+	Resolveable   matcher `json:"resolveable,omitempty" yaml:"resolveable,omitempty"`
+	Resolvable    matcher `json:"resolvable" yaml:"resolvable"`
+	Addrs         matcher `json:"addrs,omitempty" yaml:"addrs,omitempty"`
+	Timeout       int     `json:"timeout" yaml:"timeout"`
+	Server        string  `json:"server,omitempty" yaml:"server,omitempty"`
+	Skip          bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
 }
 
 const (
