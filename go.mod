@@ -26,7 +26,7 @@ require (
 	github.com/urfave/cli/v3 v3.9.0
 	golang.org/x/sys v0.45.0
 	gopkg.in/yaml.v3 v3.0.1
-	gotest.tools/v3 v3.5.1
+	gotest.tools/v3 v3.5.2
 )
 
 require (
