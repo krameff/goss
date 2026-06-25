@@ -1,11 +1,12 @@
 name: Golang ci
 on:
-  # don't build any branch other than master (and prs) when git pushed
+  # don't build any branch other than main (and prs) when git pushed
   pull_request: {}
   push:
     branches:
-      - master
+      - main
       - "/^v\\d+\\.\\d+(\\.\\d+)?(-\\S*)?$/"
+      - devel
     paths-ignore:
       - "**/*.md"
 

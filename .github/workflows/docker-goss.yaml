@@ -3,7 +3,8 @@ name: Docker image for Goss
 on:
   push:
     branches:
-      - master
+      - main
+      - devel
     tags:
       - "v*"
   workflow_dispatch:
@@ -45,7 +46,7 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/goss
 
       - name: Get latest git tag
-        if: github.ref_name == 'master'
+        if: github.ref_name == 'main'
         id: get-latest-tag
         run: |
           # source: https://github.com/actions-ecosystem/action-get-latest-tag/blob/main/entrypoint.sh
@@ -59,7 +60,7 @@ jobs:
           echo "Latest tag: $latest_tag"
 
       - name: Set short git commit SHA
-        if: github.ref_name == 'master'
+        if: github.ref_name == 'main'
         run: |
           calculatedSha=$(git rev-parse --short ${{ github.sha }})
           echo "COMMIT_SHORT_SHA=$calculatedSha" >> $GITHUB_ENV
@@ -68,8 +69,8 @@ jobs:
       - name: Get the current version of Go from project.
         run: echo "GO_VERSION_FROM_PROJECT=$(go mod edit -json | jq -r .Go)" >> $GITHUB_ENV
 
-      - name: Build master goss image
-        if: github.ref_name == 'master'
+      - name: Build main goss image
+        if: github.ref_name == 'main'
         uses: docker/build-push-action@v7.2.0
         with:
           build-args: |
@@ -78,7 +79,7 @@ jobs:
           context: .
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/goss:master
+            ghcr.io/${{ github.repository_owner }}/goss:main
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ env.PLATFORMS }}
 
@@ -97,13 +98,13 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           platforms: ${{ env.PLATFORMS }}
 
-      - name: Run Trivy vulnerability scanner (master)
-        if: github.ref_name == 'master'
+      - name: Run Trivy vulnerability scanner (main)
+        if: github.ref_name == 'main'
         uses: aquasecurity/trivy-action@v0.36.0
         with:
-          image-ref: ghcr.io/${{ github.repository_owner }}/goss:master
+          image-ref: ghcr.io/${{ github.repository_owner }}/goss:main
           format: sarif
-          output: trivy-master-results.sarif
+          output: trivy-main-results.sarif
 
       - name: Run Trivy vulnerability scanner (release)
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
@@ -113,11 +114,11 @@ jobs:
           format: sarif
           output: trivy-release-results.sarif
 
-      - name: Upload Trivy scan results (master) to GitHub Security tab
-        if: github.ref_name == 'master'
+      - name: Upload Trivy scan results (main) to GitHub Security tab
+        if: github.ref_name == 'main'
         uses: github/codeql-action/upload-sarif@v4
         with:
-          sarif_file: trivy-master-results.sarif
+          sarif_file: trivy-main-results.sarif
 
       - name: Upload Trivy scan results (release) to GitHub Security tab
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
