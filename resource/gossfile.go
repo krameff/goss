@@ -7,11 +7,11 @@ import (
 
 type Gossfile struct {
 	DiscoveryMeta `yaml:",inline" json:",inline"`
-	Title string `json:"title,omitempty" yaml:"title,omitempty"`
-	Meta  meta   `json:"meta,omitempty" yaml:"meta,omitempty"`
-	Path  string `json:"-" yaml:"-"`
-	Skip  bool   `json:"skip,omitempty" yaml:"skip,omitempty"`
-	File  string `json:"file,omitempty" yaml:"file,omitempty"`
+	Title         string `json:"title,omitempty" yaml:"title,omitempty"`
+	Meta          meta   `json:"meta,omitempty" yaml:"meta,omitempty"`
+	Path          string `json:"-" yaml:"-"`
+	Skip          bool   `json:"skip,omitempty" yaml:"skip,omitempty"`
+	File          string `json:"file,omitempty" yaml:"file,omitempty"`
 }
 
 const (

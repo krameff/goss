@@ -10,18 +10,18 @@ import (
 
 type Mount struct {
 	DiscoveryMeta `yaml:",inline" json:",inline"`
-	Title      string  `json:"title,omitempty" yaml:"title,omitempty"`
-	Meta       meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
-	id         string  `json:"-" yaml:"-"`
-	MountPoint string  `json:"mountpoint,omitempty" yaml:"mountpoint,omitempty"`
-	Exists     matcher `json:"exists" yaml:"exists"`
-	Opts       matcher `json:"opts,omitempty" yaml:"opts,omitempty"`
-	VfsOpts    matcher `json:"vfs-opts,omitempty" yaml:"vfs-opts,omitempty"`
-	Source     matcher `json:"source,omitempty" yaml:"source,omitempty"`
-	Filesystem matcher `json:"filesystem,omitempty" yaml:"filesystem,omitempty"`
-	Timeout    int     `json:"timeout" yaml:"timeout"`
-	Skip       bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
-	Usage      matcher `json:"usage,omitempty" yaml:"usage,omitempty"`
+	Title         string  `json:"title,omitempty" yaml:"title,omitempty"`
+	Meta          meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
+	id            string  `json:"-" yaml:"-"`
+	MountPoint    string  `json:"mountpoint,omitempty" yaml:"mountpoint,omitempty"`
+	Exists        matcher `json:"exists" yaml:"exists"`
+	Opts          matcher `json:"opts,omitempty" yaml:"opts,omitempty"`
+	VfsOpts       matcher `json:"vfs-opts,omitempty" yaml:"vfs-opts,omitempty"`
+	Source        matcher `json:"source,omitempty" yaml:"source,omitempty"`
+	Filesystem    matcher `json:"filesystem,omitempty" yaml:"filesystem,omitempty"`
+	Timeout       int     `json:"timeout" yaml:"timeout"`
+	Skip          bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
+	Usage         matcher `json:"usage,omitempty" yaml:"usage,omitempty"`
 }
 
 const (

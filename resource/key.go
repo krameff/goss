@@ -5,7 +5,7 @@ import "reflect"
 // YAMLKey returns the gossfile map key for a resource.
 func YAMLKey(res Resource) string {
 	value := reflect.ValueOf(res)
-	if value.Kind() == reflect.Ptr {
+	if value.Kind() == reflect.Pointer {
 		value = value.Elem()
 	}
 	field := value.FieldByName("id")

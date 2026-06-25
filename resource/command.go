@@ -14,15 +14,15 @@ import (
 
 type Command struct {
 	DiscoveryMeta `yaml:",inline" json:",inline"`
-	Title      string  `json:"title,omitempty" yaml:"title,omitempty"`
-	Meta       meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
-	id         string  `json:"-" yaml:"-"`
-	Exec       string  `json:"exec,omitempty" yaml:"exec,omitempty"`
-	ExitStatus matcher `json:"exit-status" yaml:"exit-status"`
-	Stdout     matcher `json:"stdout" yaml:"stdout"`
-	Stderr     matcher `json:"stderr" yaml:"stderr"`
-	Timeout    int     `json:"timeout" yaml:"timeout"`
-	Skip       bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
+	Title         string  `json:"title,omitempty" yaml:"title,omitempty"`
+	Meta          meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
+	id            string  `json:"-" yaml:"-"`
+	Exec          string  `json:"exec,omitempty" yaml:"exec,omitempty"`
+	ExitStatus    matcher `json:"exit-status" yaml:"exit-status"`
+	Stdout        matcher `json:"stdout" yaml:"stdout"`
+	Stderr        matcher `json:"stderr" yaml:"stderr"`
+	Timeout       int     `json:"timeout" yaml:"timeout"`
+	Skip          bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
 }
 
 const (

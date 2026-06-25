@@ -7,7 +7,6 @@ import (
 	"reflect"
 	"strings"
 	"time"
-
 )
 
 // ConfigOption manipulates Config
@@ -298,7 +297,7 @@ func ValidateSections(unmarshal func(any) error, i any, whitelist map[string]boo
 func WhitelistAttrs(i any, format format) (map[string]bool, error) {
 	validAttrs := make(map[string]bool)
 	t := reflect.TypeOf(i)
-	for t.Kind() == reflect.Ptr {
+	for t.Kind() == reflect.Pointer {
 		t = t.Elem()
 	}
 	if t.Kind() != reflect.Struct {
