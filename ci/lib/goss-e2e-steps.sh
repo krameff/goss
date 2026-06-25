@@ -1,16 +1,21 @@
 #!/usr/bin/env bash
 # Shared discovery and depends-on E2E assertion steps.
 # Callers define a goss_runner function, then invoke:
-#   run_discovery_e2e_steps <examples-dir> goss_runner
-#   run_depends_on_e2e_steps <examples-dir> goss_runner
+#   run_discovery_e2e_steps <examples-dir> goss_runner [fixture-check-dir]
+#   run_depends_on_e2e_steps <examples-dir> goss_runner [fixture-check-dir]
+#
+# examples-dir is passed to goss_runner (e.g. /goss/examples/discovery in Docker).
+# fixture-check-dir defaults to examples-dir; set it to the host checkout path when
+# examples-dir is only valid inside the test container.
 
 run_discovery_e2e_steps() {
   local examples_dir="$1"
   local runner="$2"
+  local fixture_dir="${3:-${examples_dir}}"
 
   for f in discovery.yaml goss.yml goss-inline.yml goss-with-deps.yml; do
-    if [[ ! -f "${examples_dir}/${f}" ]]; then
-      echo "discovery example fixture missing: ${examples_dir}/${f}" >&2
+    if [[ ! -f "${fixture_dir}/${f}" ]]; then
+      echo "discovery example fixture missing: ${fixture_dir}/${f}" >&2
       return 1
     fi
   done
@@ -43,9 +48,10 @@ run_discovery_e2e_steps() {
 run_depends_on_e2e_steps() {
   local examples_dir="$1"
   local runner="$2"
+  local fixture_dir="${3:-${examples_dir}}"
 
-  if [[ ! -f "${examples_dir}/goss.yml" ]]; then
-    echo "depends-on example fixture missing under ${examples_dir}" >&2
+  if [[ ! -f "${fixture_dir}/goss.yml" ]]; then
+    echo "depends-on example fixture missing under ${fixture_dir}" >&2
     return 1
   fi
 

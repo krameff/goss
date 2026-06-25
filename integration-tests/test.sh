@@ -62,8 +62,10 @@ goss_runner() {
   docker_exec "${goss_bin}" "$@"
 }
 
-run_discovery_e2e_steps "/goss/examples/discovery" goss_runner
-run_depends_on_e2e_steps "/goss/examples/depends-on" goss_runner
+run_discovery_e2e_steps "/goss/examples/discovery" goss_runner \
+  "${REPO_ROOT}/integration-tests/goss/examples/discovery"
+run_depends_on_e2e_steps "/goss/examples/depends-on" goss_runner \
+  "${REPO_ROOT}/integration-tests/goss/examples/depends-on"
 
 if [[ ! $os == "arch" ]]; then
   docker_exec /goss/generate_goss.sh "$os" "$arch"
