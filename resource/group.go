@@ -9,13 +9,14 @@ import (
 )
 
 type Group struct {
-	Title     string  `json:"title,omitempty" yaml:"title,omitempty"`
-	Meta      meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
-	id        string  `json:"-" yaml:"-"`
-	Groupname string  `json:"groupname,omitempty" yaml:"groupname,omitempty"`
-	Exists    matcher `json:"exists" yaml:"exists"`
-	GID       matcher `json:"gid,omitempty" yaml:"gid,omitempty"`
-	Skip      bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
+	DiscoveryMeta `yaml:",inline" json:",inline"`
+	Title         string  `json:"title,omitempty" yaml:"title,omitempty"`
+	Meta          meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
+	id            string  `json:"-" yaml:"-"`
+	Groupname     string  `json:"groupname,omitempty" yaml:"groupname,omitempty"`
+	Exists        matcher `json:"exists" yaml:"exists"`
+	GID           matcher `json:"gid,omitempty" yaml:"gid,omitempty"`
+	Skip          bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
 }
 
 const (

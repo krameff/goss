@@ -1,12 +1,12 @@
 ---
 user:
-  travis:
+  runner:
     exists: true
     uid: 65534
     gid: 65534
     groups:
     - _developers
-    home: /Users/travis
+    home: /Users/runner
     shell: /sbin/nologin
 
     # TODO: needs implementation

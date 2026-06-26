@@ -9,12 +9,13 @@ import (
 )
 
 type Process struct {
-	Title   string  `json:"title,omitempty" yaml:"title,omitempty"`
-	Meta    meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
-	id      string  `json:"-" yaml:"-"`
-	Comm    string  `json:"comm,omitempty" yaml:"comm,omitempty"`
-	Running matcher `json:"running" yaml:"running"`
-	Skip    bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
+	DiscoveryMeta `yaml:",inline" json:",inline"`
+	Title         string  `json:"title,omitempty" yaml:"title,omitempty"`
+	Meta          meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
+	id            string  `json:"-" yaml:"-"`
+	Comm          string  `json:"comm,omitempty" yaml:"comm,omitempty"`
+	Running       matcher `json:"running" yaml:"running"`
+	Skip          bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
 }
 
 const (

@@ -16,6 +16,8 @@ type Resource interface {
 	SetSkip()
 	TypeKey() string
 	TypeName() string
+	GetRegister() string
+	GetDependsOn() []string
 }
 
 var (

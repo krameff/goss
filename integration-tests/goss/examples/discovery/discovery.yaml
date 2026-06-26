@@ -1,0 +1,5 @@
+discovery:
+  file:
+    /etc/hosts:
+      register: hosts_exists
+      exists: true

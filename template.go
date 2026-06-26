@@ -16,13 +16,26 @@ import (
 type TemplateFilter func([]byte) ([]byte, error)
 
 // NewTemplateFilter creates a new Template Filter based in the file and inline variables.
-func NewTemplateFilter(varsFile string, varsInline string) (func([]byte) ([]byte, error), error) {
-	vars, err := loadVars(varsFile, varsInline)
+func NewTemplateFilter(varsFiles []string, varsInline string, discovered map[string]bool) (func([]byte) ([]byte, error), error) {
+	return newTemplateFilter(varsFiles, varsInline, discovered, "error")
+}
+
+// NewPeekTemplateFilter renders templates before discovery results exist. Missing
+// .Discovered keys evaluate as false instead of failing template execution.
+func NewPeekTemplateFilter(varsFiles []string, varsInline string) (TemplateFilter, error) {
+	return newTemplateFilter(varsFiles, varsInline, nil, "zero")
+}
+
+func newTemplateFilter(varsFiles []string, varsInline string, discovered map[string]bool, missingKey string) (TemplateFilter, error) {
+	vars, err := loadVarsForTemplates(varsFiles, varsInline, discovered)
 	if err != nil {
-		return nil, fmt.Errorf("failed while loading vars file %q: %v", varsFile, err)
+		return nil, fmt.Errorf("failed while loading vars files %q: %v", varsFiles, err)
 	}
 
-	tVars := &TmplVars{Vars: vars}
+	tVars := &TmplVars{
+		Vars:       vars,
+		Discovered: discoveredFromVars(vars),
+	}
 
 	f := func(data []byte) ([]byte, error) {
 		t := template.New("test").Funcs(sprig.TxtFuncMap()).Funcs(funcMap)
@@ -32,7 +45,7 @@ func NewTemplateFilter(varsFile string, varsInline string) (func([]byte) ([]byte
 			return []byte{}, err
 		}
 
-		tmpl.Option("missingkey=error")
+		tmpl.Option("missingkey=" + missingKey)
 		var doc bytes.Buffer
 
 		err = tmpl.Execute(&doc, tVars)

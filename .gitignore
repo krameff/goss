@@ -28,6 +28,6 @@ tmp/
 # AI
 IMPROVEMENTS_PLAN.md
 .claude/
-.cursor/
+.cursor/*
 agent.md
 AGENT.md

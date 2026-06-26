@@ -18,13 +18,25 @@ import (
 	"github.com/goss-org/goss/util"
 )
 
-func getGossConfig(vars string, varsInline string, specFile string) (cfg *GossConfig, err error) {
+func getGossConfig(varsFiles []string, varsInline string, specFile string, discovered map[string]bool) (cfg *GossConfig, err error) {
+	return loadGossConfig(varsFiles, varsInline, specFile, discovered, false)
+}
+
+func getGossConfigPeek(varsFiles []string, varsInline string, specFile string) (*GossConfig, error) {
+	return loadGossConfig(varsFiles, varsInline, specFile, nil, true)
+}
+
+func loadGossConfig(varsFiles []string, varsInline string, specFile string, discovered map[string]bool, peek bool) (cfg *GossConfig, err error) {
 	// handle stdin
 	var fh *os.File
 	var path, source string
 	var gossConfig GossConfig
 
-	currentTemplateFilter, err = NewTemplateFilter(vars, varsInline)
+	if peek {
+		currentTemplateFilter, err = NewPeekTemplateFilter(varsFiles, varsInline)
+	} else {
+		currentTemplateFilter, err = NewTemplateFilter(varsFiles, varsInline, discovered)
+	}
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +76,7 @@ func getGossConfig(vars string, varsInline string, specFile string) (cfg *GossCo
 		return nil, err
 	}
 
-	if len(gossConfig.Resources()) == 0 {
+	if len(gossConfig.Resources()) == 0 && gossConfig.Discovery.IsEmpty() {
 		return nil, fmt.Errorf("found 0 tests, source: %v", source)
 	}
 
@@ -85,26 +97,26 @@ func getOutputer(c *bool, format string) (outputs.Outputer, error) {
 // ValidateResults performs validation and provides programmatic access to validation results
 // no retries or outputs are supported
 func ValidateResults(c *util.Config) (results <-chan []resource.TestResult, err error) {
-	gossConfig, err := getGossConfig(c.Vars, c.VarsInline, c.Spec)
+	gossConfig, err := loadGossConfigWithDiscover(c)
 	if err != nil {
 		return nil, err
 	}
 
 	sys := system.New(c.PackageManager)
 
-	return validate(sys, *gossConfig, c.DisabledResourceTypes, c.MaxConcurrent), nil
+	return runValidation(sys, *gossConfig, c.DisabledResourceTypes, c.MaxConcurrent)
 }
 
 // Validate performs validation, writes formatted output to stdout by default
 // and supports retries and more, this is the full featured Validate used
-// by the typical CLI invocation and will produce output to StdOut.  Use
+// by the CLI invocation and will produce output to StdOut.  Use
 // ValidateResults for programmatic access
 func Validate(c *util.Config) (code int, err error) {
 	err = setLogLevel(c)
 	if err != nil {
 		return 1, err
 	}
-	gossConfig, err := getGossConfig(c.Vars, c.VarsInline, c.Spec)
+	gossConfig, err := loadGossConfigWithDiscover(c)
 	if err != nil {
 		return 78, err
 	}
@@ -112,10 +124,11 @@ func Validate(c *util.Config) (code int, err error) {
 }
 
 func ValidateConfig(c *util.Config, gossConfig *GossConfig) (code int, err error) {
+	if c.OutputFormat == "discovery" {
+		return validateDiscoveryConfig(c, gossConfig)
+	}
+
 	// Needed for contains-elements
-	// Maybe we don't use this and use custom
-	// contain_element_matcher is needed because it's single entry to avoid
-	// transform message
 	format.UseStringerRepresentation = true
 	outputConfig := util.OutputConfig{
 		FormatOptions: c.FormatOptions,
@@ -138,7 +151,10 @@ func ValidateConfig(c *util.Config, gossConfig *GossConfig) (code int, err error
 	i := 1
 	startTime := time.Now()
 	for {
-		out := validate(sys, *gossConfig, c.DisabledResourceTypes, c.MaxConcurrent)
+		out, err := runValidation(sys, *gossConfig, c.DisabledResourceTypes, c.MaxConcurrent)
+		if err != nil {
+			return 1, err
+		}
 		exitCode := outputer.Output(ofh, out, outputConfig)
 		if retryTimeout == 0 || exitCode == 0 {
 			return exitCode, nil
@@ -148,7 +164,6 @@ func ValidateConfig(c *util.Config, gossConfig *GossConfig) (code int, err error
 			return 3, fmt.Errorf("timeout of %s reached before tests entered a passing state", retryTimeout)
 		}
 		color.Red("Retrying in %s (elapsed/timeout time: %.3fs/%s)\n\n\n", sleep, elapsed.Seconds(), retryTimeout)
-		// Reset cache
 		sys = system.New(c.PackageManager)
 		time.Sleep(sleep)
 		i++
@@ -156,16 +171,42 @@ func ValidateConfig(c *util.Config, gossConfig *GossConfig) (code int, err error
 	}
 }
 
-func validate(sys *system.System, gossConfig GossConfig, skipList []string, maxConcurrent int) <-chan []resource.TestResult {
+func validateDiscoveryConfig(c *util.Config, gossConfig *GossConfig) (code int, err error) {
+	sys := system.New(c.PackageManager)
+	discovered, err := validateDiscovery(sys, *gossConfig, c.MaxConcurrent)
+	if err != nil {
+		return 1, err
+	}
+
+	var ofh io.Writer = os.Stdout
+	if c.OutputWriter != nil {
+		ofh = c.OutputWriter
+	}
+
+	outputConfig := util.OutputConfig{
+		FormatOptions: c.FormatOptions,
+	}
+	discoveryOutput := outputs.Discovery{}
+	return discoveryOutput.Output(ofh, discovered, outputConfig), nil
+}
+
+func runValidation(sys *system.System, gossConfig GossConfig, skipList []string, maxConcurrent int) (<-chan []resource.TestResult, error) {
+	resources := gossConfig.Resources()
+	applyDisabledTypes(resources, skipList)
+
+	if hasDependencies(resources) {
+		return validateWithDependencies(sys, resources, maxConcurrent)
+	}
+
+	return validateParallel(sys, resources, maxConcurrent), nil
+}
+
+func validateParallel(sys *system.System, resources []resource.Resource, maxConcurrent int) <-chan []resource.TestResult {
 	out := make(chan []resource.TestResult)
 	in := make(chan resource.Resource)
 
 	go func() {
-		for _, t := range gossConfig.Resources() {
-			if util.IsValueInList(t.TypeName(), skipList) || util.IsValueInList(t.TypeKey(), skipList) {
-				t.SetSkip()
-			}
-
+		for _, t := range resources {
 			in <- t
 		}
 		close(in)

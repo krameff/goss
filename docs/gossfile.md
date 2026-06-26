@@ -887,6 +887,182 @@ matching:
             - {not: {have-key: "nested2"}}
 ```
 
+## Discovery
+
+Discovery tests run lightweight checks and expose the results as template variables for
+conditional test suites. This supports portable gossfiles across heterogeneous estates
+(see [goss-org/goss#784](https://github.com/goss-org/goss/issues/784)).
+
+Define discovery tests under the top-level `discovery` key. Each test requires a `register`
+attribute naming the variable written to output:
+
+```yaml
+discovery:
+  package:
+    auditd:
+      register: auditd_installed
+      installed: true
+  file:
+    /usr/bin/clang:
+      register: clang_available
+      exists: true
+```
+
+Run discovery and emit vars-compatible JSON:
+
+```bash
+goss validate -g discovery.yaml --format discovery
+```
+
+Output shape:
+
+```json
+{
+  "Discovered": {
+    "auditd_installed": true,
+    "clang_available": false
+  }
+}
+```
+
+Run discovery before the main gossfile in one command (preferred):
+
+```bash
+goss validate -g goss.yml --discover discovery.yaml
+```
+
+Or put discovery tests in the same gossfile as the main suite:
+
+```yaml
+discovery:
+  file:
+    /etc/hosts:
+      register: hosts_exists
+      exists: true
+
+{{ if .Discovered.hosts_exists }}
+file:
+  /etc/hosts:
+    exists: true
+{{ end }}
+```
+
+```bash
+goss validate -g goss-inline.yml
+```
+
+When both `--discover` and an inline `discovery:` section are present, the `--discover`
+file wins and inline discovery is ignored (with an INFO log).
+
+Pipe discovery output into a main gossfile (still supported for tooling and CI export):
+
+```bash
+goss --vars <(goss validate -g discovery.yaml --format discovery) validate -g goss.yml
+```
+
+Use verbose documentation output on the main run:
+
+```bash
+goss --vars <(goss validate -g discovery.yaml --format discovery) \
+     validate -g goss.yml --format documentation
+```
+
+Or save discovery output to a file first:
+
+```bash
+goss validate -g discovery.yaml --format discovery > discovered.json
+goss --vars discovered.json validate -g goss.yml --format documentation
+```
+
+Complete example (also in
+[`integration-tests/goss/examples/discovery/`](../../integration-tests/goss/examples/discovery/)):
+
+`discovery.yaml`
+
+```yaml
+discovery:
+  file:
+    /etc/hosts:
+      register: hosts_exists
+      exists: true
+```
+
+`goss.yml`
+
+```yaml
+{{ if .Discovered.hosts_exists }}
+file:
+  /etc/hosts:
+    exists: true
+    contents:
+      - localhost
+{{ end }}
+```
+
+```bash
+goss validate -g goss.yml --discover discovery.yaml --format documentation
+```
+
+Use `.Discovered` in templates:
+
+```yaml
+{{ if .Discovered.auditd_installed }}
+file:
+  /etc/audit/auditd.conf:
+    exists: true
+{{ end }}
+```
+
+Discovery checks always exit 0 when execution succeeds; boolean values reflect actual system state.
+The main validate run decides pass/fail.
+
+Combine discovery with [test dependencies](#test-dependencies): discovery populates `.Discovered`
+so templates can gate which tests exist; `depends-on` then skips dependents when a prerequisite
+fails.
+
+```yaml
+{{ if .Discovered.hosts_exists }}
+file:
+  prereq:
+    path: /nonexistent/goss-discover-dep-base
+    exists: true
+
+command:
+  dependent:
+    depends-on:
+      - prereq
+    exec: true
+    exit-status: 0
+{{ end }}
+```
+
+```bash
+goss validate -g goss-with-deps.yml --discover discovery.yaml
+```
+
+See [`integration-tests/goss/examples/discovery/goss-with-deps.yml`](../../integration-tests/goss/examples/discovery/goss-with-deps.yml).
+
+## Test dependencies
+
+Tests may declare prerequisites with `depends-on`. Dependent tests are skipped (not failed) when a
+prerequisite fails (see [goss-org/goss#1043](https://github.com/goss-org/goss/issues/1043)).
+
+```yaml
+file:
+  {{.Vars.root_dir}}/bin/clang:
+    exists: true
+
+command:
+  clang-compile-basic:
+    depends-on:
+      - {{.Vars.root_dir}}/bin/clang
+    exec: 'clang basic.c -o basic'
+    exit-status: 0
+```
+
+References use the gossfile map key, or `type:key` when ambiguous across resource types.
+Independent dependency chains still run in parallel; only declared dependencies are serialized.
+
 ## Templates
 
 Goss test files can leverage golang's [text/template](https://golang.org/pkg/text/template/)
@@ -895,7 +1071,8 @@ to allow for dynamic or conditional tests.
 Available variables:
 
 * `{{.Env}}`  - Containing environment variables
-* `{{.Vars}}` - Containing the values defined in [--vars](#global-options) file
+* `{{.Vars}}` - Containing the values defined in [--vars](#global-options) files (merged in order)
+* `{{.Discovered}}` - Values from [discovery](#discovery) (`--discover`, inline `discovery:`, or `--vars`)
 
 Available functions:
 

@@ -1,11 +1,12 @@
 name: Golang ci
 on:
-  # don't build any branch other than master (and prs) when git pushed
+  # don't build any branch other than main (and prs) when git pushed
   pull_request: {}
   push:
     branches:
-      - master
+      - main
       - "/^v\\d+\\.\\d+(\\.\\d+)?(-\\S*)?$/"
+      - devel
     paths-ignore:
       - "**/*.md"
 
@@ -45,6 +46,12 @@ jobs:
 
       - name: Unit tests and coverage
         run: make cov
+
+      - name: Discovery E2E
+        run: make test-discovery-e2e
+
+      - name: Depends-on E2E
+        run: make test-depends-on-e2e
 
   integration-test-linux:
     needs: [coverage]

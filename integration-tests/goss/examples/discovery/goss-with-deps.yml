@@ -1,0 +1,13 @@
+{{ if .Discovered.hosts_exists }}
+file:
+  prereq:
+    path: /nonexistent/goss-discover-dep-base
+    exists: true
+
+command:
+  dependent:
+    depends-on:
+      - prereq
+    exec: true
+    exit-status: 0
+{{ end }}

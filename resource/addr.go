@@ -10,14 +10,15 @@ import (
 )
 
 type Addr struct {
-	Title        string  `json:"title,omitempty" yaml:"title,omitempty"`
-	Meta         meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
-	id           string  `json:"-" yaml:"-"`
-	Address      string  `json:"address,omitempty" yaml:"address,omitempty"`
-	LocalAddress string  `json:"local-address,omitempty" yaml:"local-address,omitempty"`
-	Reachable    matcher `json:"reachable" yaml:"reachable"`
-	Timeout      int     `json:"timeout" yaml:"timeout"`
-	Skip         bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
+	DiscoveryMeta `yaml:",inline" json:",inline"`
+	Title         string  `json:"title,omitempty" yaml:"title,omitempty"`
+	Meta          meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
+	id            string  `json:"-" yaml:"-"`
+	Address       string  `json:"address,omitempty" yaml:"address,omitempty"`
+	LocalAddress  string  `json:"local-address,omitempty" yaml:"local-address,omitempty"`
+	Reachable     matcher `json:"reachable" yaml:"reachable"`
+	Timeout       int     `json:"timeout" yaml:"timeout"`
+	Skip          bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
 }
 
 type idKey struct{}

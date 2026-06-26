@@ -1,8 +1,8 @@
 ---
 command:
-  "autoadd /Users/travis":
+  "autoadd /Users/runner":
     exit-status: 0
-    exec: "release/goss-darwin-arm64 autoadd /Users/travis"
+    exec: "release/goss-darwin-arm64 autoadd /Users/runner"
     stdout:
       - 'file:'
       - '  exists: true'

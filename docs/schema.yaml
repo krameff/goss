@@ -19,6 +19,26 @@ definitions:
   meta:
     description: meta (arbitrary data) attributes are persisted when adding other resources with goss add
     type: object
+  register:
+    type: string
+    description: "Discovery only. Variable name written to Discovered JSON output."
+  dependsOnList:
+    type: array
+    items:
+      type: string
+    description: "Prerequisite resource keys; this test is skipped when a dependency fails."
+  fileDiscoveryTest:
+    allOf:
+      - $ref: "#/definitions/fileTest"
+      - type: object
+        required:
+          - register
+  packageDiscoveryTest:
+    allOf:
+      - $ref: "#/definitions/packageTest"
+      - type: object
+        required:
+          - register
   addrTest:
     required:
       - reachable
@@ -65,6 +85,8 @@ definitions:
       skip:
         type: boolean
         default: false
+      register: { "$ref": "#/definitions/register" }
+      depends-on: { "$ref": "#/definitions/dependsOnList" }
     required:
       - exit-status
   dnsTest:
@@ -150,6 +172,8 @@ definitions:
       skip:
         type: boolean
         default: false
+      register: { "$ref": "#/definitions/register" }
+      depends-on: { "$ref": "#/definitions/dependsOnList" }
   gossfileTest:
     properties:
       title: { "$ref":"#/definitions/title" }
@@ -369,6 +393,8 @@ definitions:
       skip:
         type: boolean
         default: false
+      register: { "$ref": "#/definitions/register" }
+      depends-on: { "$ref": "#/definitions/dependsOnList" }
   portTest:
     required:
       - listening
@@ -582,6 +608,21 @@ properties:
           <span class="pl-ent">timeout</span>: <span class="pl-c1">500</span> <span class="pl-c"><span class="pl-c">#</span> in milliseconds</span>
     additionalProperties:
       $ref: "#/definitions/dnsTest"
+
+  discovery:
+    type: object
+    description: |
+      Discovery-phase resource checks. Run with --format discovery to emit Discovered vars.
+      Each entry requires register. See https://goss.rocks/gossfile#discovery
+    properties:
+      file:
+        type: object
+        additionalProperties:
+          $ref: "#/definitions/fileDiscoveryTest"
+      package:
+        type: object
+        additionalProperties:
+          $ref: "#/definitions/packageDiscoveryTest"
 
   file:
     type: object

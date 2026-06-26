@@ -169,9 +169,9 @@ make "test-int-serve-windows-amd64"
 
 The current integration test approach is only appropriate for validating `linux` binaries against `linux` OS/arch combinations.
 
-Validating `macOS` and `Windows` binaries requires adding coverage that runs on those platforms within Travis,
-but since Travis does not support containerised builds for either platform,
-assertions are limited to assert against the state of the CI hosts, where we're relying on that to predictable.
+Validating `macOS` and `Windows` binaries requires native runners on those platforms in GitHub Actions.
+Because neither platform uses the Linux Docker integration-test containers,
+assertions are limited to the state of the CI hosts, where we rely on that being predictable.
 
 You can find goss-files that are used to populate this matrix within `integration-tests/goss/{darwin|windows}/{test}.goss.yaml`.
 Where a feature does note work the same as linux, it is commented.

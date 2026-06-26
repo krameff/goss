@@ -6,6 +6,8 @@ linters:
     - ineffassign
     - staticcheck
     - unused
+  disable:
+    - noinlineerr
   exclusions:
     generated: lax
     presets:
@@ -17,6 +19,19 @@ linters:
       - third_party$
       - builtin$
       - examples$
+  settings:
+    staticcheck:
+      checks:
+        - all
+        # Default exclusions
+        - "-ST1000"
+        - "-ST1003"
+        - "-ST1016"
+        - "-ST1020"
+        - "-ST1021"
+        - "-ST1022"
+        # Incorrectly formatted error string: there are a lot of these
+        - "-ST1005"
 formatters:
   enable:
     - gofmt

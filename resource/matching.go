@@ -12,13 +12,14 @@ import (
 )
 
 type Matching struct {
-	Title    string  `json:"title,omitempty" yaml:"title,omitempty"`
-	Meta     meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
-	Content  any     `json:"content,omitempty" yaml:"content,omitempty"`
-	AsReader bool    `json:"as-reader,omitempty" yaml:"as-reader,omitempty"`
-	id       string  `json:"-" yaml:"-"`
-	Matches  matcher `json:"matches" yaml:"matches"`
-	Skip     bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
+	DiscoveryMeta `yaml:",inline" json:",inline"`
+	Title         string  `json:"title,omitempty" yaml:"title,omitempty"`
+	Meta          meta    `json:"meta,omitempty" yaml:"meta,omitempty"`
+	Content       any     `json:"content,omitempty" yaml:"content,omitempty"`
+	AsReader      bool    `json:"as-reader,omitempty" yaml:"as-reader,omitempty"`
+	id            string  `json:"-" yaml:"-"`
+	Matches       matcher `json:"matches" yaml:"matches"`
+	Skip          bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
 }
 
 const (

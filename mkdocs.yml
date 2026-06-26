@@ -87,8 +87,6 @@ extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/goss-org/goss
-    - icon: simple/travisci
-      link: https://travis-ci.org/goss-org/goss
     - icon: fontawesome/brands/medium
       link: https://medium.com/@aelsabbahy
 

@@ -7,14 +7,12 @@ import (
 	"reflect"
 	"strings"
 	"time"
-
-	"github.com/oleiade/reflections"
 )
 
 // ConfigOption manipulates Config
 type ConfigOption func(c *Config) error
 
-// Config is the runtime configuration for the goss system, the cli.Context gets
+// Config is the runtime configuration for the goss system, the cli.Command gets
 // converted to this and it allows other packages to embed goss by creating this
 // structure and using it when adding, validating etc.
 //
@@ -53,8 +51,9 @@ type Config struct {
 	CAFile                string
 	CertFile              string
 	KeyFile               string
-	Vars                  string
+	VarsFiles             []string
 	VarsInline            string
+	DiscoverSpec          string
 	DisabledResourceTypes []string
 }
 
@@ -91,7 +90,7 @@ func NewConfig(opts ...ConfigOption) (rc *Config, err error) {
 		Spec:                  "",
 		Timeout:               0,
 		Username:              "",
-		Vars:                  "",
+		VarsFiles:             []string{},
 		VarsInline:            "",
 	}
 
@@ -207,12 +206,17 @@ func WithDebug() ConfigOption {
 	}
 }
 
-// WithVarsFile is a json or yaml file containing variables to pass to the validator
-func WithVarsFile(file string) ConfigOption {
+// WithVarsFiles are json or yaml files containing variables to pass to the validator
+func WithVarsFiles(files []string) ConfigOption {
 	return func(c *Config) error {
-		c.Vars = file
+		c.VarsFiles = files
 		return nil
 	}
+}
+
+// WithVarsFile is a json or yaml file containing variables to pass to the validator
+func WithVarsFile(file string) ConfigOption {
+	return WithVarsFiles([]string{file})
 }
 
 // WithVarsData uses v as variables to pass to the Validator
@@ -238,6 +242,14 @@ func WithVarsBytes(v []byte) ConfigOption {
 func WithVarsString(v string) ConfigOption {
 	return func(c *Config) error {
 		c.VarsInline = v
+		return nil
+	}
+}
+
+// WithDiscoverFile sets a gossfile whose discovery: section runs before the main -g spec
+func WithDiscoverFile(f string) ConfigOption {
+	return func(c *Config) error {
+		c.DiscoverSpec = f
 		return nil
 	}
 }
@@ -284,13 +296,34 @@ func ValidateSections(unmarshal func(any) error, i any, whitelist map[string]boo
 
 func WhitelistAttrs(i any, format format) (map[string]bool, error) {
 	validAttrs := make(map[string]bool)
-	tags, err := reflections.Tags(i, string(format))
-	if err != nil {
-		return nil, err
+	t := reflect.TypeOf(i)
+	for t.Kind() == reflect.Pointer {
+		t = t.Elem()
 	}
-	for _, v := range tags {
-		validAttrs[strings.Split(v, ",")[0]] = true
+	if t.Kind() != reflect.Struct {
+		return validAttrs, nil
 	}
+
+	for i := 0; i < t.NumField(); i++ {
+		field := t.Field(i)
+		if field.Anonymous {
+			nested, err := WhitelistAttrs(reflect.New(field.Type).Elem().Interface(), format)
+			if err != nil {
+				return nil, err
+			}
+			for k, v := range nested {
+				validAttrs[k] = v
+			}
+			continue
+		}
+
+		tag := field.Tag.Get(string(format))
+		if tag == "" || tag == "-" {
+			continue
+		}
+		validAttrs[strings.Split(tag, ",")[0]] = true
+	}
+
 	return validAttrs, nil
 }
 

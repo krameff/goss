@@ -1,13 +1,53 @@
 # Changelog
 
+25th June 2026
+
+### Updated
+
+- Workflows updated to march branch naming
+
+### Added
+
+- **Discovery** — run lightweight checks before the main suite and expose results as template variables
+  - ([#784](https://github.com/goss-org/goss/issues/784); thanks to [@uk-bolly](https://github.com/uk-bolly) for raising the issue
+  - thanks to [@ekelali](https://github.com/ekelali) for the [`--vars` + `--format discovery` pipeline suggestion](https://github.com/goss-org/goss/issues/784#issuecomment-1251529683))
+  - `--discover <file>` runs discovery tests before the main gossfile and injects `.Discovered` for templates
+  - Inline `discovery:` in the main `-g` file is also supported; `--discover` wins when both are set
+  - `--format discovery` still exports `{"Discovered": {...}}` for tooling and CI vars files
+  - Examples: [`integration-tests/goss/examples/discovery/`](integration-tests/goss/examples/discovery/)
+- **`depends-on`** — declare test prerequisites on any resource; dependents are **skipped** (not failed) when a prerequisite test fails
+  - ([#1043](https://github.com/goss-org/goss/issues/1043); thanks to [@petkapou](https://github.com/petkapou) for raising the issue
+  - thanks to [@sshipway](https://github.com/sshipway) for the [explicit `depends-on` design feedback](https://github.com/goss-org/goss/issues/1043#issuecomment-3765767824))
+  - References use the gossfile map key, or `type:key` when the key is ambiguous across resource types
+  - Independent chains still run in parallel; only declared dependencies are serialized
+  - Composes with discovery: templates can gate which tests exist; `depends-on` orders and skips among tests in the main run
+  - Examples: [`integration-tests/goss/examples/depends-on/`](integration-tests/goss/examples/depends-on/), discover+depends-on in [`goss-with-deps.yml`](integration-tests/goss/examples/discovery/goss-with-deps.yml)
+
+---
+
+24th June 2026
 ### Security
 - CLI announce output logs resource type and ID only; no longer marshals and prints full resource JSON (fixes CodeQL clear-text logging of password and other sensitive fields)
 - Health probe debug logging records HTTP status only; no longer logs response body on non-OK status (avoids clear-text logging of password and other sensitive fields from test output)
+- Health probe content negotiation errors no longer log the raw `Accept` header value from untrusted requests
 
 ### Fixed
 - Integration test `add.goss.yaml` expectations updated for announce output change (resource type and ID only, not full marshaled YAML)
 - `bullseye` apache2 version bumped to `2.4.67-1~deb11u3` in `vars.yaml` (Debian security update)
 - Integration test fixtures: removed duplicate `service: apache2` / `service: httpd` definitions between `goss-shared.yaml` and `goss-service.yaml`; eliminates duplicate-key warnings during `validate` in CI
+
+### Added
+
+- Multiple `--vars` files supported; vars are merged in flag order with later files overriding overlapping keys; `--vars-inline` still applies last ([#1023](https://github.com/goss-org/goss/issues/1023); thanks to [@Lirt](https://github.com/Lirt) for [PR #1024](https://github.com/goss-org/goss/pull/1024))
+
+### PRs Incorporated
+
+- Thanks to [@kgaughan](https://github.com/kgaughan) for authoring the `urfave/cli` v3 migration
+  - [#1060](https://github.com/goss-org/goss/pull/1060) - CLI migrated from `urfave/cli` v1 to `urfave/cli/v3` v3.9.0; v3 is actively maintained and drops transitive dependencies (`go-md2man`, `blackfriday`)
+- Thanks to [@kgaughan](https://github.com/kgaughan) for restoring clearer `ContainElements` matcher error messages
+  - [#1067](https://github.com/goss-org/goss/pull/1067) - pre-validates array/slice/map types before delegating to gomega, restoring the pre-iterator error text for invalid inputs (e.g. strings)
+- Thanks to [@kgaughan](https://github.com/kgaughan) for the dependency and tooling refresh
+  - [#1064](https://github.com/goss-org/goss/pull/1064) - golangci-lint v2.12.2 config (staticcheck settings, `noinlineerr` disabled), dependency bumps (`gomega` v1.41.0, `prometheus/common` v0.68.1), Trivy action updates, and minor lint cleanups; fork already had most workflow, Dockerfile, and code changes at equal or newer versions
 
 - updated workflows
   - actions/checkout@v6.0.3 to 7.0.0
@@ -60,7 +100,7 @@
 - `README.md` updated to show origins, credits, and Apache 2.0 license retention
 
 ### Release pipeline
-- `release.yaml` `TRAVIS_TAG` renamed to `RELEASE_TAG`
+- `release.yaml` release tag env var standardised as `RELEASE_TAG`
 - `release.yaml` `attach-assets` job file glob corrected to match actual download paths
 - `release-build.sh` fixed so `-p` flag correctly sets target platform, `os`, `arch`, and output filename
 - `Makefile` release rule updated to pass `-p` and `-v` flags to `release-build.sh`
@@ -74,7 +114,7 @@
 - All platform command test files (`darwin-amd64`, `darwin-arm64`, `linux-arm64`, `linux-ppc64le`, `windows`) normalised for consistency: `--use-alpha=1` removed from all `exec` commands (env var `GOSS_USE_ALPHA=1` set by `run-validate-tests.sh` is sufficient); `help.goss.yaml` stdout check changed from `alpha` to `validate` across all platforms
 - `bullseye` apache2 version updated to `2.4.67-1~deb11u2` in `vars.yaml`, `goss-expected.yaml`, and `goss-aa-expected.yaml`
 - `macos-13` (Intel) removed from CI matrix -- deprecated and no longer available on GitHub Actions; Apple Silicon testing continues via `macos-latest`
-- `.travis.yml` removed; CI fully on GitHub Actions
+- Legacy CI config removed; GitHub Actions is the sole CI pipeline
 - `docs.yaml` lint job re-enabled; build/deploy remains disabled
 - `preview-docs.yaml` disabled
 - `dependabot.yml` assignee and reviewer updated to `uk-bolly`
