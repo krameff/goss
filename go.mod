@@ -14,7 +14,6 @@ require (
 	github.com/lorenzosaino/go-sysctl v0.3.1
 	github.com/miekg/dns v1.1.72
 	github.com/moby/sys/mountinfo v0.7.2
-	github.com/oleiade/reflections v1.1.0
 	github.com/onsi/gomega v1.42.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pmezard/go-difflib v1.0.0
@@ -23,7 +22,7 @@ require (
 	github.com/samber/lo v1.53.0
 	github.com/stretchr/testify v1.11.1
 	github.com/tidwall/gjson v1.19.0
-	github.com/urfave/cli/v3 v3.9.0
+	github.com/urfave/cli/v3 v3.10.0
 	golang.org/x/sys v0.46.0
 	gopkg.in/yaml.v3 v3.0.1
 	gotest.tools/v3 v3.5.2
