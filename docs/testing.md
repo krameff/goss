@@ -47,6 +47,7 @@ On macOS/Windows, `make test-discovery-e2e` builds a temporary goss binary and u
 | [`.github/workflows/golangci.yaml`](../.github/workflows/golangci.yaml) | `lint` | golangci-lint |
 | | `coverage` | `make cov`, **`make test-discovery-e2e`**, **`make test-depends-on-e2e`**, **`./ci/security-scan.sh`** |
 | | `integration-test-*` | `make rockylinux9`, `jammy`, darwin, windows, etc. (includes discovery + depends-on E2E) |
+| [`.github/workflows/codeql.yaml`](../.github/workflows/codeql.yaml) | `analyze` | CodeQL static analysis for Go (`security-and-quality`) |
 | [`.github/workflows/docs.yaml`](../.github/workflows/docs.yaml) | `lint` | markdownlint-cli2 on docs |
 | [`.github/workflows/yamllint.yaml`](../.github/workflows/yamllint.yaml) | — | YAML lint |
 
@@ -247,6 +248,20 @@ Locally, Trivy runs via the `trivy` binary if installed, otherwise via Docker
 Docker image scanning (Alpine packages and compiled binary) continues to run in
 [`.github/workflows/docker-goss.yaml`](../.github/workflows/docker-goss.yaml) and
 [`.github/workflows/trivy-schedule.yaml`](../.github/workflows/trivy-schedule.yaml).
+
+## CodeQL
+
+Workflow: [`.github/workflows/codeql.yaml`](../.github/workflows/codeql.yaml)
+
+Runs on pull requests, pushes to `main`/`devel`/version tags, and weekly (Monday 03:30 UTC).
+Uses the `security-and-quality` query suite with category `/language:go` so PRs can be
+compared against the base branch.
+
+CodeQL runs in CI only (not part of `make check`).
+
+If the repository still has **CodeQL Default setup** enabled under **Settings → Code
+security**, disable it in favour of this workflow. Default setup and an advanced workflow
+cannot run together and will produce "configuration not found" warnings on pull requests.
 
 ## Adding tests for new features
 
