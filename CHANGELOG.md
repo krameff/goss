@@ -1,5 +1,13 @@
 # Changelog
 
+1st July 2026
+
+### Fixed
+
+- HTTP checks now close response bodies after validation, preventing connection leaks and OOM when running many concurrent HTTP tests ([#1058](https://github.com/goss-org/goss/pull/1058); thanks to [@dukelion](https://github.com/dukelion))
+
+---
+
 25th June 2026
 
 ### Updated
