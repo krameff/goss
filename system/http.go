@@ -27,6 +27,7 @@ type HTTP interface {
 	Exists() (bool, error)
 	SetAllowInsecure(bool)
 	SetNoFollowRedirects(bool)
+	Close() error
 }
 
 type DefHTTP struct {
@@ -228,6 +229,13 @@ func (u *DefHTTP) Body() (io.Reader, error) {
 	}
 
 	return u.resp.Body, nil
+}
+
+func (u *DefHTTP) Close() error {
+	if u.resp != nil && u.resp.Body != nil {
+		return u.resp.Body.Close()
+	}
+	return nil
 }
 
 func hasUserAgentHeader(headers []string) bool {
