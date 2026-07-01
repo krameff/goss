@@ -50,7 +50,7 @@ The following are out of scope:
 ## Code scanning
 
 Static analysis uses the advanced CodeQL workflow at
-[`.github/workflows/codeql.yaml`](workflows/codeql.yaml). Container and dependency
+[`.github/workflows/codeql.yml`](workflows/codeql.yml). Container and dependency
 scanning uses Trivy (see workflows `docker-goss.yaml`, `trivy-schedule.yaml`, and
 `ci/security-scan.sh`).
 
