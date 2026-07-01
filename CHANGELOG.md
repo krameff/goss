@@ -2,6 +2,12 @@
 
 1st July 2026
 
+### Security
+
+- `make check` and CI now run dependency scans (`govulncheck` plus Trivy on `go.mod` and docs Python requirements)
+- CodeQL workflow added for Go static analysis on pull requests
+- Docs build dependency `pygments` bumped to 2.20.0 (CVE-2026-4539)
+
 ### Fixed
 
 - HTTP checks now close response bodies after validation, preventing connection leaks and OOM when running many concurrent HTTP tests ([#1058](https://github.com/goss-org/goss/pull/1058); thanks to [@dukelion](https://github.com/dukelion))

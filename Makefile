@@ -157,8 +157,13 @@ test-depends-on-e2e:
 	$(info INFO: Starting $@)
 	./ci/depends-on-e2e.sh
 
+.PHONY: test-security
+test-security:
+	$(info INFO: Starting $@)
+	./ci/security-scan.sh
+
 .PHONY: check
-check: test test-discovery-e2e test-depends-on-e2e lint-markdown
+check: test test-discovery-e2e test-depends-on-e2e lint-markdown test-security
 	$(info INFO: Starting $@)
 
 $(PYTHON):
