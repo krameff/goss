@@ -12,13 +12,14 @@ Run the checks most PRs need before pushing:
 make check
 ```
 
-That runs unit tests, discovery E2E, depends-on E2E, and markdown lint. Individual targets:
+That runs unit tests, discovery E2E, depends-on E2E, markdown lint, and a security scan. Individual targets:
 
 ```bash
 go test ./...
 make test-discovery-e2e
 make test-depends-on-e2e
 make lint-markdown
+make test-security
 ```
 
 On macOS/Windows, `make test-discovery-e2e` builds a temporary goss binary and uses
@@ -28,12 +29,13 @@ On macOS/Windows, `make test-discovery-e2e` builds a temporary goss binary and u
 
 | Target | Command | Purpose |
 | --- | --- | --- |
-| `check` | `test` + discovery/depends-on E2E + `lint-markdown` | PR check bundle |
+| `check` | `test` + discovery/depends-on E2E + `lint-markdown` + `test-security` | PR check bundle |
 | `test` | `./ci/go-test.sh` | Unit tests with coverage profile (`c.out`) |
 | `cov` | `go test -coverpkg=./... ./...` | Coverage run (used in CI) |
 | `test-discovery-e2e` | `./ci/discovery-e2e.sh` | `--discover` pipeline (flag, inline, discover+depends-on) |
 | `test-depends-on-e2e` | `./ci/depends-on-e2e.sh` | `depends-on` skip when prerequisite fails |
 | `lint-markdown` | `./ci/lint-markdown.sh` | Markdownlint on docs and README files |
+| `test-security` | `./ci/security-scan.sh` | `govulncheck` + Trivy scan of `go.mod` and `docs/requirements.txt` |
 | `lint-yaml` | `yamllint` | YAML lint for integration-test gossfiles |
 | `test-short-all` | `fmt lint vet test` | Formatter, golangci-lint, vet, unit tests |
 | `test-int-*` | Docker / platform scripts | Full integration matrix (slow) |
@@ -43,7 +45,7 @@ On macOS/Windows, `make test-discovery-e2e` builds a temporary goss binary and u
 | Workflow | Job | Tests run |
 | --- | --- | --- |
 | [`.github/workflows/golangci.yaml`](../.github/workflows/golangci.yaml) | `lint` | golangci-lint |
-| | `coverage` | `make cov`, **`make test-discovery-e2e`**, **`make test-depends-on-e2e`** |
+| | `coverage` | `make cov`, **`make test-discovery-e2e`**, **`make test-depends-on-e2e`**, **`./ci/security-scan.sh`** |
 | | `integration-test-*` | `make rockylinux9`, `jammy`, darwin, windows, etc. (includes discovery + depends-on E2E) |
 | [`.github/workflows/docs.yaml`](../.github/workflows/docs.yaml) | `lint` | markdownlint-cli2 on docs |
 | [`.github/workflows/yamllint.yaml`](../.github/workflows/yamllint.yaml) | — | YAML lint |
@@ -222,6 +224,29 @@ make lint-markdown
 Lints: `docs/**/*.md`, `README.md`, `extras/**/README.md`, `.github/CONTRIBUTING.md`
 
 Configuration: [`.markdownlint.yaml`](../.markdownlint.yaml)
+
+## Security scan
+
+Script: [`ci/security-scan.sh`](../ci/security-scan.sh)
+
+```bash
+make test-security
+```
+
+Runs on every `make check` and in the `coverage` CI job after dependency or docs updates.
+
+Steps performed:
+
+1. **`govulncheck ./...`** — Go vulnerability database scan for the module and its dependencies
+2. **Trivy filesystem scan** — checks `go.mod` and `docs/requirements.txt` for known CVEs at **MEDIUM** severity and above
+
+Locally, Trivy runs via the `trivy` binary if installed, otherwise via Docker
+(`aquasec/trivy`). If neither is available, the scan is skipped with a warning unless
+`SECURITY_STRICT=1` (always set in CI).
+
+Docker image scanning (Alpine packages and compiled binary) continues to run in
+[`.github/workflows/docker-goss.yaml`](../.github/workflows/docker-goss.yaml) and
+[`.github/workflows/trivy-schedule.yaml`](../.github/workflows/trivy-schedule.yaml).
 
 ## Adding tests for new features
 

@@ -53,6 +53,14 @@ jobs:
       - name: Depends-on E2E
         run: make test-depends-on-e2e
 
+      - name: Install Trivy
+        uses: aquasecurity/setup-trivy@v0.2.3
+
+      - name: Security scan
+        env:
+          SECURITY_STRICT: "1"
+        run: ./ci/security-scan.sh
+
   integration-test-linux:
     needs: [coverage]
     name: Integration tests (linux/${{ matrix.distro }})
