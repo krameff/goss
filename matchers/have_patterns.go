@@ -231,10 +231,7 @@ func (re *regexPattern) Inverse() bool   { return re.inverse }
 // isRegexPattern reports whether s looks like a /regex/ or /regex/flags pattern
 // (with an optional leading ! for negation).
 func isRegexPattern(s string) bool {
-	core := s
-	if strings.HasPrefix(core, "!") {
-		core = core[1:]
-	}
+	core := strings.TrimPrefix(s, "!")
 	if !strings.HasPrefix(core, "/") {
 		return false
 	}
