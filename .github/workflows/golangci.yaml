@@ -138,6 +138,10 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - name: Unit tests
+        shell: bash
+        run: make test
+
       - name: Integration tests
         shell: bash
         run: |

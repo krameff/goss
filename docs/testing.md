@@ -6,15 +6,30 @@ Last verified: 2026-06-25 — **181** Go test cases passing, discovery E2E passi
 
 ## Quick start (local)
 
-Run the checks most PRs need before pushing:
+One-time setup so the pre-commit hook runs automatically:
 
 ```bash
-make check
+git config core.hooksPath .githooks
 ```
 
-That runs unit tests, discovery E2E, depends-on E2E, markdown lint, and a security scan. Individual targets:
+This runs `gofmt`, `go vet`, and `go test` scoped to whatever Go packages have staged
+changes on every `git commit` (see [`.githooks/pre-commit`](../.githooks/pre-commit)).
+
+Before pushing / opening a PR, run the fuller local bundle (mirrors both CI jobs —
+lint + coverage):
 
 ```bash
+make pre-push
+```
+
+`pre-push` runs `fmt`, `vet`, `lint` (strict — no longer swallows failures), then
+`check` (unit tests, discovery E2E, depends-on E2E, markdown lint, security scan).
+Individual targets:
+
+```bash
+make fmt
+make vet
+make lint
 go test ./...
 make test-discovery-e2e
 make test-depends-on-e2e
@@ -29,6 +44,8 @@ On macOS/Windows, `make test-discovery-e2e` builds a temporary goss binary and u
 
 | Target | Command | Purpose |
 | --- | --- | --- |
+| `pre-commit` | `fmt vet` + `go test ./...` | Fast local check (also runs scoped via git hook) |
+| `pre-push` | `fmt vet lint check` | Full local bundle before pushing / opening a PR |
 | `check` | `test` + discovery/depends-on E2E + `lint-markdown` + `test-security` | PR check bundle |
 | `test` | `./ci/go-test.sh` | Unit tests with coverage profile (`c.out`) |
 | `cov` | `go test -coverpkg=./... ./...` | Coverage run (used in CI) |
@@ -39,6 +56,9 @@ On macOS/Windows, `make test-discovery-e2e` builds a temporary goss binary and u
 | `lint-yaml` | `yamllint` | YAML lint for integration-test gossfiles |
 | `test-short-all` | `fmt lint vet test` | Formatter, golangci-lint, vet, unit tests |
 | `test-int-*` | Docker / platform scripts | Full integration matrix (slow) |
+
+`lint` and `vet` now fail the build on violations (previously both swallowed errors
+with `|| true`), so `test-short-all`, `pre-push`, and CI's separate lint job agree.
 
 ## CI workflows
 

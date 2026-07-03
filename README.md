@@ -379,6 +379,21 @@ Service:
 * OpenRC init
 * Upstart
 
+Port:
+
+* Port state is only implemented on Linux, where it's read from
+  `/proc/net/{tcp,udp,tcp6,udp6}`. It is not implemented on macOS or Windows --
+  see [platform support](docs/platforms.md).
+* On Linux, if one of those files exists but contains a line goss can't parse
+  (an unexpected IP/port/uid encoding, typically from a non-standard procfs,
+  e.g. inside certain containers or network namespaces), the affected `port`
+  resource now fails with an explicit `Error:` block in the output instead of
+  silently reporting the port as not listening. To investigate: note which
+  protocol failed from the resource id (`tcp`, `tcp6`, `udp`, `udp6`), then
+  inspect the corresponding file directly, e.g. `cat /proc/net/tcp6`, and
+  compare its columns against a working host. A missing or unreadable file is
+  *not* an error case -- it's treated as "no ports" for that protocol.
+
 [kubernetes-simplified-health-checks]: https://medium.com/@aelsabbahy/docker-1-12-kubernetes-simplified-health-checks-and-container-ordering-with-goss-fa8debbe676c
 
 <!-- --8<-- [end:about] -->

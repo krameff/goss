@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# Fast local guard rail before every commit: gofmt + go vet + tests for
+# packages containing staged Go files. Run `make pre-push` before opening
+# a PR for the fuller check (adds lint, discovery/depends-on E2E, security).
+#
+# One-time setup: git config core.hooksPath .githooks
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "${repo_root}"
+
+export PATH="/usr/local/go/bin:${HOME}/go/bin:${PATH}"
+export GOPATH="${HOME}/go"
+
+staged_go_files=$(git diff --cached --name-only --diff-filter=ACM -- '*.go' || true)
+
+if [[ -z "${staged_go_files}" ]]; then
+  echo "[pre-commit] no staged Go files, skipping"
+  exit 0
+fi
+
+echo "[pre-commit] gofmt"
+./ci/go-fmt.sh
+
+echo "[pre-commit] go vet (staged packages)"
+mapfile -t staged_pkgs < <(echo "${staged_go_files}" | xargs -n1 dirname | sort -u | sed 's#^#./#')
+go vet "${staged_pkgs[@]}"
+
+echo "[pre-commit] go test (staged packages)"
+go test "${staged_pkgs[@]}"
