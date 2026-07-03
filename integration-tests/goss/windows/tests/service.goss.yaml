@@ -1,4 +1,6 @@
 service:
-  MSDTC:
+  # EventLog is a core service that stays running on GitHub Actions windows-latest;
+  # MSDTC is often Automatic but Stopped on CI hosts.
+  EventLog:
     enabled: true
     running: true

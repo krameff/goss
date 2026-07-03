@@ -24,10 +24,11 @@ the files and putting them in the right path. To get each of them:
 
 * **kgoss**: Run `curl -sSLO
   https://raw.githubusercontent.com/goss-org/goss/master/extras/kgoss/kgoss`.
-* **goss**: Download the `goss-linux-amd64` asset from
-  <https://github.com/goss-org/goss/releases> and rename it `goss`. Place it
-  in your HOME directory, e.g. `C:\Users\<username>` on Windows; or set the
-  environment variable `GOSS_PATH` to its path.
+* **goss**: Download a release archive such as `goss_0.5.0_linux_x86_64.tar.gz`
+  from <https://github.com/goss-org/goss/releases>, extract it, and rename the
+  binary `goss`. Place it in your HOME directory, e.g. `C:\Users\<username>` on
+  Windows; or set the environment variable `GOSS_PATH` to its path. Or run
+  `curl -fsSL https://goss.rocks/install | sh`.
 
 ### Automatic / CLI
 
@@ -59,14 +60,18 @@ chmod a+rx "${dest_dir}/kgoss"
 
 ## install goss
 if [[ ! $(which jq) ]]; then echo "jq is required, get from https://stedolan.github.io/jq"; fi
-version=v0.4.8
-arch=amd64
+version=v0.5.0
+arch=x86_64
+asset="goss_${version#v}_linux_${arch}.tar.gz"
 host=github.com
 # for private repos, leave `host` blank or same as above:
 # host=github.yourcompany.com
 dl_url=$(curl -sSL -u "${username}:${token}" https://${host}/api/v3/repos/${repo}/releases \
-  | jq -r ".[] | select (.name == \"${version}\") | .assets[] | select (.name == \"goss-linux-${arch}\") | .url")
-curl -sSL -u "${username}:${token}" -H 'Accept: application/octet-stream' -o "${dest_dir}/goss" $dl_url
+  | jq -r ".[] | select (.tag_name == \"${version}\") | .assets[] | select (.name == \"${asset}\") | .url")
+tmpdir=$(mktemp -d)
+curl -sSL -u "${username}:${token}" -H 'Accept: application/octet-stream' -o "${tmpdir}/${asset}" "${dl_url}"
+tar xzf "${tmpdir}/${asset}" -C "${tmpdir}"
+mv "${tmpdir}/goss" "${dest_dir}/goss"
 chmod a+rx "${dest_dir}/goss"
 
 # If `goss` is not in your path, export a GOSS_PATH variable:
