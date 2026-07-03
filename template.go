@@ -29,7 +29,7 @@ func NewPeekTemplateFilter(varsFiles []string, varsInline string) (TemplateFilte
 func newTemplateFilter(varsFiles []string, varsInline string, discovered map[string]bool, missingKey string) (TemplateFilter, error) {
 	vars, err := loadVarsForTemplates(varsFiles, varsInline, discovered)
 	if err != nil {
-		return nil, fmt.Errorf("failed while loading vars files %q: %v", varsFiles, err)
+		return nil, fmt.Errorf("failed while loading vars files %q: %w", varsFiles, err)
 	}
 
 	tVars := &TmplVars{

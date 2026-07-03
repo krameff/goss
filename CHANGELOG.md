@@ -2,6 +2,10 @@
 
 1st July 2026
 
+### Updated
+
+- Error handling uses static sentinel errors and `%w` wrapping where appropriate, enabling `errors.Is` / `errors.As` for callers ([#1066](https://github.com/goss-org/goss/pull/1066); thanks to [@kgaughan](https://github.com/kgaughan))
+
 ### Security
 
 - `make check` and CI now run dependency scans (`govulncheck` plus Trivy on `go.mod` and docs Python requirements)
