@@ -1,5 +1,22 @@
 # Changelog
 
+3rd July 2026
+
+### Added
+
+- GoReleaser configuration for release builds ([#1052](https://github.com/goss-org/goss/pull/1052); thanks to [@kgaughan](https://github.com/kgaughan))
+  - Cross-platform binary archives (`tar.gz` on Unix, `zip` on Windows) with SHA256 checksums
+  - Multi-arch container images (`linux/amd64`, `linux/arm64`) published to `ghcr.io/goss-org/goss` with SBOMs
+  - README documents local `goreleaser build` usage
+
+### Updated
+
+- Release workflow runs GoReleaser instead of `make release` and manual artifact upload; includes QEMU/Buildx for multi-platform Docker builds
+- `Dockerfile` simplified to copy the GoReleaser-built binary via `$TARGETPLATFORM`
+- `install.sh` downloads compressed release archives and supports `s390x`; uses case-based architecture detection ([#1068](https://github.com/goss-org/goss/pull/1068))
+
+---
+
 1st July 2026
 
 ### Updated
