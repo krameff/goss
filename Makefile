@@ -75,6 +75,7 @@ gen:
 clean:
 	$(info INFO: Starting build $@)
 	rm -rf ./release
+	rm -rf ./dist
 	rm -rf ./site
 	rm -rf ${VENV}
 

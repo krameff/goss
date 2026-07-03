@@ -4,6 +4,10 @@
 
 * [latest](https://github.com/goss-org/goss/blob/master/Dockerfile)
 
+Release images are published to GitHub Container Registry as
+`ghcr.io/<owner>/goss` (for example `ghcr.io/goss-org/goss:latest` on tagged
+releases, or `ghcr.io/<your-fork-owner>/goss:main` for branch builds).
+
 ## Using the base image
 
 This is a simple alpine image with Goss preinstalled on it.

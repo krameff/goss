@@ -83,7 +83,7 @@ dockers_v2:
       - linux/arm64
     disable: "{{ .IsSnapshot }}"
     images:
-      - "ghcr.io/goss-org/goss"
+      - "ghcr.io/{{ .Env.GITHUB_REPOSITORY_OWNER }}/goss"
     tags:
       - "v{{ .Version }}"
       - "{{ if .IsNightly }}nightly{{ end }}"

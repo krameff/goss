@@ -6,14 +6,20 @@
 
 - GoReleaser configuration for release builds ([#1052](https://github.com/goss-org/goss/pull/1052); thanks to [@kgaughan](https://github.com/kgaughan))
   - Cross-platform binary archives (`tar.gz` on Unix, `zip` on Windows) with SHA256 checksums
-  - Multi-arch container images (`linux/amd64`, `linux/arm64`) published to `ghcr.io/goss-org/goss` with SBOMs
+  - Multi-arch container images (`linux/amd64`, `linux/arm64`) published to `ghcr.io/<owner>/goss` with SBOMs
   - README documents local `goreleaser build` usage
 
 ### Updated
 
-- Release workflow runs GoReleaser instead of `make release` and manual artifact upload; includes QEMU/Buildx for multi-platform Docker builds
+- Release workflow runs GoReleaser instead of `make release` and manual artifact upload; includes QEMU/Buildx for multi-platform Docker builds; images publish to `ghcr.io/${{ github.repository_owner }}/goss`
+- `docker-goss.yaml` builds branch images via GoReleaser snapshot binaries instead of the removed multi-stage Dockerfile compile; tag pushes no longer duplicate release image builds
 - `Dockerfile` simplified to copy the GoReleaser-built binary via `$TARGETPLATFORM`
 - `install.sh` downloads compressed release archives and supports `s390x`; uses case-based architecture detection ([#1068](https://github.com/goss-org/goss/pull/1068))
+
+### Fixed
+
+- File `contents` checks now report the actual file content on failure instead of `"object: *bytes.Reader"` ([#1055](https://github.com/goss-org/goss/pull/1055); thanks to [@ckbaker10](https://github.com/ckbaker10))
+- `have-patterns` matcher now honours trailing regex flags such as `/i`, `/m`, and `/s` on `/pattern/flags` style patterns ([#1057](https://github.com/goss-org/goss/pull/1057); thanks to [@ckbaker10](https://github.com/ckbaker10))
 
 ---
 
