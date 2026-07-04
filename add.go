@@ -168,7 +168,10 @@ func AutoAddResource(fileName string, gossConfig GossConfig, key string, c *util
 		return err
 	} else if ok {
 		resourcePrint(fileName, res, c.AnnounceToCLI)
-		ports := system.GetPorts(true)
+		ports, err := system.GetPorts(true)
+		if err != nil {
+			return err
+		}
 		pids, _ := sysres.Pids()
 		for _, pid := range pids {
 			pidS := strconv.Itoa(pid)

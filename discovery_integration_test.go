@@ -1,8 +1,10 @@
 package goss
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"testing"
 
 	"github.com/goss-org/goss/resource"
@@ -101,11 +103,17 @@ func TestTemplateDiscoveredVars(t *testing.T) {
 
 func TestValidateWithoutDiscover(t *testing.T) {
 	dir := t.TempDir()
+	sentinel := filepath.ToSlash(filepath.Join(dir, "sentinel"))
+	if err := os.WriteFile(filepath.FromSlash(sentinel), []byte("present"), 0o644); err != nil {
+		t.Fatalf("write sentinel: %v", err)
+	}
+
 	spec := filepath.Join(dir, "goss.yml")
-	if err := os.WriteFile(spec, []byte(`file:
-  /etc/hosts:
+	if err := os.WriteFile(spec, []byte(fmt.Sprintf(`file:
+  sentinel:
+    path: %s
     exists: true
-`), 0o644); err != nil {
+`, sentinel)), 0o644); err != nil {
 		t.Fatalf("write spec: %v", err)
 	}
 
@@ -161,6 +169,9 @@ func discoveryExamplesDir(t *testing.T) string {
 }
 
 func TestValidateWithDiscoverFlag(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skip("discovery example fixture asserts on /etc/hosts, linux only")
+	}
 	dir := discoveryExamplesDir(t)
 	cfg, err := util.NewConfig(
 		util.WithSpecFile(filepath.Join(dir, "goss.yml")),
@@ -182,6 +193,9 @@ func TestValidateWithDiscoverFlag(t *testing.T) {
 }
 
 func TestValidateInlineDiscovery(t *testing.T) {
+	if runtime.GOOS != "linux" {
+		t.Skip("discovery example fixture asserts on /etc/hosts, linux only")
+	}
 	dir := discoveryExamplesDir(t)
 	cfg, err := util.NewConfig(
 		util.WithSpecFile(filepath.Join(dir, "goss-inline.yml")),
@@ -207,6 +221,13 @@ func TestDiscoverFlagOverridesInline(t *testing.T) {
 	discover := filepath.Join(dir, "discover.yaml")
 	main := filepath.Join(dir, "main.yml")
 
+	// Use a file we create ourselves rather than a Unix-specific path like
+	// /etc/hosts so this test is portable to Windows/macOS runners.
+	sentinel := filepath.ToSlash(filepath.Join(dir, "sentinel"))
+	if err := os.WriteFile(filepath.FromSlash(sentinel), []byte("present"), 0o644); err != nil {
+		t.Fatalf("write sentinel: %v", err)
+	}
+
 	inlineContent := []byte(`discovery:
   file:
     /etc/hosts:
@@ -216,18 +237,20 @@ file:
   /tmp/inline-should-not-run:
     exists: false
 `)
-	discoverContent := []byte(`discovery:
+	discoverContent := []byte(fmt.Sprintf(`discovery:
   file:
-    /etc/hosts:
+    sentinel:
+      path: %s
       register: from_flag
       exists: true
-`)
-	mainContent := []byte(`{{ if .Discovered.from_flag }}
+`, sentinel))
+	mainContent := []byte(fmt.Sprintf(`{{ if .Discovered.from_flag }}
 file:
-  /etc/hosts:
+  sentinel:
+    path: %s
     exists: true
 {{ end }}
-`)
+`, sentinel))
 
 	for path, content := range map[string][]byte{
 		inline: inlineContent, discover: discoverContent, main: mainContent,
@@ -270,10 +293,50 @@ file:
 }
 
 func TestValidateDiscoverWithDependsOn(t *testing.T) {
-	dir := discoveryExamplesDir(t)
+	// Self-contained variant of integration-tests/goss/examples/discovery/
+	// goss-with-deps.yml using a sentinel file instead of /etc/hosts, so the
+	// depends-on/skip semantics are also exercised on Windows/macOS runners.
+	dir := t.TempDir()
+	sentinel := filepath.ToSlash(filepath.Join(dir, "sentinel"))
+	if err := os.WriteFile(filepath.FromSlash(sentinel), []byte("present"), 0o644); err != nil {
+		t.Fatalf("write sentinel: %v", err)
+	}
+	missing := filepath.ToSlash(filepath.Join(dir, "does-not-exist"))
+
+	discover := filepath.Join(dir, "discovery.yaml")
+	main := filepath.Join(dir, "goss-with-deps.yml")
+
+	discoverContent := []byte(fmt.Sprintf(`discovery:
+  file:
+    sentinel:
+      path: %s
+      register: hosts_exists
+      exists: true
+`, sentinel))
+	mainContent := []byte(fmt.Sprintf(`{{ if .Discovered.hosts_exists }}
+file:
+  prereq:
+    path: %s
+    exists: true
+
+command:
+  dependent:
+    depends-on:
+      - prereq
+    exec: true
+    exit-status: 0
+{{ end }}
+`, missing))
+
+	for path, content := range map[string][]byte{discover: discoverContent, main: mainContent} {
+		if err := os.WriteFile(path, content, 0o644); err != nil {
+			t.Fatalf("write %s: %v", path, err)
+		}
+	}
+
 	cfg, err := util.NewConfig(
-		util.WithSpecFile(filepath.Join(dir, "goss-with-deps.yml")),
-		util.WithDiscoverFile(filepath.Join(dir, "discovery.yaml")),
+		util.WithSpecFile(main),
+		util.WithDiscoverFile(discover),
 		util.WithOutputFormat("documentation"),
 		util.WithNoColor(),
 	)

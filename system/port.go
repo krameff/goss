@@ -2,6 +2,7 @@ package system
 
 import (
 	"context"
+	"errors"
 	"strconv"
 	"strings"
 
@@ -19,13 +20,16 @@ type Port interface {
 type DefPort struct {
 	port     string
 	sysPorts map[string][]GOnetstat.Process
+	err      error
 }
 
 func NewDefPort(_ context.Context, port string, system *System, config util.Config) Port {
 	p := normalizePort(port)
+	sysPorts, err := system.Ports()
 	return &DefPort{
 		port:     p,
-		sysPorts: system.Ports(),
+		sysPorts: sysPorts,
+		err:      err,
 	}
 }
 
@@ -50,6 +54,9 @@ func (p *DefPort) Port() string {
 func (p *DefPort) Exists() (bool, error) { return p.Listening() }
 
 func (p *DefPort) Listening() (bool, error) {
+	if p.err != nil {
+		return false, p.err
+	}
 	if _, ok := p.sysPorts[p.port]; ok {
 		return true, nil
 	}
@@ -57,6 +64,9 @@ func (p *DefPort) Listening() (bool, error) {
 }
 
 func (p *DefPort) IP() ([]string, error) {
+	if p.err != nil {
+		return nil, p.err
+	}
 	var ips []string
 	for _, entry := range p.sysPorts[p.port] {
 		ips = append(ips, entry.Ip)
@@ -64,45 +74,48 @@ func (p *DefPort) IP() ([]string, error) {
 	return ips, nil
 }
 
-// FIXME: Is there a better way to do this rather than ignoring errors?
-func GetPorts(lookupPids bool) map[string][]GOnetstat.Process {
+// GetPorts returns the set of listening TCP/UDP ports known to the OS's
+// netstat backend. Failures from individual protocol lookups are joined and
+// returned rather than silently discarded: GOnetstat treats a missing/
+// unreadable /proc/net/{tcp,udp}{,6} file as "no ports" with no error, but it
+// does return an error if a file it *could* read contains a line it can't
+// parse (e.g. an unexpected IP/port encoding), which would otherwise present
+// as every port simply not listening.
+func GetPorts(lookupPids bool) (map[string][]GOnetstat.Process, error) {
 	ports := make(map[string][]GOnetstat.Process)
-	netstat, _ := GOnetstat.Tcp(lookupPids)
-	var net string
-	// netPorts := make(map[string]GOnetstat.Process)
-	// ports["tcp"] = netPorts
-	net = "tcp"
+	var errs []error
+
+	netstat, err := GOnetstat.Tcp(lookupPids)
+	errs = append(errs, err)
 	for _, entry := range netstat {
 		if entry.State == "LISTEN" {
 			port := strconv.FormatInt(entry.Port, 10)
-			ports[net+":"+port] = append(ports[net+":"+port], entry)
+			ports["tcp:"+port] = append(ports["tcp:"+port], entry)
 		}
 	}
-	netstat, _ = GOnetstat.Tcp6(lookupPids)
-	// netPorts = make(map[string]GOnetstat.Process)
-	// ports["tcp6"] = netPorts
-	net = "tcp6"
+
+	netstat, err = GOnetstat.Tcp6(lookupPids)
+	errs = append(errs, err)
 	for _, entry := range netstat {
 		if entry.State == "LISTEN" {
 			port := strconv.FormatInt(entry.Port, 10)
-			ports[net+":"+port] = append(ports[net+":"+port], entry)
+			ports["tcp6:"+port] = append(ports["tcp6:"+port], entry)
 		}
 	}
-	netstat, _ = GOnetstat.Udp(lookupPids)
-	// netPorts = make(map[string]GOnetstat.Process)
-	// ports["udp"] = netPorts
-	net = "udp"
+
+	netstat, err = GOnetstat.Udp(lookupPids)
+	errs = append(errs, err)
 	for _, entry := range netstat {
 		port := strconv.FormatInt(entry.Port, 10)
-		ports[net+":"+port] = append(ports[net+":"+port], entry)
+		ports["udp:"+port] = append(ports["udp:"+port], entry)
 	}
-	netstat, _ = GOnetstat.Udp6(lookupPids)
-	// netPorts = make(map[string]GOnetstat.Process)
-	// ports["udp6"] = netPorts
-	net = "udp6"
+
+	netstat, err = GOnetstat.Udp6(lookupPids)
+	errs = append(errs, err)
 	for _, entry := range netstat {
 		port := strconv.FormatInt(entry.Port, 10)
-		ports[net+":"+port] = append(ports[net+":"+port], entry)
+		ports["udp6:"+port] = append(ports["udp6:"+port], entry)
 	}
-	return ports
+
+	return ports, errors.Join(errs...)
 }

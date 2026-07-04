@@ -37,11 +37,11 @@ htmlcov:
 
 lint:
 	$(info INFO: Starting build $@)
-	golangci-lint run --timeout 5m $(pkgs) || true
+	golangci-lint run --timeout 5m $(pkgs)
 
 vet:
 	$(info INFO: Starting build $@)
-	go vet $(pkgs) || true
+	go vet $(pkgs)
 
 fmt:
 	$(info INFO: Starting build $@)
@@ -165,6 +165,18 @@ test-security:
 
 .PHONY: check
 check: test test-discovery-e2e test-depends-on-e2e lint-markdown test-security
+	$(info INFO: Starting $@)
+
+# Fast checks to run before every commit: formatting, vet, unit tests.
+.PHONY: pre-commit
+pre-commit: fmt vet
+	$(info INFO: Starting $@)
+	go test ./...
+
+# Full local bundle to run before pushing / opening a PR: adds lint and the
+# same E2E + security checks CI runs in its coverage job.
+.PHONY: pre-push
+pre-push: fmt vet lint check
 	$(info INFO: Starting $@)
 
 $(PYTHON):
