@@ -24,6 +24,7 @@
 
 ### Fixed
 
+- `TestDiscoverFlagOverridesInline` and `TestValidateDiscoverWithDependsOn` no longer hardcode `/etc/hosts`, which doesn't exist on Windows; they now use a sentinel file created in `t.TempDir()`, fixing `found 0 tests` failures now that `make test` runs on Windows CI. `TestValidateWithDiscoverFlag` and `TestValidateInlineDiscovery` still assert against the `/etc/hosts`-based example fixture (also used by docs and the Linux-only discovery e2e test) and are skipped on non-Linux
 - File `contents` checks now report the actual file content on failure instead of `"object: *bytes.Reader"` ([#1055](https://github.com/goss-org/goss/pull/1055); thanks to [@ckbaker10](https://github.com/ckbaker10))
 - `have-patterns` matcher now honours trailing regex flags such as `/i`, `/m`, and `/s` on `/pattern/flags` style patterns ([#1057](https://github.com/goss-org/goss/pull/1057); thanks to [@ckbaker10](https://github.com/ckbaker10))
 - Windows integration test service check uses `EventLog` instead of `MSDTC`; MSDTC is often stopped on GitHub Actions `windows-latest` runners despite being enabled
