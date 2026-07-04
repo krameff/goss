@@ -70,7 +70,7 @@ jobs:
 
       - name: Build main goss image
         if: github.ref_name == 'main'
-        uses: docker/build-push-action@v7.2.0
+        uses: docker/build-push-action@v7.3.0
         with:
           context: .
           file: Dockerfile
@@ -82,7 +82,7 @@ jobs:
 
       - name: Build devel goss image
         if: github.ref_name == 'devel'
-        uses: docker/build-push-action@v7.2.0
+        uses: docker/build-push-action@v7.3.0
         with:
           context: .
           file: Dockerfile
