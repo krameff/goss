@@ -103,11 +103,17 @@ func TestTemplateDiscoveredVars(t *testing.T) {
 
 func TestValidateWithoutDiscover(t *testing.T) {
 	dir := t.TempDir()
+	sentinel := filepath.ToSlash(filepath.Join(dir, "sentinel"))
+	if err := os.WriteFile(filepath.FromSlash(sentinel), []byte("present"), 0o644); err != nil {
+		t.Fatalf("write sentinel: %v", err)
+	}
+
 	spec := filepath.Join(dir, "goss.yml")
-	if err := os.WriteFile(spec, []byte(`file:
-  /etc/hosts:
+	if err := os.WriteFile(spec, []byte(fmt.Sprintf(`file:
+  sentinel:
+    path: %s
     exists: true
-`), 0o644); err != nil {
+`, sentinel)), 0o644); err != nil {
 		t.Fatalf("write spec: %v", err)
 	}
 
