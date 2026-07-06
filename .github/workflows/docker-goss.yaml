@@ -60,6 +60,11 @@ jobs:
           args: build --clean --snapshot
         env:
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+          # Repo history contains non-semver tags (e.g. v0.5.1_alpha), which
+          # goreleaser refuses to parse even in --snapshot mode. Pin a known
+          # valid tag for these CI-only builds; the actual value is discarded
+          # since dockers_v2 is disabled during snapshot builds.
+          GORELEASER_CURRENT_TAG: "v0.0.0"
 
       - name: Stage docker build context
         run: |
