@@ -99,6 +99,10 @@ signs:
     signature: "${artifact}.sig"
     args:
       - "--batch"
+      - "--pinentry-mode"
+      - "loopback"
+      - "--passphrase-fd"
+      - "0"
       - "-u"
       - "{{ .Env.GPG_FINGERPRINT }}"
       - "--output"
@@ -106,6 +110,7 @@ signs:
       - "--detach-sign"
       - "${artifact}"
     artifacts: checksum
+    stdin: "{{ .Env.GPG_PASSPHRASE }}"
 
 release:
   extra_files:
