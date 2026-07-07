@@ -93,9 +93,24 @@ checksum:
   algorithm: sha256
   name_template: "{{ .ProjectName }}_{{ .Version }}_SHA256SUMS"
 
+signs:
+  - id: gpg
+    cmd: gpg
+    signature: "${artifact}.sig"
+    args:
+      - "--batch"
+      - "-u"
+      - "{{ .Env.GPG_FINGERPRINT }}"
+      - "--output"
+      - "${signature}"
+      - "--detach-sign"
+      - "${artifact}"
+    artifacts: checksum
+
 release:
   extra_files:
     - glob: ./extras/*goss/*goss*
+    - glob: ./krameff-goss-key.asc
 
 snapshot:
   version_template: "{{ incpatch .Version }}-next"
