@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/goss-org/GOnetstat"
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/util"
 )
 
 type Port interface {

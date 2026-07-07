@@ -3,7 +3,7 @@
 {
 set -e
 
-LATEST_URL="https://github.com/goss-org/goss/releases/latest"
+LATEST_URL="https://github.com/krameff/goss/releases/latest"
 LATEST_EFFECTIVE=$(curl -s -L -o /dev/null ${LATEST_URL} -w '%{url_effective}')
 LATEST=${LATEST_EFFECTIVE##*/}
 
@@ -45,7 +45,7 @@ case "$(uname -m)" in
         ;;
 esac
 
-url="https://github.com/goss-org/goss/releases/download/$GOSS_VER/goss_${GOSS_VER#v}_linux_$arch.tar.gz"
+url="https://github.com/krameff/goss/releases/download/$GOSS_VER/goss_${GOSS_VER#v}_linux_$arch.tar.gz"
 
 echo "Downloading $url"
 tmp=$(mktemp -d)
@@ -56,7 +56,7 @@ echo "Goss $GOSS_VER has been installed to $INSTALL_LOC"
 echo "goss --version"
 "$INSTALL_LOC" --version
 
-dgoss_url="https://raw.githubusercontent.com/goss-org/goss/$DGOSS_VER/extras/dgoss/dgoss"
+dgoss_url="https://raw.githubusercontent.com/krameff/goss/$DGOSS_VER/extras/dgoss/dgoss"
 echo "Downloading $dgoss_url"
 curl -L "$dgoss_url" -o "$DGOSS_INSTALL_LOC"
 chmod +rx "$DGOSS_INSTALL_LOC"

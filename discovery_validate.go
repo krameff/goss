@@ -5,8 +5,8 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/goss-org/goss/resource"
-	"github.com/goss-org/goss/system"
+	"github.com/krameff/goss/resource"
+	"github.com/krameff/goss/system"
 )
 
 func validateDiscovery(sys *system.System, gossConfig GossConfig, maxConcurrent int) (map[string]bool, error) {

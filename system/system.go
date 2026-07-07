@@ -13,7 +13,7 @@ import (
 	// This needs a better name
 	"github.com/goss-org/go-ps"
 
-	util2 "github.com/goss-org/goss/util"
+	util2 "github.com/krameff/goss/util"
 )
 
 type Resource interface {

@@ -2,10 +2,10 @@
 
 ## Dockerfiles
 
-* [latest](https://github.com/goss-org/goss/blob/master/Dockerfile)
+* [latest](https://github.com/krameff/goss/blob/master/Dockerfile)
 
 Release images are published to GitHub Container Registry as
-`ghcr.io/<owner>/goss` (for example `ghcr.io/goss-org/goss:latest` on tagged
+`ghcr.io/<owner>/goss` (for example `ghcr.io/krameff/goss:latest` on tagged
 releases, or `ghcr.io/<your-fork-owner>/goss:main` for branch builds).
 
 ## Using the base image
@@ -18,7 +18,7 @@ Can be used as a base image for your projects to allow for easy health checking.
 Create the container
 
 ```sh
-docker run --name goss ghcr.io/goss-org/goss goss
+docker run --name goss ghcr.io/krameff/goss goss
 ```
 
 Create your container and mount goss
@@ -36,7 +36,7 @@ docker exec weby /goss/goss autoadd nginx
 ### HEALTHCHECK example
 
 ```dockerfile
-FROM ghcr.io/goss-org/goss:latest
+FROM ghcr.io/krameff/goss:latest
 
 COPY goss/ /goss/
 HEALTHCHECK --interval=1s --timeout=6s CMD goss -g /goss/goss.yaml validate
@@ -47,7 +47,7 @@ HEALTHCHECK --interval=1s --timeout=6s CMD goss -g /goss/goss.yaml validate
 ### Startup delay example
 
 ```dockerfile
-FROM ghcr.io/goss-org/goss:latest
+FROM ghcr.io/krameff/goss:latest
 
 COPY goss/ /goss/
 

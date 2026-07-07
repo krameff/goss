@@ -4,7 +4,7 @@ import (
 	"log"
 	"reflect"
 
-	"github.com/goss-org/goss/resource"
+	"github.com/krameff/goss/resource"
 )
 
 type GossConfig struct {

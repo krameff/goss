@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/util"
 	"github.com/hashicorp/logutils"
 )
 

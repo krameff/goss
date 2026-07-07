@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/util"
 	"github.com/moby/sys/mountinfo"
 	"github.com/samber/lo"
 )

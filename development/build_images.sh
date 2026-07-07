@@ -4,10 +4,10 @@ set -xeu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 INTEGRATION_TEST_DIR="$SCRIPT_DIR/../integration-tests/"
-CONTAINER_REPOSITORY="aelsabbahy"
+CONTAINER_REPOSITORY="ghcr.io/krameff"
 
 LABEL_DATE=$(date -u +'%Y-%m-%dT%H:%M:%S.%3NZ')
-LABEL_URL="https://github.com/goss-org/goss"
+LABEL_URL="https://github.com/krameff/goss"
 LABEL_REVISION=$(git rev-parse HEAD)
 
 for docker_file in $INTEGRATION_TEST_DIR/Dockerfile_*; do

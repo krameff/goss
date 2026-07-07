@@ -3,7 +3,7 @@ package system
 import (
 	"context"
 
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/util"
 )
 
 type Gossfile interface {
