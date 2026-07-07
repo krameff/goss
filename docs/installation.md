@@ -51,7 +51,7 @@ GitHub release:
 
 ```bash
 GOSS_VER=v0.5.0
-curl -L "https://github.com/goss-org/goss/releases/download/${GOSS_VER}/goss_${GOSS_VER#v}_linux_x86_64.tar.gz" \
+curl -L "https://github.com/krameff/goss/releases/download/${GOSS_VER}/goss_${GOSS_VER#v}_linux_x86_64.tar.gz" \
   | tar xz -C /tmp
 sudo mv /tmp/goss /usr/local/bin/goss
 chmod +rx /usr/local/bin/goss

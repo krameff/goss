@@ -6,9 +6,9 @@ import (
 	"os"
 	"testing"
 
-	"github.com/goss-org/goss/outputs"
-	"github.com/goss-org/goss/resource"
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/outputs"
+	"github.com/krameff/goss/resource"
+	"github.com/krameff/goss/util"
 )
 
 func checkErr(t *testing.T, err error, format string, a ...any) {

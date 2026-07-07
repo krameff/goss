@@ -1,4 +1,4 @@
-module github.com/goss-org/goss
+module github.com/krameff/goss
 
 go 1.26
 

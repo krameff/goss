@@ -73,9 +73,9 @@ output(){
 build_pkg() {
     mkdir -p "${output_dir}"
   GOOS="${os}" GOARCH="${arch}" CGO_ENABLED=0 go build \
-    -ldflags "-X github.com/goss-org/goss/util.Version=${version_stamp} -s -w" \
+    -ldflags "-X github.com/krameff/goss/util.Version=${version_stamp} -s -w" \
     -o "${output}" \
-    github.com/goss-org/goss/cmd/goss
+    github.com/krameff/goss/cmd/goss
 
   chmod +x "${output}"
 }

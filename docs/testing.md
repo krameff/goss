@@ -135,7 +135,7 @@ mounted at `/goss/examples/` inside the test container.
 
 ## Go unit and integration tests (181 cases)
 
-### Package `github.com/goss-org/goss` (root)
+### Package `github.com/krameff/goss` (root)
 
 | Test | File | Covers |
 | --- | --- | --- |

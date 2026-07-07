@@ -3,8 +3,8 @@ package outputs
 import (
 	"io"
 
-	"github.com/goss-org/goss/resource"
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/resource"
+	"github.com/krameff/goss/util"
 )
 
 type Silent struct{}

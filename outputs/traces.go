@@ -3,7 +3,7 @@ package outputs
 import (
 	"log"
 
-	"github.com/goss-org/goss/resource"
+	"github.com/krameff/goss/resource"
 )
 
 func logTrace(level string, msg string, testResult resource.TestResult, withIntResult bool) {
