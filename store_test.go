@@ -312,3 +312,18 @@ func fileMaker(content string) (string, func()) {
 		}
 	}
 }
+
+func TestStaticStoreErrors(t *testing.T) {
+	_, err := getStoreFormatFromData([]byte("{\n\t\"broken\": "))
+	assert.ErrorIs(t, err, errCannotDetermineFormat)
+
+	prev := outStoreFormat
+	outStoreFormat = UNSET
+	t.Cleanup(func() { outStoreFormat = prev })
+
+	_, err = marshal(NewGossConfig())
+	assert.ErrorIs(t, err, errStoreFormatUnset)
+
+	err = unmarshal([]byte("{}"), NewGossConfig(), UNSET)
+	assert.ErrorIs(t, err, errStoreFormatUnset)
+}

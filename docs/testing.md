@@ -6,19 +6,35 @@ Last verified: 2026-06-25 — **181** Go test cases passing, discovery E2E passi
 
 ## Quick start (local)
 
-Run the checks most PRs need before pushing:
+One-time setup so the pre-commit hook runs automatically:
 
 ```bash
-make check
+git config core.hooksPath .githooks
 ```
 
-That runs unit tests, discovery E2E, depends-on E2E, and markdown lint. Individual targets:
+This runs `gofmt`, `go vet`, and `go test` scoped to whatever Go packages have staged
+changes on every `git commit` (see [`.githooks/pre-commit`](../.githooks/pre-commit)).
+
+Before pushing / opening a PR, run the fuller local bundle (mirrors both CI jobs —
+lint + coverage):
 
 ```bash
+make pre-push
+```
+
+`pre-push` runs `fmt`, `vet`, `lint` (strict — no longer swallows failures), then
+`check` (unit tests, discovery E2E, depends-on E2E, markdown lint, security scan).
+Individual targets:
+
+```bash
+make fmt
+make vet
+make lint
 go test ./...
 make test-discovery-e2e
 make test-depends-on-e2e
 make lint-markdown
+make test-security
 ```
 
 On macOS/Windows, `make test-discovery-e2e` builds a temporary goss binary and uses
@@ -28,23 +44,30 @@ On macOS/Windows, `make test-discovery-e2e` builds a temporary goss binary and u
 
 | Target | Command | Purpose |
 | --- | --- | --- |
-| `check` | `test` + discovery/depends-on E2E + `lint-markdown` | PR check bundle |
+| `pre-commit` | `fmt vet` + `go test ./...` | Fast local check (also runs scoped via git hook) |
+| `pre-push` | `fmt vet lint check` | Full local bundle before pushing / opening a PR |
+| `check` | `test` + discovery/depends-on E2E + `lint-markdown` + `test-security` | PR check bundle |
 | `test` | `./ci/go-test.sh` | Unit tests with coverage profile (`c.out`) |
 | `cov` | `go test -coverpkg=./... ./...` | Coverage run (used in CI) |
 | `test-discovery-e2e` | `./ci/discovery-e2e.sh` | `--discover` pipeline (flag, inline, discover+depends-on) |
 | `test-depends-on-e2e` | `./ci/depends-on-e2e.sh` | `depends-on` skip when prerequisite fails |
 | `lint-markdown` | `./ci/lint-markdown.sh` | Markdownlint on docs and README files |
+| `test-security` | `./ci/security-scan.sh` | `govulncheck` + Trivy scan of `go.mod` and `docs/requirements.txt` |
 | `lint-yaml` | `yamllint` | YAML lint for integration-test gossfiles |
 | `test-short-all` | `fmt lint vet test` | Formatter, golangci-lint, vet, unit tests |
 | `test-int-*` | Docker / platform scripts | Full integration matrix (slow) |
+
+`lint` and `vet` now fail the build on violations (previously both swallowed errors
+with `|| true`), so `test-short-all`, `pre-push`, and CI's separate lint job agree.
 
 ## CI workflows
 
 | Workflow | Job | Tests run |
 | --- | --- | --- |
 | [`.github/workflows/golangci.yaml`](../.github/workflows/golangci.yaml) | `lint` | golangci-lint |
-| | `coverage` | `make cov`, **`make test-discovery-e2e`**, **`make test-depends-on-e2e`** |
+| | `coverage` | `make cov`, **`make test-discovery-e2e`**, **`make test-depends-on-e2e`**, **`./ci/security-scan.sh`** |
 | | `integration-test-*` | `make rockylinux9`, `jammy`, darwin, windows, etc. (includes discovery + depends-on E2E) |
+| [`.github/workflows/codeql.yml`](../.github/workflows/codeql.yml) | `analyze` | CodeQL static analysis for Go and GitHub Actions workflows |
 | [`.github/workflows/docs.yaml`](../.github/workflows/docs.yaml) | `lint` | markdownlint-cli2 on docs |
 | [`.github/workflows/yamllint.yaml`](../.github/workflows/yamllint.yaml) | — | YAML lint |
 
@@ -222,6 +245,43 @@ make lint-markdown
 Lints: `docs/**/*.md`, `README.md`, `extras/**/README.md`, `.github/CONTRIBUTING.md`
 
 Configuration: [`.markdownlint.yaml`](../.markdownlint.yaml)
+
+## Security scan
+
+Script: [`ci/security-scan.sh`](../ci/security-scan.sh)
+
+```bash
+make test-security
+```
+
+Runs on every `make check` and in the `coverage` CI job after dependency or docs updates.
+
+Steps performed:
+
+1. **`govulncheck ./...`** — Go vulnerability database scan for the module and its dependencies
+2. **Trivy filesystem scan** — checks `go.mod` and `docs/requirements.txt` for known CVEs at **MEDIUM** severity and above
+
+Locally, Trivy runs via the `trivy` binary if installed, otherwise via Docker
+(`aquasec/trivy`). If neither is available, the scan is skipped with a warning unless
+`SECURITY_STRICT=1` (always set in CI).
+
+Docker image scanning (Alpine packages and compiled binary) continues to run in
+[`.github/workflows/docker-goss.yaml`](../.github/workflows/docker-goss.yaml) and
+[`.github/workflows/trivy-schedule.yaml`](../.github/workflows/trivy-schedule.yaml).
+
+## CodeQL
+
+Workflow: [`.github/workflows/codeql.yml`](../.github/workflows/codeql.yml)
+
+Runs on pull requests and pushes to `devel`, plus a weekly schedule.
+Uses GitHub's advanced CodeQL setup for Go and Actions with category
+`/language:<language>` so PRs can be compared against the base branch.
+
+CodeQL runs in CI only (not part of `make check`).
+
+If the repository still has **CodeQL Default setup** enabled under **Settings → Code
+security**, disable it in favour of this workflow. Default setup and an advanced workflow
+cannot run together and will produce "configuration not found" warnings on pull requests.
 
 ## Adding tests for new features
 

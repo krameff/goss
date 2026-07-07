@@ -24,6 +24,6 @@ bullseye:
 almalinux10:
   proxy: http://127.0.0.1:8888
   packages:
-    httpd: "2.4.63-13.el10_2.1"
+    httpd: "2.4.63-13.el10_2.4"
 
 overwrite: foo

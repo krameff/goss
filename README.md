@@ -7,7 +7,6 @@
 > original project and aim to continue it in the same spirit.
 
 [![Documentation](https://img.shields.io/badge/docs-docs-blue)](docs/index.md)
-[![Blog](https://img.shields.io/badge/follow-blog-brightgreen.svg)](https://medium.com/@aelsabbahy)
 
 <!-- --8<-- [start:intro] -->
 
@@ -58,6 +57,53 @@ Download pre-built binaries and install wrappers as described in [installation](
 
 ```bash
 make build
+```
+
+Alternatively, you can build it with [goreleaser](https://goreleaser.com/). To
+build a binary, use `goreleaser build`, and to only build for the same OS and
+architecture as the machine you're building on, include the `--single-target`
+flag. The `--clean` flag will clean up any existing builds, and `--snapshot`
+will allow you to build against something other than a tag.
+
+Here's an example:
+
+```console
+$ goreleaser build --clean --single-target --snapshot
+  • skipping validate...
+  • cleaning distribution directory
+  • loading environment variables
+  • getting and validating git state
+  • ignoring errors because this is a snapshot error=git doesn't contain any tags - either add a tag or use --snapshot
+  • using tags previous= current=v0.0.0
+  • pipe skipped or partially skipped reason=disabled during snapshot mode
+  • parsing tag
+  • setting defaults
+  • partial
+  • snapshotting
+  • building snapshot... version=0.0.1-next
+  • running before hooks
+  • running hook=go mod tidy
+  • ensuring distribution directory
+  • setting up metadata
+  • writing release metadata
+  • loading go mod information
+  • build prerequisites
+  • building binaries
+  • partial build match=target=linux_arm64_v8.0
+  • building paths=cmd/goss binaries=goss target=linux_arm64_v8.0
+  • took: 31s
+  • writing artifacts metadata
+  • build succeeded after 31s
+  • thanks for using GoReleaser!
+$ tree dist
+dist
+├── artifacts.json
+├── binaries_linux_arm64_v8.0
+│   └── goss <- your binary
+├── config.yaml
+└── metadata.json
+
+2 directories, 4 files
 ```
 
 <!-- --8<-- [end:install] -->
@@ -332,6 +378,21 @@ Service:
 * sysV init
 * OpenRC init
 * Upstart
+
+Port:
+
+* Port state is only implemented on Linux, where it's read from
+  `/proc/net/{tcp,udp,tcp6,udp6}`. It is not implemented on macOS or Windows --
+  see [platform support](docs/platforms.md).
+* On Linux, if one of those files exists but contains a line goss can't parse
+  (an unexpected IP/port/uid encoding, typically from a non-standard procfs,
+  e.g. inside certain containers or network namespaces), the affected `port`
+  resource now fails with an explicit `Error:` block in the output instead of
+  silently reporting the port as not listening. To investigate: note which
+  protocol failed from the resource id (`tcp`, `tcp6`, `udp`, `udp6`), then
+  inspect the corresponding file directly, e.g. `cat /proc/net/tcp6`, and
+  compare its columns against a working host. A missing or unreadable file is
+  *not* an error case -- it's treated as "no ports" for that protocol.
 
 [kubernetes-simplified-health-checks]: https://medium.com/@aelsabbahy/docker-1-12-kubernetes-simplified-health-checks-and-container-ordering-with-goss-fa8debbe676c
 

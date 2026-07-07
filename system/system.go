@@ -38,16 +38,18 @@ type System struct {
 	NewHTTP        func(context.Context, string, *System, util2.Config) HTTP
 	NewRegistry    func(context.Context, string, *System, util2.Config) Registry
 	ports          map[string][]GOnetstat.Process
+	portsErr       error
 	portsOnce      sync.Once
 	procMap        map[string][]ps.Process
 	procOnce       sync.Once
 }
 
-func (s *System) Ports() map[string][]GOnetstat.Process {
+func (s *System) Ports() (map[string][]GOnetstat.Process, error) {
 	s.portsOnce.Do(func() {
-		s.ports = GetPorts(false)
+		s.ports, s.portsErr = GetPorts(false)
 	})
-	return s.ports
+
+	return s.ports, s.portsErr
 }
 
 func (s *System) ProcMap() (map[string][]ps.Process, error) {

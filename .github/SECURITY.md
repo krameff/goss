@@ -47,6 +47,17 @@ The following are out of scope:
 - Third-party dependencies where a fix requires an upstream release (we will update the dependency once a fix is available)
 - Theoretical vulnerabilities without a realistic attack vector
 
+## Code scanning
+
+Static analysis uses the advanced CodeQL workflow at
+[`.github/workflows/codeql.yml`](workflows/codeql.yml). Container and dependency
+scanning uses Trivy (see workflows `docker-goss.yaml`, `trivy-schedule.yaml`, and
+`ci/security-scan.sh`).
+
+Repository maintainers: if **CodeQL Default setup** is enabled under **Settings → Code
+security**, switch it off so only the workflow-based advanced setup runs. Both cannot
+coexist.
+
 ## Disclosure
 
 We follow coordinated disclosure. Once a fix is available we will:

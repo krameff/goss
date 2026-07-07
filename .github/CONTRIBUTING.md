@@ -62,3 +62,8 @@ Lastly, in order for a pull request to be merged,
 it must provide automated tests (unit and/or integration) proving the change works as intended,
 this also prevents future changes from introducing regressions.
 It would be quite odd for a testing tool to not have a healthy approach to test automation, after all. :smile:
+
+Before opening a PR, run `make pre-push` locally (formats, vets, lints, and runs unit
+tests plus the discovery/depends-on E2E and security checks CI runs). See
+[`docs/testing.md`](../docs/testing.md) for the full breakdown, including an optional
+git hook (`git config core.hooksPath .githooks`) that runs a fast subset on every commit.

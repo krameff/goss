@@ -1,5 +1,56 @@
 # Changelog
 
+3rd July 2026
+
+### Added
+
+- GoReleaser configuration for release builds ([#1052](https://github.com/goss-org/goss/pull/1052); thanks to [@kgaughan](https://github.com/kgaughan))
+  - Cross-platform binary archives (`tar.gz` on Unix, `zip` on Windows) with SHA256 checksums
+  - Multi-arch container images (`linux/amd64`, `linux/arm64`) published to `ghcr.io/<owner>/goss` with SBOMs
+  - README documents local `goreleaser build` usage
+
+### Updated
+
+- Release workflow runs GoReleaser instead of `make release` and manual artifact upload; includes QEMU/Buildx for multi-platform Docker builds; images publish to `ghcr.io/${{ github.repository_owner }}/goss`
+- `docker-goss.yaml` builds branch images via GoReleaser snapshot binaries instead of the removed multi-stage Dockerfile compile; tag pushes no longer duplicate release image builds
+- `Dockerfile` simplified to copy the GoReleaser-built binary via `$TARGETPLATFORM`
+- `install.sh` downloads compressed release archives and supports `s390x`; uses case-based architecture detection ([#1068](https://github.com/goss-org/goss/pull/1068))
+- `make lint` and `make vet` now fail on violations instead of silently succeeding (`|| true` removed)
+- Added `make pre-commit` (fmt, vet, unit tests) and `make pre-push` (fmt, vet, lint, `check`) targets for local testing before committing/pushing
+- Added optional git hook (`.githooks/pre-commit`) that runs gofmt/vet/tests scoped to staged Go packages; enable via `git config core.hooksPath .githooks`
+- `docs/testing.md` and `.github/CONTRIBUTING.md` document the new pre-commit/pre-push workflow
+- CI's `integration-test-other` job (`macos-latest`, `windows-latest`) now runs `make test` before the integration tests, so Windows/macOS-only unit tests (e.g. `system/command_windows_test.go`) actually execute in CI
+- README documents the `port` resource's Linux-only support and the new netstat parse-error behaviour, including how to investigate it
+
+### Fixed
+
+- `TestDiscoverFlagOverridesInline` and `TestValidateDiscoverWithDependsOn` no longer hardcode `/etc/hosts`, which doesn't exist on Windows; they now use a sentinel file created in `t.TempDir()`, fixing `found 0 tests` failures now that `make test` runs on Windows CI. `TestValidateWithDiscoverFlag` and `TestValidateInlineDiscovery` still assert against the `/etc/hosts`-based example fixture (also used by docs and the Linux-only discovery e2e test) and are skipped on non-Linux
+- File `contents` checks now report the actual file content on failure instead of `"object: *bytes.Reader"` ([#1055](https://github.com/goss-org/goss/pull/1055); thanks to [@ckbaker10](https://github.com/ckbaker10))
+- `have-patterns` matcher now honours trailing regex flags such as `/i`, `/m`, and `/s` on `/pattern/flags` style patterns ([#1057](https://github.com/goss-org/goss/pull/1057); thanks to [@ckbaker10](https://github.com/ckbaker10))
+- Windows integration test service check uses `EventLog` instead of `MSDTC`; MSDTC is often stopped on GitHub Actions `windows-latest` runners despite being enabled
+- `have-patterns` regex detection uses `strings.TrimPrefix` for optional negation prefix (staticcheck S1017)
+- `port` resource no longer silently discards errors from the underlying netstat backend (`system.GetPorts`); a `/proc/net/{tcp,udp,tcp6,udp6}` line that fails to parse now fails the check with an explicit error instead of the port being reported as not listening
+
+---
+
+1st July 2026
+
+### Updated
+
+- Error handling uses static sentinel errors and `%w` wrapping where appropriate, enabling `errors.Is` / `errors.As` for callers ([#1066](https://github.com/goss-org/goss/pull/1066); thanks to [@kgaughan](https://github.com/kgaughan))
+
+### Security
+
+- `make check` and CI now run dependency scans (`govulncheck` plus Trivy on `go.mod` and docs Python requirements)
+- CodeQL workflow added for Go static analysis on pull requests
+- Docs build dependency `pygments` bumped to 2.20.0 (CVE-2026-4539)
+
+### Fixed
+
+- HTTP checks now close response bodies after validation, preventing connection leaks and OOM when running many concurrent HTTP tests ([#1058](https://github.com/goss-org/goss/pull/1058); thanks to [@dukelion](https://github.com/dukelion))
+
+---
+
 25th June 2026
 
 ### Updated

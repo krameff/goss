@@ -1,11 +1,14 @@
 package resource
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/goss-org/goss/matchers"
 	"github.com/samber/lo"
 )
+
+var errMissingRequiredAttribute = errors.New("syntax error: missing required attribute")
 
 func matcherToGomegaMatcher(matcher any) (matchers.GossMatcher, error) {
 	// Default matchers
@@ -28,7 +31,7 @@ func matcherToGomegaMatcher(matcher any) (matchers.GossMatcher, error) {
 		return matchers.ContainElements(interfaceSlice...), nil
 	}
 	if matcher == nil {
-		return nil, fmt.Errorf("syntax error: missing required attribute")
+		return nil, errMissingRequiredAttribute
 	}
 	matcherMap, ok := matcher.(map[string]any)
 	if !ok {

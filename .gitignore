@@ -3,6 +3,8 @@
 *.bak
 /goss
 /release
+/dist
+/linux
 /integration-tests/goss/goss
 /integration-tests/**/*-generated*
 /vendor/
