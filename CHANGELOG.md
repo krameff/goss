@@ -14,6 +14,7 @@
 - Release checksums (`SHA256SUMS`) are now GPG-signed 
 - public key published as `krameff-goss-key.asc` at the repo root and attached to every release
 - `docs/installation.md` documents how to import the signing key and verify a release's checksum signature
+- goss -v now shows Krameff Solutions Ltd on the next line
 
 ---
 
