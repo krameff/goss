@@ -8,8 +8,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/krameff/goss/util"
 	"github.com/hashicorp/logutils"
+	"github.com/krameff/goss/util"
 )
 
 func setLogLevel(c *util.Config) error {
