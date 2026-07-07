@@ -1,6 +1,6 @@
 export GO15VENDOREXPERIMENT=1
 
-exe = github.com/goss-org/goss/cmd/goss
+exe = github.com/krameff/goss/cmd/goss
 pkgs = $(shell ./novendor.sh)
 cmd = goss
 GO111MODULE=on

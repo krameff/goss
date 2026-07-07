@@ -43,11 +43,18 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
 
-      - uses: docker/login-action@v4.2.0
+      - uses: docker/login-action@v4.4.0
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Import GPG signing key
+        id: import_gpg
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v7
@@ -58,3 +65,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }}
+          GPG_FINGERPRINT: ${{ steps.import_gpg.outputs.fingerprint }}

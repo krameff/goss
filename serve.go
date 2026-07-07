@@ -10,10 +10,10 @@ import (
 	"time"
 
 	"github.com/fatih/color"
-	"github.com/goss-org/goss/outputs"
-	"github.com/goss-org/goss/resource"
-	"github.com/goss-org/goss/system"
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/outputs"
+	"github.com/krameff/goss/resource"
+	"github.com/krameff/goss/system"
+	"github.com/krameff/goss/util"
 	"github.com/patrickmn/go-cache"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )

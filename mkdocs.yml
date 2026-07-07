@@ -2,8 +2,8 @@ site_name: Goss
 site_description: Goss is a YAML based serverspec alternative tool for validating a server’s configuration.
 site_author: Goss team
 site_url: https://goss.readthedocs.io/
-repo_url: https://github.com/goss-org/goss
-repo_name: goss-org/goss
+repo_url: https://github.com/krameff/goss
+repo_name: krameff/goss
 edit_uri: edit/master/docs/
 
 
@@ -72,7 +72,7 @@ markdown_extensions:
       social_url_shortener: true
       repo_url_shorthand: true
       social_url_shorthand: true
-      user: goss-org
+      user: krameff
       repo: goss
   - pymdownx.snippets:
       base_path:
@@ -86,7 +86,7 @@ copyright: Copyright &copy; 2015 - 2024 Ahmed Elsabbahy
 extra:
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/goss-org/goss
+      link: https://github.com/krameff/goss
     - icon: fontawesome/brands/medium
       link: https://medium.com/@aelsabbahy
 

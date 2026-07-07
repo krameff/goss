@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/goss-org/goss/system"
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/system"
+	"github.com/krameff/goss/util"
 )
 
 type File struct {

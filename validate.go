@@ -12,10 +12,10 @@ import (
 	"github.com/fatih/color"
 	"github.com/onsi/gomega/format"
 
-	"github.com/goss-org/goss/outputs"
-	"github.com/goss-org/goss/resource"
-	"github.com/goss-org/goss/system"
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/outputs"
+	"github.com/krameff/goss/resource"
+	"github.com/krameff/goss/system"
+	"github.com/krameff/goss/util"
 )
 
 func getGossConfig(varsFiles []string, varsInline string, specFile string, discovered map[string]bool) (cfg *GossConfig, err error) {

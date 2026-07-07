@@ -14,8 +14,8 @@ import (
 	"dario.cat/mergo"
 	"gopkg.in/yaml.v3"
 
-	"github.com/goss-org/goss/resource"
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/resource"
+	"github.com/krameff/goss/util"
 )
 
 const (

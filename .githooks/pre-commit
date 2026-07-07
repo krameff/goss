@@ -9,8 +9,8 @@ set -euo pipefail
 repo_root="$(git rev-parse --show-toplevel)"
 cd "${repo_root}"
 
-export PATH="/usr/local/go/bin:${HOME}/go/bin:${PATH}"
-export GOPATH="${HOME}/go"
+export PATH="/usr/local/go/bin:/opt/go/bin:${PATH}"
+export GOPATH="/opt/go"
 
 staged_go_files=$(git diff --cached --name-only --diff-filter=ACM -- '*.go' || true)
 

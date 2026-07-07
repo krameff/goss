@@ -6,7 +6,7 @@ package system
 import (
 	"context"
 
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/util"
 )
 
 // NewServiceWindows stub for non Windows platforms.

@@ -5,8 +5,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/goss-org/goss/resource"
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/resource"
+	"github.com/krameff/goss/util"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/common/expfmt"

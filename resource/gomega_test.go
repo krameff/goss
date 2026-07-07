@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/goss-org/goss/matchers"
+	"github.com/krameff/goss/matchers"
 	"github.com/stretchr/testify/assert"
 )
 

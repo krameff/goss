@@ -25,7 +25,7 @@ To try out the alpha functionality, you must do one of:
 
 The macOS and Windows support is community driven;
 there is no commitment to adding features / fixing bugs for those platforms.
-[See thread](https://github.com/goss-org/goss/pull/585#discussion_r429968540).
+[See thread](https://github.com/krameff/goss/pull/585#discussion_r429968540).
 
 This matrix attempts to track parity across platforms.
 

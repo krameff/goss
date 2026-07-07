@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/util"
 )
 
 type ServiceInit struct {

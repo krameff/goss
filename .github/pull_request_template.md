@@ -1,23 +1,12 @@
-<!--
-Thank you for your pull request. Please provide a description above and review
-the requirements below.
+Thank you for raising this pull request!
 
-Bug fixes and new features should include tests and possibly benchmarks.
+Before submitting, please run linting and security scanning locally:
 
-Contributors guide: ./CONTRIBUTING.md
--->
+```bash
+make pre-push
+```
 
-<!-- _Please make sure to review and check all of these items:_ -->
-
-
-##### Checklist
-<!-- Remove items that do not apply. For completed items, change [ ] to [x]. -->
-
-- [ ] `make test` passes locally. CI will also verify this
-- [ ] unit and/or integration tests are included (if applicable)
-- [ ] documentation is changed or added (if applicable)
-
-<!-- _NOTE: these things are not required to open a PR and can be done afterwards / while the PR is open._ -->
+This runs formatting, vet, lint, tests, and a security scan (the same checks CI runs). Fix any issues it reports before requesting review.
 
 ### Description of change
 <!--

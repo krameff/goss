@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/goss-org/go-ps"
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/util"
 )
 
 type Process interface {

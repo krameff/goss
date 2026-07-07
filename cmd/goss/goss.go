@@ -9,11 +9,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/goss-org/goss"
-	"github.com/goss-org/goss/outputs"
-	"github.com/goss-org/goss/resource"
-	"github.com/goss-org/goss/system"
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss"
+	"github.com/krameff/goss/outputs"
+	"github.com/krameff/goss/resource"
+	"github.com/krameff/goss/system"
+	"github.com/krameff/goss/util"
 
 	"github.com/fatih/color"
 	"github.com/urfave/cli/v3"

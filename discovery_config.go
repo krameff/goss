@@ -3,7 +3,7 @@ package goss
 import (
 	"fmt"
 
-	"github.com/goss-org/goss/resource"
+	"github.com/krameff/goss/resource"
 )
 
 // DiscoveryConfig holds discovery-phase tests keyed by resource type.
