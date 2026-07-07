@@ -7,6 +7,7 @@
 - Repo moved to its new home at `github.com/krameff/goss`; Go module path, install script, docs, and CI links all updated to match
 - Local dev scripts (`development/build_images.sh`, `development/push_images.sh`, `integration-tests/test.sh`) now build/push/pull integration test images under `ghcr.io/krameff` instead of the old `aelsabbahy` Docker Hub namespace
 - `docs/changelog.md` now points readers at this file and the releases page instead of saying no changelog exists
+- Release binaries are now uncompressed (no more `tar.gz`/`zip` wrapper) and renamed to Go-native `goss-<os>-<arch>` (e.g. `goss-linux-amd64`, `goss-windows-amd64.exe`) instead of `goss_<version>_<os>_<arch>.tar.gz`; `install.sh` and `docs/installation.md` updated to match
 
 ### Added
 
