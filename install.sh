@@ -25,7 +25,7 @@ touch "$INSTALL_LOC" || { echo "ERROR: Cannot write to $GOSS_DST set GOSS_DST el
 # Reference: https://wiki.debian.org/ArchitectureSpecificsMemo
 case "$(uname -m)" in
     x86_64)
-        arch="x86_64"
+        arch="amd64"
         ;;
     aarch32|arm)
         arch="arm"
@@ -37,7 +37,7 @@ case "$(uname -m)" in
         arch="s390x"
         ;;
     i?86)
-        arch="i386"
+        arch="386"
         ;;
     *)
         echo "error: unknown/unsupported architecture: $(uname -m)" >&2
@@ -45,13 +45,11 @@ case "$(uname -m)" in
         ;;
 esac
 
-url="https://github.com/krameff/goss/releases/download/$GOSS_VER/goss_${GOSS_VER#v}_linux_$arch.tar.gz"
+url="https://github.com/krameff/goss/releases/download/$GOSS_VER/goss-linux-$arch"
 
 echo "Downloading $url"
-tmp=$(mktemp -d)
-trap "rm -rf $tmp" EXIT
-curl -L "$url" | tar xz -C "$tmp"
-mv "$tmp/goss" "$INSTALL_LOC"
+curl -L "$url" -o "$INSTALL_LOC"
+chmod +x "$INSTALL_LOC"
 echo "Goss $GOSS_VER has been installed to $INSTALL_LOC"
 echo "goss --version"
 "$INSTALL_LOC" --version

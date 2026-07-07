@@ -45,20 +45,20 @@ The supported install path is:
 curl -fsSL https://goss.rocks/install | sh
 ```
 
-Release assets are compressed archives named `goss_<version>_<os>_<arch>.tar.gz`
-(for example `goss_0.5.0_linux_x86_64.tar.gz`). To install manually from a
-GitHub release:
+Release assets are raw, uncompressed binaries named `goss-<os>-<arch>`
+(for example `goss-linux-amd64`; Windows builds are named `goss-windows-amd64.exe`).
+To install manually from a GitHub release:
 
 ```bash
 GOSS_VER=v0.5.0
-curl -L "https://github.com/krameff/goss/releases/download/${GOSS_VER}/goss_${GOSS_VER#v}_linux_x86_64.tar.gz" \
-  | tar xz -C /tmp
+curl -L "https://github.com/krameff/goss/releases/download/${GOSS_VER}/goss-linux-amd64" \
+  -o /tmp/goss
 sudo mv /tmp/goss /usr/local/bin/goss
 chmod +rx /usr/local/bin/goss
 ```
 
-Adjust the version, OS, and architecture in the filename as needed (`x86_64`,
-`arm64`, `arm`, `s390x`, `i386`, etc.).
+Adjust the version, OS, and architecture in the filename as needed (`amd64`,
+`arm64`, `arm`, `s390x`, `386`, etc.).
 
 When release artifacts are published for this fork, download the matching archive
 from the repository **Releases** page. Until then, use [build from source](#build-from-source) above.
