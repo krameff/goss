@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/goss-org/goss/matchers"
+	"github.com/krameff/goss/matchers"
 )
 
 const (

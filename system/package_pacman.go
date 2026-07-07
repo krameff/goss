@@ -4,7 +4,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/util"
 )
 
 type PacmanPackage struct {

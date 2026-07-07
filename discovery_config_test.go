@@ -3,7 +3,7 @@ package goss
 import (
 	"testing"
 
-	"github.com/goss-org/goss/resource"
+	"github.com/krameff/goss/resource"
 )
 
 func TestDiscoveryConfigEntries(t *testing.T) {

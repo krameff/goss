@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/util"
 )
 
 type ServiceWindows struct {

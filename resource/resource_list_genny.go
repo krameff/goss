@@ -11,14 +11,14 @@ import (
 	"strings"
 
 	"github.com/cheekybits/genny/generic"
-	"github.com/goss-org/goss/system"
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/system"
+	"github.com/krameff/goss/util"
 )
 
 //go:generate genny -in=$GOFILE -out=resource_list.go gen "ResourceType=Addr,Command,DNS,File,Gossfile,Group,Package,Port,Process,Service,User,KernelParam,Mount,Interface,HTTP,Registry"
 //go:generate sed -i -e "/^\\/\\/ +build genny/d" resource_list.go
 //go:generate sed -i -e "/^\\/\\/go:.*/d" resource_list.go
-//go:generate sed -i -e "s/aelsabbahy/goss-org/" resource_list.go
+//go:generate sed -i -e "s/aelsabbahy/krameff/" resource_list.go
 //go:generate goimports -w resource_list.go resource_list.go
 
 type ResourceType generic.Type

@@ -51,7 +51,7 @@ GitHub release:
 
 ```bash
 GOSS_VER=v0.5.0
-curl -L "https://github.com/goss-org/goss/releases/download/${GOSS_VER}/goss_${GOSS_VER#v}_linux_x86_64.tar.gz" \
+curl -L "https://github.com/krameff/goss/releases/download/${GOSS_VER}/goss_${GOSS_VER#v}_linux_x86_64.tar.gz" \
   | tar xz -C /tmp
 sudo mv /tmp/goss /usr/local/bin/goss
 chmod +rx /usr/local/bin/goss
@@ -62,3 +62,25 @@ Adjust the version, OS, and architecture in the filename as needed (`x86_64`,
 
 When release artifacts are published for this fork, download the matching archive
 from the repository **Releases** page. Until then, use [build from source](#build-from-source) above.
+
+## Verifying release signatures
+
+Each release's `SHA256SUMS` checksum file is GPG-signed with the project's
+signing key (fingerprint `864F6665DAD3BE65A5B4A324D6B4E7BD598F5209`, published
+as [`krameff-goss-key.asc`](../krameff-goss-key.asc) at the repo root and
+attached to every release).
+
+```bash
+GOSS_VER=v0.5.0
+
+# import the signing key once
+curl -fsSL https://raw.githubusercontent.com/krameff/goss/main/krameff-goss-key.asc | gpg --import
+
+# download the checksum file and its signature from the release page, then:
+gpg --verify goss_${GOSS_VER#v}_SHA256SUMS.sig goss_${GOSS_VER#v}_SHA256SUMS
+sha256sum -c goss_${GOSS_VER#v}_SHA256SUMS
+```
+
+A `gpg --verify` output of `Good signature from "Krameff Solutions Limited..."`
+confirms the checksum file (and therefore every archive listed in it) came
+from this project and hasn't been tampered with.

@@ -6,9 +6,9 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/goss-org/goss/resource"
-	"github.com/goss-org/goss/system"
-	"github.com/goss-org/goss/util"
+	"github.com/krameff/goss/resource"
+	"github.com/krameff/goss/system"
+	"github.com/krameff/goss/util"
 )
 
 // AddResources is a simple wrapper to add multiple resources

@@ -3,7 +3,7 @@
 
 package system
 
-import "github.com/goss-org/goss/util"
+import "github.com/krameff/goss/util"
 
 const windowsShell string = "cmd"
 

@@ -1,5 +1,21 @@
 # Changelog
 
+7th July 2026
+
+### Updated
+
+- Repo moved to its new home at `github.com/krameff/goss`; Go module path, install script, docs, and CI links all updated to match
+- Local dev scripts (`development/build_images.sh`, `development/push_images.sh`, `integration-tests/test.sh`) now build/push/pull integration test images under `ghcr.io/krameff` instead of the old `aelsabbahy` Docker Hub namespace
+- `docs/changelog.md` now points readers at this file and the releases page instead of saying no changelog exists
+
+### Added
+
+- Release checksums (`SHA256SUMS`) are now GPG-signed 
+- public key published as `krameff-goss-key.asc` at the repo root and attached to every release
+- `docs/installation.md` documents how to import the signing key and verify a release's checksum signature
+
+---
+
 3rd July 2026
 
 ### Added
