@@ -1,5 +1,11 @@
 # Goss - Quick and Easy server validation
 
+<!-- markdownlint-disable no-inline-html -->
+<p align="center">
+  <img src="images/krameff.svg" alt="Krameff" width="120">
+</p>
+<!-- markdownlint-enable no-inline-html -->
+
 > **Note:** This is a fork of the original [goss-org/goss](https://github.com/goss-org/goss) project created and
 > maintained by [@aelsabbahy](https://github.com/aelsabbahy). All original work remains under the Apache 2.0 license
 > and full credit goes to the original author for building such a solid foundation. This fork exists to enable newer
