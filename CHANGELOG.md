@@ -6,7 +6,8 @@ Unreleased
 
 - `docs/index.md` now links out to every doc page (installation, quickstart, CLI reference, gossfile, migrations, platforms, containers, contributing, changelog, license) instead of only rendering the README intro/about snippets; the gossfile link also calls out `discovery` and `depends-on` directly
 - `docs/migrations.md` documents migrating from `goss-org/goss` to `krameff/goss`: gossfile content needs no changes, only the install source, container image, and Go module import path; also notes that `discovery` and `depends-on` don't currently exist upstream
-- Added the Krameff logo to `README.md` and `docs/index.md` (`images/krameff.svg`, mirrored to `docs/images/krameff.svg` for mkdocs)
+- Gave the project its own logo: a checkmark-in-a-"G" icon with the Goss wordmark and a "by Krameff Solutions Ltd" credit line, replacing the plain Krameff badge on the README and docs homepage
+- Fixed a CI failure where `govulncheck` was flagging a Go standard library vulnerability (`GO-2026-5856`, a TLS privacy leak); pinned the Go toolchain to 1.26.5, which has the fix
 
 ---
 

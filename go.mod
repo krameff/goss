@@ -2,6 +2,8 @@ module github.com/krameff/goss
 
 go 1.26
 
+toolchain go1.26.5
+
 require (
 	dario.cat/mergo v1.0.2
 	github.com/Masterminds/sprig/v3 v3.3.0
