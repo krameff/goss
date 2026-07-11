@@ -2,7 +2,7 @@
 
 <!-- markdownlint-disable no-inline-html -->
 <p align="center">
-  <img src="images/krameff.svg" alt="Krameff" width="120">
+  <img src="images/goss-logo.svg" alt="Goss - by Krameff Solutions Ltd" width="200">
 </p>
 <!-- markdownlint-enable no-inline-html -->
 
