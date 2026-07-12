@@ -3,7 +3,8 @@ package system
 import (
 	"context"
 
-	"github.com/goss-org/go-ps"
+	"github.com/shirou/gopsutil/v4/process"
+
 	"github.com/krameff/goss/util"
 )
 
@@ -16,7 +17,7 @@ type Process interface {
 
 type DefProcess struct {
 	executable string
-	procMap    map[string][]ps.Process
+	procMap    map[string][]*process.Process
 	err        error
 }
 
@@ -41,7 +42,7 @@ func (p *DefProcess) Pids() ([]int, error) {
 		return pids, p.err
 	}
 	for _, proc := range p.procMap[p.executable] {
-		pids = append(pids, proc.Pid())
+		pids = append(pids, int(proc.Pid))
 	}
 	return pids, nil
 }
@@ -56,14 +57,23 @@ func (p *DefProcess) Running() (bool, error) {
 	return false, nil
 }
 
-func GetProcs() (map[string][]ps.Process, error) {
-	pmap := make(map[string][]ps.Process)
-	processes, err := ps.Processes()
+func GetProcs() (map[string][]*process.Process, error) {
+	pmap := make(map[string][]*process.Process)
+	processes, err := process.Processes()
 	if err != nil {
 		return pmap, err
 	}
 	for _, p := range processes {
-		pmap[p.Executable()] = append(pmap[p.Executable()], p)
+		// A process can legitimately disappear between listing and reading
+		// its name (it exited), or its /proc entry may be transiently
+		// unreadable. Skip it rather than failing the whole snapshot,
+		// mirroring go-ps's behavior of silently ignoring per-process
+		// read errors.
+		name, err := p.Name()
+		if err != nil {
+			continue
+		}
+		pmap[name] = append(pmap[name], p)
 	}
 
 	return pmap, nil

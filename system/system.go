@@ -10,8 +10,7 @@ import (
 	"sync"
 
 	"github.com/goss-org/GOnetstat"
-	// This needs a better name
-	"github.com/goss-org/go-ps"
+	"github.com/shirou/gopsutil/v4/process"
 
 	util2 "github.com/krameff/goss/util"
 )
@@ -40,7 +39,7 @@ type System struct {
 	ports          map[string][]GOnetstat.Process
 	portsErr       error
 	portsOnce      sync.Once
-	procMap        map[string][]ps.Process
+	procMap        map[string][]*process.Process
 	procOnce       sync.Once
 }
 
@@ -52,7 +51,7 @@ func (s *System) Ports() (map[string][]GOnetstat.Process, error) {
 	return s.ports, s.portsErr
 }
 
-func (s *System) ProcMap() (map[string][]ps.Process, error) {
+func (s *System) ProcMap() (map[string][]*process.Process, error) {
 	var err error
 
 	s.procOnce.Do(func() {
