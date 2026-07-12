@@ -16,7 +16,7 @@ rockylinux9:
 jammy:
   proxy: http://127.0.0.1:8888
   packages:
-    apache2: "2.4.52-1ubuntu4.21"
+    apache2: "2.4.52-1ubuntu4.23"
 bullseye:
   proxy: http://127.0.0.1:8888
   packages:

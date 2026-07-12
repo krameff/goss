@@ -1,9 +1,23 @@
 # Changelog
 
+Unreleased
+
+### Updated
+
+- `docs/index.md` now links out to every doc page (installation, quickstart, CLI reference, gossfile, migrations, platforms, containers, contributing, changelog, license) instead of only rendering the README intro/about snippets; the gossfile link also calls out `discovery` and `depends-on` directly
+- `docs/migrations.md` documents migrating from `goss-org/goss` to `krameff/goss`: gossfile content needs no changes, only the install source, container image, and Go module import path; also notes that `discovery` and `depends-on` don't currently exist upstream
+- Gave the project its own logo: a checkmark-in-a-"G" icon with the Goss wordmark and a "by Krameff Solutions Ltd" credit line, replacing the plain Krameff badge on the README and docs homepage
+- Fixed a CI failure where `govulncheck` was flagging a Go standard library vulnerability (`GO-2026-5856`, a TLS privacy leak); pinned the Go toolchain to 1.26.5, which has the fix
+
+---
+
+
+v0.5.0
 7th July 2026
 
 ### Updated
 
+- updated jammy apache2 version
 - Repo moved to its new home at `github.com/krameff/goss`; Go module path, install script, docs, and CI links all updated to match
 - Local dev scripts (`development/build_images.sh`, `development/push_images.sh`, `integration-tests/test.sh`) now build/push/pull integration test images under `ghcr.io/krameff` instead of the old `aelsabbahy` Docker Hub namespace
 - `docs/changelog.md` now points readers at this file and the releases page instead of saying no changelog exists
