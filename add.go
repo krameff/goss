@@ -3,7 +3,6 @@ package goss
 import (
 	"fmt"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/krameff/goss/resource"
@@ -168,16 +167,15 @@ func AutoAddResource(fileName string, gossConfig GossConfig, key string, c *util
 		return err
 	} else if ok {
 		resourcePrint(fileName, res, c.AnnounceToCLI)
-		ports, err := system.GetPorts(true)
+		ports, err := system.GetPorts()
 		if err != nil {
 			return err
 		}
 		pids, _ := sysres.Pids()
 		for _, pid := range pids {
-			pidS := strconv.Itoa(pid)
 			for port, entries := range ports {
 				for _, entry := range entries {
-					if entry.Pid == pidS {
+					if entry.Pid == int32(pid) {
 						// port
 						if res, _, ok, err := gossConfig.Ports.AppendSysResourceIfExists(port, sys); err != nil {
 							return err
