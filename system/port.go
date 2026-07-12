@@ -16,6 +16,7 @@ type Port interface {
 	Exists() (bool, error)
 	Listening() (bool, error)
 	IP() ([]string, error)
+	PID() ([]int, error)
 }
 
 type DefPort struct {
@@ -73,6 +74,24 @@ func (p *DefPort) IP() ([]string, error) {
 		ips = append(ips, entry.Laddr.IP)
 	}
 	return ips, nil
+}
+
+// PID returns the owning PID of every connection bound to this port. A PID
+// of 0 means gopsutil couldn't resolve an owner (e.g. insufficient
+// permissions to map the socket inode to a process) and is omitted rather
+// than reported as a spurious "pid: 0".
+func (p *DefPort) PID() ([]int, error) {
+	if p.err != nil {
+		return nil, p.err
+	}
+	var pids []int
+	for _, entry := range p.sysPorts[p.port] {
+		if entry.Pid == 0 {
+			continue
+		}
+		pids = append(pids, int(entry.Pid))
+	}
+	return pids, nil
 }
 
 // connectionsByKind is indirected through a package-level var so tests can

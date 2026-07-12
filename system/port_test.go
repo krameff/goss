@@ -159,6 +159,44 @@ func TestDefPortIP(t *testing.T) {
 	})
 }
 
+func TestDefPortPID(t *testing.T) {
+	t.Run("returns the owning pid of every connection on the port", func(t *testing.T) {
+		p := &DefPort{
+			port: "tcp:8080",
+			sysPorts: map[string][]net.ConnectionStat{
+				"tcp:8080": {
+					{Pid: 1234},
+					{Pid: 5678},
+				},
+			},
+		}
+		pids, err := p.PID()
+		assert.NilError(t, err)
+		assert.DeepEqual(t, pids, []int{1234, 5678})
+	})
+
+	t.Run("an unresolved owner (pid 0) is omitted, not reported as pid 0", func(t *testing.T) {
+		p := &DefPort{
+			port: "tcp:8080",
+			sysPorts: map[string][]net.ConnectionStat{
+				"tcp:8080": {
+					{Pid: 0},
+					{Pid: 42},
+				},
+			},
+		}
+		pids, err := p.PID()
+		assert.NilError(t, err)
+		assert.DeepEqual(t, pids, []int{42})
+	})
+
+	t.Run("underlying error propagates", func(t *testing.T) {
+		p := &DefPort{port: "tcp:8080", err: errors.New("boom")}
+		_, err := p.PID()
+		assert.ErrorContains(t, err, "boom")
+	})
+}
+
 func TestNormalizePort(t *testing.T) {
 	tests := []struct {
 		in   string

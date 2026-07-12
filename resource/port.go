@@ -16,6 +16,7 @@ type Port struct {
 	Port          string  `json:"port,omitempty" yaml:"port,omitempty"`
 	Listening     matcher `json:"listening" yaml:"listening"`
 	IP            matcher `json:"ip,omitempty" yaml:"ip,omitempty"`
+	PID           matcher `json:"pid,omitempty" yaml:"pid,omitempty"`
 	Skip          bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
 }
 
@@ -60,6 +61,9 @@ func (p *Port) Validate(sys *system.System) []TestResult {
 	if p.IP != nil {
 		results = append(results, ValidateValue(p, "ip", p.IP, sysPort.IP, skip))
 	}
+	if p.PID != nil {
+		results = append(results, ValidateValue(p, "pid", p.PID, sysPort.PID, skip))
+	}
 	return results
 }
 
@@ -73,6 +77,11 @@ func NewPort(sysPort system.Port, config util.Config) (*Port, error) {
 	if !contains(config.IgnoreList, "ip") {
 		if ip, err := sysPort.IP(); err == nil {
 			p.IP = ip
+		}
+	}
+	if !contains(config.IgnoreList, "pid") {
+		if pid, err := sysPort.PID(); err == nil {
+			p.PID = pid
 		}
 	}
 	return p, nil
