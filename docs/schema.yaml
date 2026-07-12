@@ -411,6 +411,11 @@ definitions:
           type: string
         default:
           - 0.0.0.0
+      pid:
+        description: what PID(s) own the socket
+        type: array
+        items:
+          type: integer
       skip:
         type: boolean
         default: false
@@ -423,6 +428,24 @@ definitions:
       running:
         type: boolean
         default: true
+      status:
+        description: process state(s), e.g. detect zombie processes
+        type: array
+        items:
+          type: string
+          enum:
+            - running
+            - sleep
+            - stop
+            - idle
+            - wait
+            - lock
+            - zombie
+      user:
+        description: user(s) the process is running as, e.g. flag anything running as root
+        type: array
+        items:
+          type: string
   serviceTest:
     required:
       - enabled

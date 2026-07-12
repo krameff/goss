@@ -146,10 +146,14 @@ port:
     listening: true
     ip:
     - 0.0.0.0
+    pid:
+    - 1234
   tcp6:22:
     listening: true
     ip:
     - '::'
+    pid:
+    - 1234
 service:
   sshd:
     enabled: true
@@ -170,6 +174,10 @@ group:
 process:
   sshd:
     running: true
+    status:
+    - sleep
+    user:
+    - root
 ```
 
 Now that we have a test suite, we can:
