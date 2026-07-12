@@ -57,9 +57,19 @@ func (p *DefProcess) Running() (bool, error) {
 	return false, nil
 }
 
+// listProcesses and processName are indirected through package-level vars so
+// tests can substitute canned data without touching the real OS process
+// table (gopsutil's *process.Process.Name() always does real /proc I/O, so
+// it can't be faked once constructed).
+var listProcesses = process.Processes
+
+var processName = func(p *process.Process) (string, error) {
+	return p.Name()
+}
+
 func GetProcs() (map[string][]*process.Process, error) {
 	pmap := make(map[string][]*process.Process)
-	processes, err := process.Processes()
+	processes, err := listProcesses()
 	if err != nil {
 		return pmap, err
 	}
@@ -69,7 +79,7 @@ func GetProcs() (map[string][]*process.Process, error) {
 		// unreadable. Skip it rather than failing the whole snapshot,
 		// mirroring go-ps's behavior of silently ignoring per-process
 		// read errors.
-		name, err := p.Name()
+		name, err := processName(p)
 		if err != nil {
 			continue
 		}

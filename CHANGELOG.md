@@ -8,6 +8,11 @@ Unreleased
 - `docs/migrations.md` documents migrating from `goss-org/goss` to `krameff/goss`: gossfile content needs no changes, only the install source, container image, and Go module import path; also notes that `discovery` and `depends-on` don't currently exist upstream
 - Gave the project its own logo: a checkmark-in-a-"G" icon with the Goss wordmark and a "by Krameff Solutions Ltd" credit line, replacing the plain Krameff badge on the README and docs homepage
 - Fixed a CI failure where `govulncheck` was flagging a Go standard library vulnerability (`GO-2026-5856`, a TLS privacy leak); pinned the Go toolchain to 1.26.5, which has the fix
+- Swapped out the process and port lookups: `github.com/goss-org/go-ps` and `github.com/goss-org/GOnetstat` (both unmaintained since 2023) are replaced by `github.com/shirou/gopsutil/v4`, an actively maintained library that does the same job. No behavior or YAML schema changes for the `process`/`port` resources; also added unit test coverage for both, which didn't exist before
+
+### Added
+
+- `system/process_test.go` and `system/port_test.go`: table-driven tests covering process/port found and not found, multiple PIDs per executable, multiple protocols on the same port number, and a regression test for the per-protocol error isolation the `port` lookup relies on
 
 ---
 

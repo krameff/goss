@@ -75,6 +75,10 @@ func (p *DefPort) IP() ([]string, error) {
 	return ips, nil
 }
 
+// connectionsByKind is indirected through a package-level var so tests can
+// substitute canned data without touching the real OS connection table.
+var connectionsByKind = net.ConnectionsWithoutUids
+
 // GetPorts returns the set of listening TCP/UDP ports known to the OS's
 // connection-table backend. Failures from individual protocol lookups are
 // joined and returned rather than silently discarded: a missing/unreadable
@@ -89,7 +93,7 @@ func GetPorts() (map[string][]net.ConnectionStat, error) {
 	var errs []error
 
 	addConns := func(kind, prefix string, listenOnly bool) {
-		conns, err := net.ConnectionsWithoutUids(kind)
+		conns, err := connectionsByKind(kind)
 		errs = append(errs, err)
 		for _, entry := range conns {
 			if listenOnly && entry.Status != "LISTEN" {
