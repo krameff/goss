@@ -6,7 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/goss-org/GOnetstat"
+	"github.com/shirou/gopsutil/v4/net"
+
 	"github.com/krameff/goss/util"
 )
 
@@ -19,7 +20,7 @@ type Port interface {
 
 type DefPort struct {
 	port     string
-	sysPorts map[string][]GOnetstat.Process
+	sysPorts map[string][]net.ConnectionStat
 	err      error
 }
 
@@ -69,53 +70,40 @@ func (p *DefPort) IP() ([]string, error) {
 	}
 	var ips []string
 	for _, entry := range p.sysPorts[p.port] {
-		ips = append(ips, entry.Ip)
+		ips = append(ips, entry.Laddr.IP)
 	}
 	return ips, nil
 }
 
 // GetPorts returns the set of listening TCP/UDP ports known to the OS's
-// netstat backend. Failures from individual protocol lookups are joined and
-// returned rather than silently discarded: GOnetstat treats a missing/
-// unreadable /proc/net/{tcp,udp}{,6} file as "no ports" with no error, but it
-// does return an error if a file it *could* read contains a line it can't
-// parse (e.g. an unexpected IP/port encoding), which would otherwise present
-// as every port simply not listening.
-func GetPorts(lookupPids bool) (map[string][]GOnetstat.Process, error) {
-	ports := make(map[string][]GOnetstat.Process)
+// connection-table backend. Failures from individual protocol lookups are
+// joined and returned rather than silently discarded: a missing/unreadable
+// /proc/net/{tcp,udp}{,6} file is treated as "no ports" with no error, but a
+// file that's readable yet contains a line that can't be parsed (e.g. an
+// unexpected IP/port encoding) does return an error, which would otherwise
+// present as every port on that protocol simply not listening. Each protocol
+// is queried separately (rather than via a single "all" call) specifically
+// to preserve this per-protocol error isolation.
+func GetPorts() (map[string][]net.ConnectionStat, error) {
+	ports := make(map[string][]net.ConnectionStat)
 	var errs []error
 
-	netstat, err := GOnetstat.Tcp(lookupPids)
-	errs = append(errs, err)
-	for _, entry := range netstat {
-		if entry.State == "LISTEN" {
-			port := strconv.FormatInt(entry.Port, 10)
-			ports["tcp:"+port] = append(ports["tcp:"+port], entry)
+	addConns := func(kind, prefix string, listenOnly bool) {
+		conns, err := net.ConnectionsWithoutUids(kind)
+		errs = append(errs, err)
+		for _, entry := range conns {
+			if listenOnly && entry.Status != "LISTEN" {
+				continue
+			}
+			port := strconv.FormatUint(uint64(entry.Laddr.Port), 10)
+			ports[prefix+":"+port] = append(ports[prefix+":"+port], entry)
 		}
 	}
 
-	netstat, err = GOnetstat.Tcp6(lookupPids)
-	errs = append(errs, err)
-	for _, entry := range netstat {
-		if entry.State == "LISTEN" {
-			port := strconv.FormatInt(entry.Port, 10)
-			ports["tcp6:"+port] = append(ports["tcp6:"+port], entry)
-		}
-	}
-
-	netstat, err = GOnetstat.Udp(lookupPids)
-	errs = append(errs, err)
-	for _, entry := range netstat {
-		port := strconv.FormatInt(entry.Port, 10)
-		ports["udp:"+port] = append(ports["udp:"+port], entry)
-	}
-
-	netstat, err = GOnetstat.Udp6(lookupPids)
-	errs = append(errs, err)
-	for _, entry := range netstat {
-		port := strconv.FormatInt(entry.Port, 10)
-		ports["udp6:"+port] = append(ports["udp6:"+port], entry)
-	}
+	addConns("tcp4", "tcp", true)
+	addConns("tcp6", "tcp6", true)
+	addConns("udp4", "udp", false)
+	addConns("udp6", "udp6", false)
 
 	return ports, errors.Join(errs...)
 }

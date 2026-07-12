@@ -10,7 +10,6 @@ require (
 	github.com/blang/semver/v4 v4.0.0
 	github.com/cheekybits/genny v1.0.0
 	github.com/fatih/color v1.19.0
-	github.com/goss-org/GOnetstat v0.0.0-20230101144325-22be0bd9e64d
 	github.com/hashicorp/logutils v1.0.0
 	github.com/lorenzosaino/go-sysctl v0.3.1
 	github.com/miekg/dns v1.1.72
