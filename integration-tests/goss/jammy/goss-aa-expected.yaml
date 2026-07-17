@@ -15,3 +15,8 @@ service:
 process:
   apache2:
     running: true
+    status:
+    - sleep
+    user:
+    - root
+    - www-data

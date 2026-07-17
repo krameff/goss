@@ -156,6 +156,8 @@ func ValidateGomegaValue(res ResourceRead, property string, expectedValue any, a
 		foundValue, err = f()
 	case func() ([]string, error):
 		foundValue, err = f()
+	case func() ([]int, error):
+		foundValue, err = f()
 	case func() (any, error):
 		foundValue, err = f()
 	case func() (io.Reader, error):

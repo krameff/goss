@@ -138,8 +138,15 @@ dns:
 process:
   apache2:
     running: true
+    status:
+    - sleep
+    user:
+    - root
+    - www-data
   foobar:
     running: false
+    status: []
+    user: []
 kernel-param:
   kernel.ostype:
     value: Linux

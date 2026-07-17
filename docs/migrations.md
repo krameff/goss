@@ -29,6 +29,18 @@ dependents are skipped, not failed, when a prerequisite fails). Neither is
 required — existing gossfiles behave exactly as before — but they're there if
 you want them.
 
+Also new here: the [`process`](gossfile.md#process) resource can now check
+`status` (e.g. catch zombie processes) and `user` (e.g. catch something
+running as root that shouldn't be), and the [`port`](gossfile.md#port)
+resource can check `pid` (which process owns a listening socket). Again,
+none of this is required — leave them out and nothing changes.
+
+Under the hood, this fork also swapped its process/port lookups from two
+unmaintained libraries (`goss-org/go-ps` and `goss-org/GOnetstat`) to the
+actively maintained `gopsutil`. This shouldn't be visible to you at all —
+gossfiles and output are unchanged — but it's why the two fields above were
+suddenly easy to add.
+
 ## v4 migration
 
 ### Array matchers (e.g. user.groups) no longer allows duplicates

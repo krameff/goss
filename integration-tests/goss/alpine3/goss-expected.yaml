@@ -132,8 +132,12 @@ dns:
 process:
   apache2:
     running: false
+    status: []
+    user: []
   foobar:
     running: false
+    status: []
+    user: []
 kernel-param:
   kernel.ostype:
     value: Linux

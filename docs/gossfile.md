@@ -514,8 +514,22 @@ port:
     port: 'tcp:22'
     ip: # what IP(s) is it listening on
     - 0.0.0.0
+    pid: # what PID(s) own the socket
+    - 1234
     skip: false
 ```
+
+!!! note
+    `pid` is only populated when the OS lets goss map the socket back to its
+    owning process (this needs the same access as reading `/proc/<pid>/fd` on
+    Linux). If the owner can't be resolved, that connection is left out of
+    `pid` rather than reported as PID `0`.
+
+!!! note
+    `goss add`/discovery does not auto-populate `pid`, unlike the other
+    attributes on this page -- PIDs get reassigned on every restart, so a
+    value captured at `add` time would already be stale by the time the
+    gossfile runs. Add `pid` by hand if you want it checked.
 
 ### process
 
@@ -529,8 +543,18 @@ process:
     # optional attributes
     # defaults to hash key
     comm: chrome
+    status: # process state(s), e.g. detect zombie processes
+    - running
+    user: # user(s) the process is running as, e.g. flag anything running as root
+    - chrome
     skip: false
 ```
+
+!!! note
+    `status` and `user` are aggregated across every PID matching this
+    executable, so a `chrome` entry backed by several processes reports the
+    distinct set of states/owners seen, not just one of them. `status` values
+    are one of `running`, `sleep`, `stop`, `idle`, `wait`, `lock`, `zombie`.
 
 !!! note
     This check is inspecting the name of the binary, not the name of the process.

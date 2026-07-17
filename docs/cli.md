@@ -154,10 +154,14 @@ Will **NOT** automatically add:
         listening: true
         ip:
         - 0.0.0.0
+        pid:
+        - 1234
       tcp6:22:
         listening: true
         ip:
         - '::'
+        pid:
+        - 1234
     service:
       sshd:
         enabled: true
@@ -178,6 +182,10 @@ Will **NOT** automatically add:
     process:
       sshd:
         running: true
+        status:
+        - sleep
+        user:
+        - root
     ```
 
 ### `render`
