@@ -525,6 +525,12 @@ port:
     Linux). If the owner can't be resolved, that connection is left out of
     `pid` rather than reported as PID `0`.
 
+!!! note
+    `goss add`/discovery does not auto-populate `pid`, unlike the other
+    attributes on this page -- PIDs get reassigned on every restart, so a
+    value captured at `add` time would already be stale by the time the
+    gossfile runs. Add `pid` by hand if you want it checked.
+
 ### process
 
 Validates if a process is running.

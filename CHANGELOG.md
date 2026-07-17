@@ -16,7 +16,7 @@ Unreleased
 
 - `system/process_test.go` and `system/port_test.go`: table-driven tests covering process/port found and not found, multiple PIDs per executable, multiple protocols on the same port number, and a regression test for the per-protocol error isolation the `port` lookup relies on
 - New process resource fields, made possible by the gopsutil switch above: `status` (e.g. spot zombie processes) and `user` (e.g. flag anything unexpectedly running as root), both aggregated across every PID matching the executable
-- New port resource field: `pid`, the process ID(s) that own a listening socket
+- New port resource field: `pid`, the process ID(s) that own a listening socket. Not auto-populated by `goss add`/discovery, unlike the other new fields -- PIDs get reassigned on every restart, so baking one into a generated gossfile would just be a value that's already stale by the time anyone runs it. Add it to a gossfile by hand if you want it checked
 - `resource/process_test.go` and `resource/port_test.go`: table-driven tests for both resources, which had no tests at all before this
 - `docs/gossfile.md` documents the three new fields (`process.status`, `process.user`, `port.pid`)
 

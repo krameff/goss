@@ -79,10 +79,9 @@ func NewPort(sysPort system.Port, config util.Config) (*Port, error) {
 			p.IP = ip
 		}
 	}
-	if !contains(config.IgnoreList, "pid") {
-		if pid, err := sysPort.PID(); err == nil {
-			p.PID = pid
-		}
-	}
+	// pid is intentionally not auto-populated by discovery/add: process PIDs are
+	// reassigned on every restart, so a discovered gossfile would pin a value
+	// that's already stale by the time it's used. The field still works if added
+	// to a gossfile by hand -- Validate() checks it whenever it's set.
 	return p, nil
 }

@@ -15,3 +15,8 @@ service:
 process:
   httpd:
     running: true
+    status:
+    - sleep
+    user:
+    - root
+    - apache

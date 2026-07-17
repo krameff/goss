@@ -28,19 +28,12 @@ func (f *fakeSysPort) IP() ([]string, error)    { return f.ip, f.err }
 func (f *fakeSysPort) PID() ([]int, error)      { return f.pid, f.err }
 
 func TestNewPort(t *testing.T) {
-	t.Run("populates pid from the system port", func(t *testing.T) {
+	t.Run("does not auto-populate pid: PIDs aren't stable across restarts", func(t *testing.T) {
 		sysPort := &fakeSysPort{port: "tcp:8080", listening: true, pid: []int{1234}}
 		p, err := NewPort(sysPort, util.Config{})
 		assert.NilError(t, err)
 		assert.Equal(t, p.id, "tcp:8080")
 		assert.Equal(t, p.Listening, matcher(true))
-		assert.DeepEqual(t, p.PID, matcher([]int{1234}))
-	})
-
-	t.Run("pid in the ignore list is left unset", func(t *testing.T) {
-		sysPort := &fakeSysPort{port: "tcp:8080", listening: true, pid: []int{1234}}
-		p, err := NewPort(sysPort, util.Config{IgnoreList: []string{"pid"}})
-		assert.NilError(t, err)
 		assert.Equal(t, p.PID, nil)
 	})
 }
