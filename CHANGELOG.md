@@ -4,6 +4,8 @@ Unreleased
 
 ### Updated
 
+- Bumped `golang.org/x/crypto` to v0.54.0 after a Trivy alert flagged the `openpgp` subpackage as unmaintained. We don't actually use openpgp anywhere (it's dragged in transitively by sprig's bcrypt template functions, and doesn't even show up in the build's import graph), so this is just good hygiene rather than a real fix. Added a `.trivyignore` entry with the reasoning, plus a small script (`ci/trivyignore-check.sh`) that re-checks every `.trivyignore` entry against a fresh scan whenever `go.mod`/`go.sum`/`.trivyignore` change, so we get nudged to revisit it instead of it quietly going stale
+- Bumped `golang.org/x/text` to v0.40.0, picked up as a side effect of the `x/crypto` bump above. This one's a real fix, not just hygiene: v0.38.0 had CVE-2026-56852, an infinite loop on invalid input, and the fixed version (0.39.0) shipped in Trivy's report was already behind what we ended up with
 - `docs/index.md` now links out to every doc page (installation, quickstart, CLI reference, gossfile, migrations, platforms, containers, contributing, changelog, license) instead of only rendering the README intro/about snippets; the gossfile link also calls out `discovery` and `depends-on` directly
 - `docs/migrations.md` documents migrating from `goss-org/goss` to `krameff/goss`: gossfile content needs no changes, only the install source, container image, and Go module import path; also notes that `discovery` and `depends-on` don't currently exist upstream
 - Gave the project its own logo: a checkmark-in-a-"G" icon with the Goss wordmark and a "by Krameff Solutions Ltd" credit line, replacing the plain Krameff badge on the README and docs homepage

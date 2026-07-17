@@ -2,7 +2,7 @@
 
 This page describes how to run the Goss test suite locally and how those checks map to CI.
 
-Last verified: 2026-06-25 — **181** Go test cases passing, discovery E2E passing, markdown lint clean.
+Last verified: 2026-07-12 — **283** Go test cases passing, discovery E2E passing, markdown lint clean.
 
 ## Quick start (local)
 
@@ -133,7 +133,7 @@ reuses the same steps as the host E2E scripts via [`ci/lib/goss-e2e-steps.sh`](.
 Fixtures live under [`integration-tests/goss/examples/`](../integration-tests/goss/examples/) and are
 mounted at `/goss/examples/` inside the test container.
 
-## Go unit and integration tests (181 cases)
+## Go unit and integration tests (283 cases)
 
 ### Package `github.com/krameff/goss` (root)
 
@@ -194,6 +194,10 @@ mounted at `/goss/examples/` inside the test container.
 | `TestValidateContains*` | `validate_test.go` | Contains matcher |
 | `TestResultMarshaling` | `validate_test.go` | TestResult JSON/YAML |
 | `BenchmarkValidateValue` | `validate_test.go` | Validation performance |
+| `TestNewProcess` | `process_test.go` | `process` resource construction (incl. `status`/`user`, ignore-list) |
+| `TestProcessValidate` | `process_test.go` | `process` resource `Validate()` (running/status/user, skip-on-fail) |
+| `TestNewPort` | `port_test.go` | `port` resource construction (incl. `pid`, ignore-list) |
+| `TestPortValidate` | `port_test.go` | `port` resource `Validate()` (listening/ip/pid, skip-on-fail) |
 
 ### Package `system`
 
@@ -209,6 +213,16 @@ mounted at `/goss/examples/` inside the test container.
 | `TestDetectDistro` | `system_test.go` | Distro detection |
 | `TestHasCommand` | `system_test.go` | Command availability |
 | `TestGroupsForUser` | `user_group_unix_test.go` | User/group lookup |
+| `TestGetProcs` | `process_test.go` | Process snapshot (gopsutil), skip-on-error per pid |
+| `TestDefProcessRunning` | `process_test.go` | `running` lookup, found/not-found/error |
+| `TestDefProcessStatus` | `process_test.go` | `status` aggregation/dedup across pids |
+| `TestDefProcessUser` | `process_test.go` | `user` aggregation/dedup across pids |
+| `TestDefProcessPids` | `process_test.go` | `Pids()` returns all matching pids |
+| `TestGetPorts` | `port_test.go` | Port snapshot (gopsutil), per-protocol error isolation |
+| `TestDefPortListening` | `port_test.go` | `listening` lookup, found/not-found/error |
+| `TestDefPortIP` | `port_test.go` | `IP()` returns all bound IPs |
+| `TestDefPortPID` | `port_test.go` | `PID()` returns owning pids, omits unresolved (0) |
+| `TestNormalizePort` | `port_test.go` | Port string normalization (`tcp:`/`udp:` prefix) |
 
 ### Package `util`
 
