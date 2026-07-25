@@ -23,6 +23,7 @@ Unreleased
 ### Fixed
 
 - `ValidateGomegaValue` (the core matcher dispatcher) had no case for a resource property backed by a `func() ([]int, error)`, so the new `port.pid` field would have silently failed every check with an "unknown method signature" error; added the missing case
+- Integration tests were breaking on routine OS package updates because they pinned exact package version strings. Package checks now use a regex match, and generated-vs-expected snapshot diffs ignore version lines entirely
 
 ---
 
