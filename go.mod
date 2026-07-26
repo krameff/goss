@@ -17,8 +17,8 @@ require (
 	github.com/onsi/gomega v1.42.1
 	github.com/patrickmn/go-cache v2.1.0+incompatible
 	github.com/pmezard/go-difflib v1.0.0
-	github.com/prometheus/client_golang v1.23.2
-	github.com/prometheus/common v0.70.0
+	github.com/prometheus/client_golang v1.24.1
+	github.com/prometheus/common v0.70.1
 	github.com/samber/lo v1.53.0
 	github.com/shirou/gopsutil/v4 v4.26.6
 	github.com/stretchr/testify v1.11.1
@@ -50,7 +50,7 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/power-devops/perfstat v0.0.0-20240221224432-82ca36839d55 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
-	github.com/prometheus/procfs v0.21.0 // indirect
+	github.com/prometheus/procfs v0.21.1 // indirect
 	github.com/shopspring/decimal v1.4.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/tidwall/match v1.2.0 // indirect
@@ -63,7 +63,7 @@ require (
 	golang.org/x/exp/typeparams v0.0.0-20260410095643-746e56fc9e2f // indirect
 	golang.org/x/lint v0.0.0-20241112194109-818c5a804067 // indirect
 	golang.org/x/mod v0.37.0 // indirect
-	golang.org/x/net v0.56.0 // indirect
+	golang.org/x/net v0.57.0 // indirect
 	golang.org/x/sync v0.22.0 // indirect
 	golang.org/x/text v0.40.0 // indirect
 	golang.org/x/tools v0.47.0 // indirect
