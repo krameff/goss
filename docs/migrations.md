@@ -1,5 +1,46 @@
 # Migration guide
 
+## Coming from `goss-org/goss`
+
+This project is a fork of [`goss-org/goss`](https://github.com/goss-org/goss), now
+maintained at `github.com/krameff/goss`. The good news: your gossfiles don't need
+to change. Nothing about the syntax, resource types, matchers, or CLI flags is
+different — if it worked before, it still works.
+
+What does change is where you get goss from:
+
+* **Installing manually or via script?** Grab it from the
+  [`krameff/goss` releases page](https://github.com/krameff/goss/releases), and use
+  the [`install.sh`](https://github.com/krameff/goss/blob/master/install.sh) from this
+  repo rather than `goss-org/goss` — see [Installation](installation.md) for details.
+* **Using the container image?** Pull `ghcr.io/krameff/goss` instead of the old
+  `aelsabbahy`/`goss-org` image.
+* **Importing goss as a Go library?** Update your import path to
+  `github.com/krameff/goss`.
+
+That's it — everything else carries over as-is.
+
+Worth knowing: this fork has also added a couple of features that don't
+currently exist in upstream `goss-org/goss` (at time of writing) —
+[discovery](gossfile.md#discovery) (run lightweight checks before the main
+suite and feed the results into templates) and
+[`depends-on`](gossfile.md#test-dependencies) (declare test prerequisites so
+dependents are skipped, not failed, when a prerequisite fails). Neither is
+required — existing gossfiles behave exactly as before — but they're there if
+you want them.
+
+Also new here: the [`process`](gossfile.md#process) resource can now check
+`status` (e.g. catch zombie processes) and `user` (e.g. catch something
+running as root that shouldn't be), and the [`port`](gossfile.md#port)
+resource can check `pid` (which process owns a listening socket). Again,
+none of this is required — leave them out and nothing changes.
+
+Under the hood, this fork also swapped its process/port lookups from two
+unmaintained libraries (`goss-org/go-ps` and `goss-org/GOnetstat`) to the
+actively maintained `gopsutil`. This shouldn't be visible to you at all —
+gossfiles and output are unchanged — but it's why the two fields above were
+suddenly easy to add.
+
 ## v4 migration
 
 ### Array matchers (e.g. user.groups) no longer allows duplicates

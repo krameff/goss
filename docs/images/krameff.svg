@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400" width="400" height="400">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Bruno+Ace&amp;display=swap');
+    </style>
+    <linearGradient id="circleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1"/>
+      <stop offset="100%" style="stop-color:#e91e8c;stop-opacity:1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Dark navy background -->
+  <rect width="400" height="400" fill="#1a1f3a"/>
+
+  <!-- Circle mark -->
+  <circle cx="200" cy="155" r="85" fill="none" stroke="url(#circleGrad)" stroke-width="3"/>
+
+  <!-- KRAMEFF -->
+  <text
+    x="200" y="288"
+    font-family="'Bruno Ace', 'Eurostile', 'Arial', sans-serif"
+    font-size="52"
+    fill="#ffffff"
+    text-anchor="middle"
+    letter-spacing="6">KRAMEFF</text>
+
+  <!-- SOLUTIONS LIMITED -->
+  <text
+    x="200" y="326"
+    font-family="'Bruno Ace', 'Eurostile', 'Arial', sans-serif"
+    font-size="18"
+    fill="rgba(255,255,255,0.8)"
+    text-anchor="middle"
+    letter-spacing="6">SOLUTIONS LIMITED</text>
+</svg>

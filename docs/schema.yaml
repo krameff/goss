@@ -1,7 +1,7 @@
 $id: "https://goss.rocks/schema.yaml"
 # Note: this schema was authored using intellij support for Json schema version 7
 # providing coding assistance
-# This schema is based on content from https://github.com/krameff/goss/blob/master/docs/manual.md and
+# This schema is based on content from https://github.com/krameff/goss/blob/master/docs/gossfile.md and
 #  and https://github.com/krameff/goss/blob/master/README.md
 # It was tested in intellij against https://github.com/krameff/goss/blob/master/docs/goss.yaml
 # both for completion and code analysis use-cases.
@@ -411,6 +411,11 @@ definitions:
           type: string
         default:
           - 0.0.0.0
+      pid:
+        description: what PID(s) own the socket
+        type: array
+        items:
+          type: integer
       skip:
         type: boolean
         default: false
@@ -423,6 +428,24 @@ definitions:
       running:
         type: boolean
         default: true
+      status:
+        description: process state(s), e.g. detect zombie processes
+        type: array
+        items:
+          type: string
+          enum:
+            - running
+            - sleep
+            - stop
+            - idle
+            - wait
+            - lock
+            - zombie
+      user:
+        description: user(s) the process is running as, e.g. flag anything running as root
+        type: array
+        items:
+          type: string
   serviceTest:
     required:
       - enabled

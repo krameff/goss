@@ -62,7 +62,8 @@ package:
   {{$name}}:
     installed: true
     versions:
-    - {{$ver}}
+      contain-element:
+        match-regexp: {{$ver}}
 {{end}}
 service:
   dnsmasq:

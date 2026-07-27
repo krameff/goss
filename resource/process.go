@@ -15,6 +15,8 @@ type Process struct {
 	id            string  `json:"-" yaml:"-"`
 	Comm          string  `json:"comm,omitempty" yaml:"comm,omitempty"`
 	Running       matcher `json:"running" yaml:"running"`
+	Status        matcher `json:"status,omitempty" yaml:"status,omitempty"`
+	User          matcher `json:"user,omitempty" yaml:"user,omitempty"`
 	Skip          bool    `json:"skip,omitempty" yaml:"skip,omitempty"`
 }
 
@@ -53,6 +55,15 @@ func (p *Process) Validate(sys *system.System) []TestResult {
 
 	var results []TestResult
 	results = append(results, ValidateValue(p, "running", p.Running, sysProcess.Running, skip))
+	if shouldSkip(results) {
+		skip = true
+	}
+	if p.Status != nil {
+		results = append(results, ValidateValue(p, "status", p.Status, sysProcess.Status, skip))
+	}
+	if p.User != nil {
+		results = append(results, ValidateValue(p, "user", p.User, sysProcess.User, skip))
+	}
 	return results
 }
 
@@ -62,8 +73,19 @@ func NewProcess(sysProcess system.Process, config util.Config) (*Process, error)
 	if err != nil {
 		return nil, err
 	}
-	return &Process{
+	p := &Process{
 		id:      executable,
 		Running: running,
-	}, nil
+	}
+	if !contains(config.IgnoreList, "status") {
+		if status, err := sysProcess.Status(); err == nil {
+			p.Status = status
+		}
+	}
+	if !contains(config.IgnoreList, "user") {
+		if user, err := sysProcess.User(); err == nil {
+			p.User = user
+		}
+	}
+	return p, nil
 }

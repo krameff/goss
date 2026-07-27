@@ -31,6 +31,17 @@ docker_exec() {
   $DOCKER_BIN exec "$container_name" "$@"
 }
 
+# Drops "versions:" keys and the version list items directly under them, so
+# the generated-vs-expected snapshot diffs below don't break every time an
+# OS image picks up a routine package patch release.
+strip_versions() {
+  awk '
+    /versions:/ { skip=1; next }
+    skip && /^[[:space:]]*-/ { next }
+    { skip=0; print }
+  '
+}
+
 # Cleanup any old containers
 if $DOCKER_BIN ps -a | grep "$container_name";then
   $DOCKER_BIN rm -vf "$container_name"
@@ -71,15 +82,18 @@ if [[ ! $os == "arch" ]]; then
   docker_exec /goss/generate_goss.sh "$os" "$arch"
 
   # docker exec $container_name bash -c "cp /goss/${os}/goss-generated-$arch.yaml /goss/${os}/goss-expected.yaml"
-  docker_exec diff -wu "/goss/${os}/goss-expected.yaml" "/goss/${os}/goss-generated-$arch.yaml"
+  diff -wu <(docker_exec cat "/goss/${os}/goss-expected.yaml" | strip_versions) \
+           <(docker_exec cat "/goss/${os}/goss-generated-$arch.yaml" | strip_versions)
 
   # docker exec $container_name bash -c "cp /goss/${os}/goss-aa-generated-$arch.yaml /goss/${os}/goss-aa-expected.yaml"
-  docker_exec diff -wu "/goss/${os}/goss-aa-expected.yaml" "/goss/${os}/goss-aa-generated-$arch.yaml"
+  diff -wu <(docker_exec cat "/goss/${os}/goss-aa-expected.yaml" | strip_versions) \
+           <(docker_exec cat "/goss/${os}/goss-aa-generated-$arch.yaml" | strip_versions)
 
   docker_exec /goss/generate_goss.sh "$os" "$arch" -q
 
   # docker exec $container_name bash -c "cp /goss/${os}/goss-generated-$arch.yaml /goss/${os}/goss-expected-q.yaml"
-  docker_exec diff -wu "/goss/${os}/goss-expected-q.yaml" "/goss/${os}/goss-generated-$arch.yaml"
+  diff -wu <(docker_exec cat "/goss/${os}/goss-expected-q.yaml" | strip_versions) \
+           <(docker_exec cat "/goss/${os}/goss-generated-$arch.yaml" | strip_versions)
 fi
 
 #docker rm -vf goss_int_test_$os

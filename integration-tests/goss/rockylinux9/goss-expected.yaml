@@ -15,7 +15,7 @@ package:
   httpd:
     installed: true
     versions:
-    - 2.4.62-13.el9_8.1
+    - 2.4.62-13.el9_8.5
   vim-tiny:
     installed: false
 addr:
@@ -138,8 +138,15 @@ dns:
 process:
   foobar:
     running: false
+    status: []
+    user: []
   httpd:
     running: true
+    status:
+    - sleep
+    user:
+    - root
+    - apache
 kernel-param:
   kernel.ostype:
     value: Linux

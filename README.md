@@ -1,5 +1,11 @@
 # Goss - Quick and Easy server validation
 
+<!-- markdownlint-disable no-inline-html -->
+<p align="center">
+  <img src="images/goss-logo.svg" alt="Goss - by Krameff Solutions Ltd" width="200">
+</p>
+<!-- markdownlint-enable no-inline-html -->
+
 > **Note:** This is a fork of the original [goss-org/goss](https://github.com/goss-org/goss) project created and
 > maintained by [@aelsabbahy](https://github.com/aelsabbahy). All original work remains under the Apache 2.0 license
 > and full credit goes to the original author for building such a solid foundation. This fork exists to enable newer
@@ -140,10 +146,14 @@ port:
     listening: true
     ip:
     - 0.0.0.0
+    pid:
+    - 1234
   tcp6:22:
     listening: true
     ip:
     - '::'
+    pid:
+    - 1234
 service:
   sshd:
     enabled: true
@@ -164,6 +174,10 @@ group:
 process:
   sshd:
     running: true
+    status:
+    - sleep
+    user:
+    - root
 ```
 
 Now that we have a test suite, we can:

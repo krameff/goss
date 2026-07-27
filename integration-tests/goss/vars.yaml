@@ -2,28 +2,28 @@
 alpine3:
   proxy: http://127.0.0.1:8888
   packages:
-    apache2: "2.4.67-r0"
+    apache2: "^2\\.4\\.67-r0$"
 arch:
   packages:
 centos7:
   proxy: http://127.0.0.1:8888
   packages:
-    httpd: "2.4.6-95.el7.centos"
+    httpd: "^2\\.4\\.6-95\\.el7\\.centos$"
 rockylinux9:
   proxy: http://127.0.0.1:8888
   packages:
-    httpd: "2.4.62-13.el9_8.1"
+    httpd: "^2\\.4\\.62-13\\.el9_8\\.[0-9]+$"
 jammy:
   proxy: http://127.0.0.1:8888
   packages:
-    apache2: "2.4.52-1ubuntu4.21"
+    apache2: "^2\\.4\\.52-1ubuntu4\\.23$"
 bullseye:
   proxy: http://127.0.0.1:8888
   packages:
-    apache2: "2.4.67-1~deb11u3"
+    apache2: "^2\\.4\\.67-1~deb11u3$"
 almalinux10:
   proxy: http://127.0.0.1:8888
   packages:
-    httpd: "2.4.63-13.el10_2.4"
+    httpd: "^2\\.4\\.63-13\\.el10_2\\.[0-9]+$"
 
 overwrite: foo

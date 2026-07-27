@@ -1,7 +1,10 @@
 name: Golang ci
 on:
   # don't build any branch other than main (and prs) when git pushed
-  pull_request: {}
+  pull_request:
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
   push:
     branches:
       - main
@@ -9,6 +12,7 @@ on:
       - devel
     paths-ignore:
       - "**/*.md"
+      - "docs/**"
 
 permissions:
   contents: read
@@ -21,8 +25,8 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v7.0.0
-      - uses: actions/setup-go@v6.5.0
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-go@v7.0.0
         with:
           go-version-file: go.mod
 
@@ -39,8 +43,8 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v7.0.0
-      - uses: actions/setup-go@v6.5.0
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-go@v7.0.0
         with:
           go-version-file: go.mod
 
@@ -72,10 +76,10 @@ jobs:
       matrix:
         distro: [rockylinux9, almalinux10, bullseye, jammy, alpine3, arch, test-int-serve-linux-amd64]
     steps:
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
-      - uses: actions/setup-go@v6.5.0
+      - uses: actions/setup-go@v7.0.0
         with:
           go-version-file: go.mod
 
@@ -90,10 +94,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
-      - uses: actions/setup-go@v6.5.0
+      - uses: actions/setup-go@v7.0.0
         with:
           go-version-file: go.mod
       - name: Set up QEMU
@@ -111,10 +115,10 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@v7.0.0
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
-      - uses: actions/setup-go@v6.5.0
+      - uses: actions/setup-go@v7.0.0
         with:
           go-version-file: go.mod
 
@@ -133,8 +137,8 @@ jobs:
       matrix:
         os: [macos-latest, windows-latest]
     steps:
-      - uses: actions/checkout@v7.0.0
-      - uses: actions/setup-go@v6.5.0
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-go@v7.0.0
         with:
           go-version-file: go.mod
 

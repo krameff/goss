@@ -9,9 +9,8 @@ import (
 	"strconv"
 	"sync"
 
-	"github.com/goss-org/GOnetstat"
-	// This needs a better name
-	"github.com/goss-org/go-ps"
+	"github.com/shirou/gopsutil/v4/net"
+	"github.com/shirou/gopsutil/v4/process"
 
 	util2 "github.com/krameff/goss/util"
 )
@@ -37,22 +36,22 @@ type System struct {
 	NewInterface   func(context.Context, string, *System, util2.Config) Interface
 	NewHTTP        func(context.Context, string, *System, util2.Config) HTTP
 	NewRegistry    func(context.Context, string, *System, util2.Config) Registry
-	ports          map[string][]GOnetstat.Process
+	ports          map[string][]net.ConnectionStat
 	portsErr       error
 	portsOnce      sync.Once
-	procMap        map[string][]ps.Process
+	procMap        map[string][]*process.Process
 	procOnce       sync.Once
 }
 
-func (s *System) Ports() (map[string][]GOnetstat.Process, error) {
+func (s *System) Ports() (map[string][]net.ConnectionStat, error) {
 	s.portsOnce.Do(func() {
-		s.ports, s.portsErr = GetPorts(false)
+		s.ports, s.portsErr = GetPorts()
 	})
 
 	return s.ports, s.portsErr
 }
 
-func (s *System) ProcMap() (map[string][]ps.Process, error) {
+func (s *System) ProcMap() (map[string][]*process.Process, error) {
 	var err error
 
 	s.procOnce.Do(func() {

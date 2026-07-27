@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"dario.cat/mergo"
+	yamlv2 "gopkg.in/yaml.v2"
 	"gopkg.in/yaml.v3"
 
 	"github.com/krameff/goss/resource"
@@ -361,7 +362,10 @@ func unmarshalJSON(data []byte, v any) error {
 }
 
 func marshalYAML(gossConfig any) ([]byte, error) {
-	return yaml.Marshal(gossConfig)
+	// yaml.v3 always indents block sequences under their parent key; yaml.v2 uses
+	// indentless sequences, matching the format `goss add`-generated gossfiles have
+	// always had. Kept on v2 for writes only -- unmarshalYAML below still uses v3.
+	return yamlv2.Marshal(gossConfig)
 }
 
 func unmarshalYAML(data []byte, v any) error {

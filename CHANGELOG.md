@@ -1,9 +1,41 @@
 # Changelog
 
+## [0.6.0] - 2026-07-26
+
+### Updated
+
+- Bumped `golang.org/x/crypto` to v0.54.0 after a Trivy alert flagged the `openpgp` subpackage as unmaintained. We don't actually use openpgp anywhere (it's dragged in transitively by sprig's bcrypt template functions, and doesn't even show up in the build's import graph), so this is just good hygiene rather than a real fix. Added a `.trivyignore` entry with the reasoning, plus a small script (`ci/trivyignore-check.sh`) that re-checks every `.trivyignore` entry against a fresh scan whenever `go.mod`/`go.sum`/`.trivyignore` change, so we get nudged to revisit it instead of it quietly going stale
+- Bumped `golang.org/x/text` to v0.40.0, picked up as a side effect of the `x/crypto` bump above. This one's a real fix, not just hygiene: v0.38.0 had CVE-2026-56852, an infinite loop on invalid input, and the fixed version (0.39.0) shipped in Trivy's report was already behind what we ended up with
+- `docs/index.md` now links out to every doc page (installation, quickstart, CLI reference, gossfile, migrations, platforms, containers, contributing, changelog, license) instead of only rendering the README intro/about snippets; the gossfile link also calls out `discovery` and `depends-on` directly
+- `docs/migrations.md` documents migrating from `goss-org/goss` to `krameff/goss`: gossfile content needs no changes, only the install source, container image, and Go module import path; also notes that `discovery` and `depends-on` don't currently exist upstream
+- Gave the project its own logo: a checkmark-in-a-"G" icon with the Goss wordmark and a "by Krameff Solutions Ltd" credit line, replacing the plain Krameff badge on the README and docs homepage
+- Fixed a CI failure where `govulncheck` was flagging a Go standard library vulnerability (`GO-2026-5856`, a TLS privacy leak); pinned the Go toolchain to 1.26.5, which has the fix
+- Swapped out the process and port lookups: `github.com/goss-org/go-ps` and `github.com/goss-org/GOnetstat` (both unmaintained since 2023) are replaced by `github.com/shirou/gopsutil/v4`, an actively maintained library that does the same job. No behavior or YAML schema changes for the `process`/`port` resources; also added unit test coverage for both, which didn't exist before
+
+### Added
+
+- `system/process_test.go` and `system/port_test.go`: table-driven tests covering process/port found and not found, multiple PIDs per executable, multiple protocols on the same port number, and a regression test for the per-protocol error isolation the `port` lookup relies on
+- New process resource fields, made possible by the gopsutil switch above: `status` (e.g. spot zombie processes) and `user` (e.g. flag anything unexpectedly running as root), both aggregated across every PID matching the executable
+- New port resource field: `pid`, the process ID(s) that own a listening socket. Not auto-populated by `goss add`/discovery, unlike the other new fields -- PIDs get reassigned on every restart, so baking one into a generated gossfile would just be a value that's already stale by the time anyone runs it. Add it to a gossfile by hand if you want it checked
+- `resource/process_test.go` and `resource/port_test.go`: table-driven tests for both resources, which had no tests at all before this
+- `docs/gossfile.md` documents the three new fields (`process.status`, `process.user`, `port.pid`)
+
+### Fixed
+
+- `ValidateGomegaValue` (the core matcher dispatcher) had no case for a resource property backed by a `func() ([]int, error)`, so the new `port.pid` field would have silently failed every check with an "unknown method signature" error; added the missing case
+- Integration tests were breaking on routine OS package updates because they pinned exact package version strings. Package checks now use a regex match, and generated-vs-expected snapshot diffs ignore version lines entirely
+- `docs/schema.yaml`'s header comment pointed at `docs/manual.md`, which doesn't exist -- the resource docs live in `docs/gossfile.md` now. Updated the reference
+- The `Golang ci` workflow's `pull_request` trigger had no `paths-ignore`, so a docs-only PR still ran the full lint/coverage/integration matrix. Gave it the same `paths-ignore` (`**/*.md`, `docs/**`) already used on the `push` trigger
+
+---
+
+
+v0.5.0
 7th July 2026
 
 ### Updated
 
+- updated jammy apache2 version
 - Repo moved to its new home at `github.com/krameff/goss`; Go module path, install script, docs, and CI links all updated to match
 - Local dev scripts (`development/build_images.sh`, `development/push_images.sh`, `integration-tests/test.sh`) now build/push/pull integration test images under `ghcr.io/krameff` instead of the old `aelsabbahy` Docker Hub namespace
 - `docs/changelog.md` now points readers at this file and the releases page instead of saying no changelog exists
