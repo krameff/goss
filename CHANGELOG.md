@@ -1,6 +1,6 @@
 # Changelog
 
-Unreleased
+## [0.6.0] - 2026-07-26
 
 ### Updated
 
@@ -24,6 +24,8 @@ Unreleased
 
 - `ValidateGomegaValue` (the core matcher dispatcher) had no case for a resource property backed by a `func() ([]int, error)`, so the new `port.pid` field would have silently failed every check with an "unknown method signature" error; added the missing case
 - Integration tests were breaking on routine OS package updates because they pinned exact package version strings. Package checks now use a regex match, and generated-vs-expected snapshot diffs ignore version lines entirely
+- `docs/schema.yaml`'s header comment pointed at `docs/manual.md`, which doesn't exist -- the resource docs live in `docs/gossfile.md` now. Updated the reference
+- The `Golang ci` workflow's `pull_request` trigger had no `paths-ignore`, so a docs-only PR still ran the full lint/coverage/integration matrix. Gave it the same `paths-ignore` (`**/*.md`, `docs/**`) already used on the `push` trigger
 
 ---
 

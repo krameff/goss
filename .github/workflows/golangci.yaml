@@ -1,7 +1,10 @@
 name: Golang ci
 on:
   # don't build any branch other than main (and prs) when git pushed
-  pull_request: {}
+  pull_request:
+    paths-ignore:
+      - "**/*.md"
+      - "docs/**"
   push:
     branches:
       - main
@@ -9,6 +12,7 @@ on:
       - devel
     paths-ignore:
       - "**/*.md"
+      - "docs/**"
 
 permissions:
   contents: read
