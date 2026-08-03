@@ -1,5 +1,15 @@
 # Changelog
 
+## [Unreleased]
+
+### Fixed
+
+- The weekly Trivy scan couldn't find the image because it never logged in to GHCR first, unlike every other workflow that scans one
+
+### Updated
+
+- Bumped `docker/login-action` to v4.6.0 everywhere so the workflows are all on the same version
+
 ## [0.6.0] - 2026-07-26
 
 ### Updated
