@@ -115,12 +115,12 @@ jobs:
 
       - name: Upload Trivy scan results (main) to GitHub Security tab
         if: github.ref_name == 'main'
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@v4.37.3
         with:
           sarif_file: trivy-main-results.sarif
 
       - name: Upload Trivy scan results (devel) to GitHub Security tab
         if: github.ref_name == 'devel'
-        uses: github/codeql-action/upload-sarif@v4
+        uses: github/codeql-action/upload-sarif@v4.37.3
         with:
           sarif_file: trivy-devel-results.sarif
