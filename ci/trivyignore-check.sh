@@ -26,16 +26,21 @@ if [[ ${#ignored_ids[@]} -eq 0 ]]; then
   exit 0
 fi
 
+# --ignorefile /dev/null is essential: trivy picks up ./.trivyignore
+# automatically, so without it the "fresh" scan below is filtered by the very
+# file we're trying to validate and every entry looks like it disappeared.
 run_trivy_json() {
   trivy fs --scanners vuln --severity "${TRIVY_SEVERITY}" \
-    --skip-dirs "${TRIVY_SKIP_DIRS}" --format json --quiet .
+    --skip-dirs "${TRIVY_SKIP_DIRS}" --ignorefile /dev/null \
+    --format json --quiet .
 }
 
 run_trivy_json_container() {
   local engine="$1"
   "${engine}" run --rm -v "${ROOT}:/src" -w /src docker.io/aquasec/trivy:latest \
     fs --scanners vuln --severity "${TRIVY_SEVERITY}" \
-    --skip-dirs "${TRIVY_SKIP_DIRS}" --format json --quiet .
+    --skip-dirs "${TRIVY_SKIP_DIRS}" --ignorefile /dev/null \
+    --format json --quiet .
 }
 
 scan_json=""

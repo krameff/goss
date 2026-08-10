@@ -9,7 +9,7 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/Masterminds/sprig/v3"
+	"github.com/go-sprout/sprout/sprigin"
 )
 
 // TemplateFilter is the type of the Goss Template Filter which include custom variables and functions.
@@ -38,7 +38,7 @@ func newTemplateFilter(varsFiles []string, varsInline string, discovered map[str
 	}
 
 	f := func(data []byte) ([]byte, error) {
-		t := template.New("test").Funcs(sprig.TxtFuncMap()).Funcs(funcMap)
+		t := template.New("test").Funcs(sprigin.TxtFuncMap()).Funcs(funcMap)
 
 		tmpl, err := t.Parse(string(data))
 		if err != nil {
@@ -90,7 +90,7 @@ func regexMatch(re, s string) (bool, error) {
 	return compiled.MatchString(s), nil
 }
 
-// return named parenthesized subexpresions, if received, or stringfied (Sprig "get" need strings) keys like array
+// return named parenthesized subexpresions, if received, or stringfied (Sprout "get" need strings) keys like array
 func findStringSubmatch(pattern, input string) map[string]interface{} {
 	re := regexp.MustCompile(pattern)
 	els := re.FindStringSubmatch(input)

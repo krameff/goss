@@ -5,10 +5,19 @@
 ### Fixed
 
 - The weekly Trivy scan couldn't find the image because it never logged in to GHCR first, unlike every other workflow that scans one
+- Restored the `upper`/`repeat` matching example in `docs/goss.yaml`, which had been commented out behind a TODO saying the syntax wasn't accepted. It renders fine
+- `ci/trivyignore-check.sh` was quietly useless. It re-checks every `.trivyignore` entry against what it calls a fresh, unfiltered scan, but Trivy picks up `.trivyignore` from the working directory on its own, so the scan was being filtered by the very file under test. Every entry came back as "no longer found in scan results, consider removing it", which is the opposite of the truth. Passing `--ignorefile /dev/null` gives it the unfiltered scan it always meant to run. It now correctly reports that the one entry we have still applies
 
 ### Updated
 
 - Bumped `docker/login-action` to v4.6.0 everywhere so the workflows are all on the same version
+- Swapped the gossfile template function library from `github.com/Masterminds/sprig/v3` to `github.com/go-sprout/sprout`, the maintained community successor. Sprig's last release was v3.3.0 and the project has gone quiet. We use sprout's `sprigin` compatibility package, so every function name that worked in a gossfile before still works, including the sprig-era aliases like `upper` and `camelcase`. To be clear about what this is and isn't: it's a maintenance move, not a security fix. Sprout needs `golang.org/x/crypto` for the same bcrypt template functions sprig did, so the `.trivyignore` entry for GO-2026-5932 stays exactly where it was
+- A handful of functions now return corrected values, because sprout fixed bugs sprig still has. `camelcase`, `snakecase` and `kebabcase` no longer leak the separators from the input (`"foo  bar" | snakecase` gives `foo_bar`, not `foo__bar`), `substr` handles negative indices properly, and `abbrevboth` truncates from both ends like it always claimed to. If a gossfile leaned on the old buggy output, this will change what it renders. The upstream list is in sprout's `SPRIG_TO_SPROUT_CHANGES_NOTES.md`
+- Sprout logs a deprecation warning through `slog` whenever a template calls one of the old sprig names, which would have meant stderr noise on examples straight out of our own docs. The CLI raises the level of slog's default log bridge at startup to keep that quiet. goss logs through the stdlib `log` package rather than slog, so nothing else is affected
+
+### Added
+
+- `template_test.go`: the gossfile template layer had almost no Go-level coverage, just one test for `.Discovered` substitution. Now covers the custom goss functions (`mkSlice`, `readFile`, `getEnv`, `regexMatch`, `findStringSubmatch` with both named and numbered subexpressions), the fact that those still override the sprout functions of the same name, the function names our fixtures and docs actually use, `NewPeekTemplateFilter`'s missing-key behavior, and the corrected sprout return values above so a future bump can't quietly regress them
 
 ## [0.6.0] - 2026-07-26
 

@@ -67,6 +67,8 @@ func timeoutFlag(value time.Duration) *cli.DurationFlag {
 }
 
 func main() {
+	silenceTemplateDeprecationNotices()
+
 	cli.VersionPrinter = func(cmd *cli.Command) {
 		fmt.Fprintf(cmd.Root().Writer, "%v version %v\nKrameff Solutions Ltd\n", cmd.Name, cmd.Version)
 	}

@@ -1101,7 +1101,7 @@ Available variables:
 Available functions:
 
 * [built-in text/template functions](https://golang.org/pkg/text/template/#hdr-Functions)
-* [Sprig functions](https://masterminds.github.io/sprig/)
+* [Sprout functions](https://docs.atom.codes/sprout)
 * Custom functions:
 
     `mkSlice "ARG1" "ARG2"`
@@ -1152,8 +1152,8 @@ Available functions:
 
 !!! note
 
-    Some of Sprig functions have the same name as the older Custom Goss functions.
-    The Sprig functions are overwritten by the custom functions for backwards compatibility.
+    Some of Sprout functions have the same name as the older Custom Goss functions.
+    The Sprout functions are overwritten by the custom functions for backwards compatibility.
 
 ### Examples
 
@@ -1179,7 +1179,7 @@ file:
 {{end}}
 ```
 
-Using `upper` function from Sprig.
+Using `upper` function from Sprout.
 
 ```yaml+jinja
 matching:
