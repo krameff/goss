@@ -47,6 +47,7 @@ const (
 	RuleTemplateParse  = "template-parse"
 	RuleDeprecatedFunc = "deprecated-func"
 	RuleRender         = "render"
+	RuleImport         = "import"
 	RuleYAML           = "yaml"
 )
 
@@ -63,6 +64,13 @@ type Finding struct {
 	// Rendered is the path the rendered YAML was written to, set only on
 	// findings in SpaceRendered so the reported line can actually be opened.
 	Rendered string `json:"rendered,omitempty"`
+
+	// Symbol, Replacement and Offset are what --fix needs: the exact text to
+	// replace, what to replace it with, and where it starts in the source.
+	// Only set where the fix is unambiguous; see lint/fix.go.
+	Symbol      string `json:"-"`
+	Replacement string `json:"-"`
+	Offset      int    `json:"-"`
 }
 
 // Sort orders findings the way someone reads a file: by path, then position,

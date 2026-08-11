@@ -69,8 +69,17 @@ func reportText(w io.Writer, findings []Finding) error {
 		}
 	}
 
-	for _, path := range sortedKeys(rendered) {
-		if _, err := fmt.Fprintf(w, "\nlines marked (rendered) refer to %s\n", path); err != nil {
+	// One note, however many files were checked. Listing a temp path per file
+	// would drown the findings themselves.
+	switch paths := sortedKeys(rendered); len(paths) {
+	case 0:
+	case 1:
+		if _, err := fmt.Fprintf(w, "\nlines marked (rendered) refer to %s\n", paths[0]); err != nil {
+			return err
+		}
+	default:
+		if _, err := fmt.Fprintf(w, "\nlines marked (rendered) refer to each file's rendered output; "+
+			"use --write-rendered DIR to keep them somewhere you can read\n"); err != nil {
 			return err
 		}
 	}

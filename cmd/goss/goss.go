@@ -250,8 +250,9 @@ func main() {
 				},
 			},
 			{
-				Name:  "lint",
-				Usage: "check a gossfile for template and YAML problems",
+				Name:    "lint",
+				Aliases: []string{"l"},
+				Usage:   "check a gossfile for template and YAML problems",
 				Flags: []cli.Flag{
 					&cli.StringFlag{
 						Name:  "format",
@@ -274,6 +275,14 @@ func main() {
 						Name:  "strict",
 						Usage: "Treat warnings as failures",
 					},
+					&cli.BoolFlag{
+						Name:  "no-imports",
+						Usage: "Only check the named gossfile, don't follow its gossfile: imports",
+					},
+					&cli.BoolFlag{
+						Name:  "fix",
+						Usage: "Rewrite gossfiles to correct what can be fixed safely (deprecated function names)",
+					},
 				},
 				Action: func(ctx context.Context, c *cli.Command) error {
 					opts := goss.LintOptions{
@@ -282,6 +291,8 @@ func main() {
 						RequireYamllint: c.Bool("require-yamllint"),
 						WriteRendered:   c.String("write-rendered"),
 						Strict:          c.Bool("strict"),
+						NoImports:       c.Bool("no-imports"),
+						Fix:             c.Bool("fix"),
 					}
 					code, err := goss.Lint(newRuntimeConfigFromCLI(c), opts, os.Stdout)
 					if err != nil {

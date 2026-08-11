@@ -20,18 +20,46 @@ var ErrYamllintMissing = errors.New("yamllint is not installed or not on PATH")
 var yamllintLineRe = regexp.MustCompile(`^(.*?):(\d+):(\d+): \[(\w+)\] (.*)$`)
 
 // defaultYamllintConfig is used when the user hasn't got a yamllint config of
-// their own. It is yamllint's defaults with two rules turned off that fit
-// yamllint's assumptions rather than goss's:
+// their own. It is yamllint's defaults, minus the rules that fit yamllint's
+// assumptions rather than goss's.
 //
+// The whitespace rules go first, and they matter most. yamllint is built for
+// files people write and review; what it gets here is a rendered intermediate
+// in a temp directory that nobody reads, commits or diffs. Worse, a control
+// directive on its own line always leaves whitespace behind, and there is no
+// way to write one that satisfies both rules:
+//
+//	  {{ if .Vars.x }}      indented  -> renders to "  " -> trailing-spaces
+//	{{ if .Vars.x }}        flush     -> renders to ""   -> empty-lines
+//
+// Trim markers ({{-) avoid it, but demanding them across an existing suite is
+// a lot of churn to silence a complaint about whitespace in a throwaway file.
+// So:
+//
+//   - trailing-spaces, empty-lines, new-line-at-end-of-file: disabled.
 //   - document-start: gossfiles don't begin with "---", so leaving this on
 //     means a warning on essentially every file. goss's own .yamllint disables
 //     it for the same reason.
 //   - line-length: gossfile values are frequently long commands or paths, and
 //     wrapping them isn't an option.
+//   - indent-sequences: relaxed to "consistent". yamllint defaults to requiring
+//     sequences be indented under their key. Both styles are valid YAML and
+//     real gossfiles use both, so judging a file against whichever it already
+//     uses catches genuine inconsistency without picking a side.
+//
+// What's left is the structural half: duplicate keys, inconsistent indentation,
+// bad spacing around colons, and anything that isn't valid YAML at all. Those
+// can change what a gossfile means, which is the point.
 //
 // Anyone who wants the stock rules can point --yamllint-config at their own
 // config, which takes over completely.
-const defaultYamllintConfig = `{extends: default, rules: {document-start: disable, line-length: disable}}`
+const defaultYamllintConfig = `{extends: default, rules: {` +
+	`trailing-spaces: disable, ` +
+	`empty-lines: disable, ` +
+	`new-line-at-end-of-file: disable, ` +
+	`document-start: disable, ` +
+	`line-length: disable, ` +
+	`indentation: {spaces: consistent, indent-sequences: consistent}}}`
 
 // YamllintOptions controls the YAML half of a lint run.
 type YamllintOptions struct {

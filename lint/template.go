@@ -120,21 +120,24 @@ func deprecatedFuncs(file string, src []byte, tmpl *template.Template) []Finding
 			continue
 		}
 
-		walk(t.Tree.Root, func(id *parse.IdentifierNode) {
-			replacement, ok := deprecated[id.Ident]
+		walk(t.Root, func(id *parse.IdentifierNode) {
+			notice, ok := deprecated[id.Ident]
 			if !ok {
 				return
 			}
 
 			line, col := lines.position(int(id.Position()))
 			findings = append(findings, Finding{
-				File:     file,
-				Line:     line,
-				Col:      col,
-				Rule:     RuleDeprecatedFunc,
-				Message:  fmt.Sprintf("%q is deprecated: %s", id.Ident, replacement),
-				Severity: SeverityWarning,
-				Space:    SpaceSource,
+				File:        file,
+				Line:        line,
+				Col:         col,
+				Rule:        RuleDeprecatedFunc,
+				Message:     fmt.Sprintf("%q is deprecated: %s", id.Ident, notice),
+				Severity:    SeverityWarning,
+				Space:       SpaceSource,
+				Symbol:      id.Ident,
+				Replacement: renameFor(notice),
+				Offset:      int(id.Position()),
 			})
 		})
 	}
