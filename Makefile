@@ -158,13 +158,18 @@ test-depends-on-e2e:
 	$(info INFO: Starting $@)
 	./ci/depends-on-e2e.sh
 
+.PHONY: lint-gossfiles
+lint-gossfiles:
+	$(info INFO: Starting $@)
+	./ci/lint-gossfiles.sh
+
 .PHONY: test-security
 test-security:
 	$(info INFO: Starting $@)
 	./ci/security-scan.sh
 
 .PHONY: check
-check: test test-discovery-e2e test-depends-on-e2e lint-markdown test-security
+check: test test-discovery-e2e test-depends-on-e2e lint-markdown lint-gossfiles test-security
 	$(info INFO: Starting $@)
 
 # Fast checks to run before every commit: formatting, vet, unit tests.

@@ -1,0 +1,58 @@
+name: Lint gossfiles
+
+# Runs `goss lint` over the gossfiles this repo ships, so our own examples and
+# fixtures can't drift onto deprecated template functions or invalid YAML.
+#
+# This lives apart from `golangci.yaml` because that workflow ignores `docs/**`
+# and `**/*.md`, and `docs/goss.yaml` is one of the files most worth checking.
+# `paths-ignore` has no exception syntax, so the triggers have to differ.
+on:
+  push:
+    branches:
+      - main
+      - devel
+    paths:
+      - "docs/goss.yaml"
+      - "integration-tests/goss/**"
+      - "ci/lint-gossfiles.sh"
+      - "lint/**"
+      - "lint.go"
+      - "template.go"
+      - "cmd/goss/**"
+      - ".yamllint"
+      - ".github/workflows/goss-lint.yaml"
+  pull_request:
+    paths:
+      - "docs/goss.yaml"
+      - "integration-tests/goss/**"
+      - "ci/lint-gossfiles.sh"
+      - "lint/**"
+      - "lint.go"
+      - "template.go"
+      - "cmd/goss/**"
+      - ".yamllint"
+      - ".github/workflows/goss-lint.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  lint-gossfiles:
+    name: lint gossfiles
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-go@v7.0.0
+        with:
+          go-version-file: go.mod
+
+      # The YAML half of `goss lint` shells out to yamllint. --require-yamllint
+      # in the script turns a missing one into a failure rather than a silent
+      # skip, so this step is not optional.
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Lint gossfiles
+        run: make lint-gossfiles
