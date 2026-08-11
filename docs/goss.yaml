@@ -110,7 +110,7 @@ matching:
       - 1.9.9
     matches:
       semver-constraint: ">1.0.0 <2.0.0 !=1.5.0"
-  has_substr: # friendly test name
+  has_substr:  # friendly test name
     content: some string
     matches:
       match-regexp: some str
@@ -130,7 +130,7 @@ matching:
         - have-key: baz
 
   sping_basic:
-    content: {{ "hello!" | upper | repeat 5 }}
+    content: {{ "hello!" | toUpper | repeat 5 }}
     matches:
       match-regexp: "HELLO!HELLO!HELLO!HELLO!HELLO!"
 
@@ -151,7 +151,7 @@ package:
     versions:
       - "2.1"
     skip: false
-# https://github.com/krameff/goss/blob/master/README.md#manually-editing-goss-files    
+# https://github.com/krameff/goss/blob/master/README.md#manually-editing-goss-files
   kernel:
     installed: true
     versions:
@@ -179,38 +179,38 @@ service:
     running: true
 
 user:
-    nfsbody:
-      exists: true
-      uid: 65534
-      gid: 65534
-      groups:
-        - nfsnobody
-      home: /var/lib/nfs
-      shell: /sbin/nologin
-      skip: false
+  nfsbody:
+    exists: true
+    uid: 65534
+    gid: 65534
+    groups:
+      - nfsnobody
+    home: /var/lib/nfs
+    shell: /sbin/nologin
+    skip: false
 
-    nobody:
-      exists: true
-      uid:
-        lt: 500
-      groups:
-        consist-of: [nobody]
+  nobody:
+    exists: true
+    uid:
+      lt: 500
+    groups:
+      consist-of: [nobody]
 
-    sshd:
-      title: UID must be between 50-100, GID doesn't matter. home is flexible
-      meta:
-        desc: Ensure sshd is enabled and running since it's needed for system management
-        sev: 5
-      exists: true
-      uid:
-        # Validate that UID is between 50 and 100
-        and:
-          gt: 50
-          lt: 100
-      home:
-        # Home can be any of the following
-        or:
-          - /var/empty/sshd
-          - /var/run/sshd
+  sshd:
+    title: UID must be between 50-100, GID doesn't matter. home is flexible
+    meta:
+      desc: Ensure sshd is enabled and running since it's needed for system management
+      sev: 5
+    exists: true
+    uid:
+      # Validate that UID is between 50 and 100
+      and:
+        gt: 50
+        lt: 100
+    home:
+      # Home can be any of the following
+      or:
+        - /var/empty/sshd
+        - /var/run/sshd
 
 # https://github.com/krameff/goss/blob/master/README.md#manually-editing-goss-files

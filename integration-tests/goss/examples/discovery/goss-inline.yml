@@ -4,10 +4,10 @@ discovery:
       register: hosts_exists
       exists: true
 
-{{ if .Discovered.hosts_exists }}
+{{- if .Discovered.hosts_exists }}
 file:
   /etc/hosts:
     exists: true
     contents:
       - localhost
-{{ end }}
+{{- end }}

@@ -1,4 +1,4 @@
-{{ if .Discovered.hosts_exists }}
+{{- if .Discovered.hosts_exists -}}
 file:
   prereq:
     path: /nonexistent/goss-discover-dep-base
@@ -10,4 +10,4 @@ command:
       - prereq
     exec: true
     exit-status: 0
-{{ end }}
+{{- end }}
