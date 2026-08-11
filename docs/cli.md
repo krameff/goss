@@ -194,12 +194,16 @@ Will **NOT** automatically add:
 !!! abstract "Check a gossfile for template and YAML problems"
     ```console
     goss lint
+    goss l
     ```
 
 Checks a gossfile without running any tests against the system. It parses the
 template, flags deprecated template function names, renders the file, and runs
 the result through [yamllint](https://yamllint.readthedocs.io/) if it is
 installed.
+
+Follows the `gossfile:` imports in the file it is given, the same way `validate`
+and `render` do, so one command covers a whole suite.
 
 Uses the global `--gossfile`, `--vars` and `--vars-inline` options, since it has
 to render the file the same way `validate` would.
@@ -211,6 +215,15 @@ to render the file the same way `validate` would.
 `--strict`
 :   Treat warnings as failures. Deprecated function names are warnings by
     default.
+
+`--no-imports`
+:   Only check the named gossfile, instead of following its `gossfile:`
+    imports.
+
+`--fix`
+:   Rewrite gossfiles to correct deprecated function names. Only straight
+    renames are applied; see [Linting gossfiles](lint.md#fixing-problems-automatically)
+    for what is deliberately left alone.
 
 `--require-yamllint`
 :   Fail if yamllint is not installed, rather than skipping the YAML checks.
