@@ -21,6 +21,13 @@ MD013:
   tables: false
   code_blocks: false
 
+# Allow hard tabs inside code blocks
+# Makefile recipes require a literal tab, so a documented Makefile snippet
+# can't avoid one
+# See: https://github.com/DavidAnson/markdownlint/blob/main/doc/md010.md
+MD010:
+  code_blocks: false
+
 # Disable `blanks-around-list` (to stay close from GitHub-flavored markdown)
 # See:
 #  - https://github.com/DavidAnson/markdownlint/blob/main/doc/md032.md

@@ -65,6 +65,7 @@ GLOBAL OPTIONS:
 Commands are the actions goss can run.
 * [add](#add): add a single test for a resource
 * [autoadd](#autoadd): automatically add multiple tests for a resource
+* [lint](#lint): check a gossfile for template and YAML problems before running it
 * [render](#render): renders and outputs the gossfile, importing all included gossfiles
 * [serve](#serve): serves the gossfile validation as an HTTP endpoint on a specified address and port,
     so you can use your gossfile as a health report for the host
@@ -187,6 +188,52 @@ Will **NOT** automatically add:
         user:
         - root
     ```
+
+### `lint`
+
+!!! abstract "Check a gossfile for template and YAML problems"
+    ```console
+    goss lint
+    ```
+
+Checks a gossfile without running any tests against the system. It parses the
+template, flags deprecated template function names, renders the file, and runs
+the result through [yamllint](https://yamllint.readthedocs.io/) if it is
+installed.
+
+Uses the global `--gossfile`, `--vars` and `--vars-inline` options, since it has
+to render the file the same way `validate` would.
+
+`--format`
+:   Output format: `text` (default), `json`, or `github` for GitHub Actions
+    annotations.
+
+`--strict`
+:   Treat warnings as failures. Deprecated function names are warnings by
+    default.
+
+`--require-yamllint`
+:   Fail if yamllint is not installed, rather than skipping the YAML checks.
+    Recommended in CI.
+
+`--yamllint-config`
+:   Path to a yamllint config file, overriding the search for a nearby
+    `.yamllint`.
+
+`--write-rendered`
+:   Directory to write the rendered gossfile to, so that line numbers reported
+    against the rendered output can be opened.
+
+Exit codes are `0` for a clean file, `1` when problems are found, and `2` when
+the linter itself fails.
+
+!!! example
+    ```console
+    goss -g goss.yaml lint
+    goss --vars vars.yaml -g goss.yaml lint --require-yamllint --format github
+    ```
+
+See [Linting gossfiles](lint.md) for the full rule list and worked examples.
 
 ### `render`
 

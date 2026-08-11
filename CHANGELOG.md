@@ -17,6 +17,9 @@
 
 ### Added
 
+- `goss lint`, a new subcommand that checks a gossfile instead of the system it describes. Gossfiles are Go templates that render into YAML, which means nothing could check them until now: yamllint can't read the unrendered form, and a typo in a function name only turned up when someone ran `goss validate` on a real server. It parses the template, flags deprecated function names, renders the file, and passes the result to yamllint if it's installed. Four rules, `template-parse`, `deprecated-func`, `render` and `yaml`, with `--format github` for pull request annotations. Full documentation in `docs/lint.md`
+- The deprecated-name list comes from Sprout at runtime rather than being written down anywhere, so it stays right when Sprout is upgraded. There's a test that fails loudly if that list ever comes back empty, since a silently empty list would mean the rule quietly stops finding anything
+- Where a gossfile has no yamllint config of its own, goss uses yamllint's defaults with `document-start` and `line-length` turned off. Gossfiles don't start with `---` and often contain long commands, so the stock rules would warn about nearly every file. Point `--yamllint-config` at your own file to take over completely
 - `template_test.go`: the gossfile template layer had almost no Go-level coverage, just one test for `.Discovered` substitution. Now covers the custom goss functions (`mkSlice`, `readFile`, `getEnv`, `regexMatch`, `findStringSubmatch` with both named and numbered subexpressions), the fact that those still override the sprout functions of the same name, the function names our fixtures and docs actually use, `NewPeekTemplateFilter`'s missing-key behavior, and the corrected sprout return values above so a future bump can't quietly regress them
 
 ## [0.6.0] - 2026-07-26

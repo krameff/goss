@@ -1092,6 +1092,11 @@ Independent dependency chains still run in parallel; only declared dependencies 
 Goss test files can leverage golang's [text/template](https://golang.org/pkg/text/template/)
 to allow for dynamic or conditional tests.
 
+!!! tip
+    Templated gossfiles are not valid YAML until they are rendered, so ordinary
+    YAML tooling cannot check them. Use [`goss lint`](lint.md) to catch template
+    errors, deprecated function names and YAML problems before you run the tests.
+
 Available variables:
 
 * `{{.Env}}`  - Containing environment variables

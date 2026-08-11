@@ -133,7 +133,7 @@ reuses the same steps as the host E2E scripts via [`ci/lib/goss-e2e-steps.sh`](.
 Fixtures live under [`integration-tests/goss/examples/`](../integration-tests/goss/examples/) and are
 mounted at `/goss/examples/` inside the test container.
 
-## Go unit and integration tests (283 cases)
+## Go unit and integration tests (308 cases)
 
 ### Package `github.com/krameff/goss` (root)
 
@@ -161,6 +161,21 @@ mounted at `/goss/examples/` inside the test container.
 | `TestServeCacheNegotiatingContent` | `serve_test.go` | Serve cache + negotiation |
 | `Test_varsFromString` | `store_test.go` | Inline vars parsing |
 | `Test_loadVars` | `store_test.go` | Vars file merge |
+
+### Package `lint`
+
+| Test | File | Covers |
+| --- | --- | --- |
+| `TestDeprecatedFuncsComesFromSprout` | `lint/template_test.go` | The deprecated-name list is read from Sprout at runtime and is non-empty |
+| `TestCheckTemplateParseErrors` | `lint/template_test.go` | Unknown functions, unclosed actions, bad pipelines, with source line numbers |
+| `TestCheckTemplateDeprecatedFuncs` | `lint/template_test.go` | Deprecated names in pipelines, `if`, `range`, `define`, `block`, chained field access and variable assignment |
+| `TestCheckTemplateDeprecatedFuncSeverityAndSpace` | `lint/template_test.go` | Deprecated names are warnings against the source file, not errors |
+| `TestLineIndexPosition` | `lint/template_test.go` | Byte offset to line and column, including line boundaries and empty lines |
+
+`define`, `block` and chained field access are regression cases: each was a
+silent miss, since a `{{define}}` body is parsed into its own template rather
+than the root tree, and a parenthesized pipeline with a field access on the end
+is wrapped in a node the walk originally skipped.
 
 ### Package `matchers`
 
@@ -249,6 +264,21 @@ make test-int-all   # full matrix (slow)
 
 Non-amd64 / darwin / windows via [`integration-tests/run-validate-tests.sh`](../integration-tests/run-validate-tests.sh)
 (find `*.goss.yaml` under platform dirs and run `goss validate`).
+
+## Gossfile lint
+
+```bash
+goss -g <gossfile> lint --require-yamllint
+```
+
+Checks a gossfile rather than the system: template parse errors, deprecated
+template function names, render failures, and yamllint over the rendered
+output. Needs `yamllint` on PATH for the YAML half; `--require-yamllint` turns a
+missing yamllint into a failure instead of a skip, which is what CI wants.
+
+Exit codes are `0` clean, `1` problems found, `2` the linter itself failed.
+
+See [Linting gossfiles](lint.md) for the rules and CI examples.
 
 ## Markdown lint
 
