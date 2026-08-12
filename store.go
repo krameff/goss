@@ -15,6 +15,7 @@ import (
 	yamlv2 "gopkg.in/yaml.v2"
 	"gopkg.in/yaml.v3"
 
+	"github.com/krameff/goss/lint"
 	"github.com/krameff/goss/resource"
 	"github.com/krameff/goss/util"
 )
@@ -66,7 +67,33 @@ func ReadJSON(filePath string) (GossConfig, error) {
 		return GossConfig{}, fmt.Errorf("file error: %w", err)
 	}
 
-	return ReadJSONData(file, false)
+	cfg, err := ReadJSONData(file, false)
+	if err != nil {
+		return cfg, templateError(filePath, err)
+	}
+
+	return cfg, nil
+}
+
+// templateError rewrites a template failure to point at a position in the file
+// the user is editing, turning
+//
+//	template: test:12:3: executing "test" at <.Vars.missing>: map has no entry for key "missing"
+//
+// into
+//
+//	goss.yaml:12:3: map has no entry for key "missing"
+//
+// The same rewrite `goss lint` does, applied to `validate` and `render`, since
+// the raw form names an internal template and buries the position mid-line.
+// Anything that isn't a template error is returned untouched.
+func templateError(filePath string, err error) error {
+	f, ok := lint.RenderError(filePath, err)
+	if !ok {
+		return err
+	}
+
+	return fmt.Errorf("%s: %s", f.Position(), f.Message)
 }
 
 type TmplVars struct {

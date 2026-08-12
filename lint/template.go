@@ -74,6 +74,16 @@ var execErrRe = regexp.MustCompile(`^template: [^:]*:(\d+)(?::(\d+))?: (.*)$`)
 // reports, which refers to the source file since nothing has been substituted
 // away yet.
 func FromRenderError(file string, err error) Finding {
+	f, _ := RenderError(file, err)
+
+	return f
+}
+
+// RenderError is FromRenderError with a report of whether the error actually
+// came from text/template. Callers outside the linter use this to decide
+// whether to rewrite an error at all: `goss validate` sees YAML and I/O errors
+// on the same path, and those should be left exactly as they are.
+func RenderError(file string, err error) (Finding, bool) {
 	f := Finding{
 		File:     file,
 		Line:     1,
@@ -85,7 +95,7 @@ func FromRenderError(file string, err error) Finding {
 
 	m := execErrRe.FindStringSubmatch(err.Error())
 	if m == nil {
-		return f
+		return f, false
 	}
 
 	f.Line, _ = strconv.Atoi(m[1])
@@ -96,7 +106,7 @@ func FromRenderError(file string, err error) Finding {
 	// someone reading their own gossfile.
 	f.Message = strings.TrimPrefix(m[3], `executing "test" at `)
 
-	return f
+	return f, true
 }
 
 // deprecatedFuncs walks the parse tree looking for calls to function names

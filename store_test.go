@@ -1,6 +1,7 @@
 package goss
 
 import (
+	"errors"
 	"log"
 	"os"
 	"testing"
@@ -326,4 +327,36 @@ func TestStaticStoreErrors(t *testing.T) {
 
 	err = unmarshal([]byte("{}"), NewGossConfig(), UNSET)
 	assert.ErrorIs(t, err, errStoreFormatUnset)
+}
+
+// A template failure should name the gossfile and the position in it, not the
+// internal template goss renders under. Anything else is left alone.
+func TestTemplateError(t *testing.T) {
+	tests := []struct {
+		name string
+		err  error
+		want string
+	}{
+		{
+			name: "execution error",
+			err:  errors.New(`template: test:12:3: executing "test" at <.Vars.missing>: map has no entry for key "missing"`),
+			want: `goss.yaml:12:3: <.Vars.missing>: map has no entry for key "missing"`,
+		},
+		{
+			name: "parse error",
+			err:  errors.New(`template: test:4: function "bogus" not defined`),
+			want: `goss.yaml:4: function "bogus" not defined`,
+		},
+		{
+			name: "not a template error",
+			err:  errors.New("yaml: line 3: mapping values are not allowed in this context"),
+			want: "yaml: line 3: mapping values are not allowed in this context",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			assert.Equal(t, tc.want, templateError("goss.yaml", tc.err).Error())
+		})
+	}
 }

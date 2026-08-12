@@ -56,15 +56,8 @@ func reportText(w io.Writer, findings []Finding) error {
 			rendered[f.Rendered] = true
 		}
 
-		// Not every source of findings gives a column, and ":0" reads like a
-		// real position rather than a missing one.
-		position := fmt.Sprintf("%s:%d", f.File, f.Line)
-		if f.Col > 0 {
-			position = fmt.Sprintf("%s:%d", position, f.Col)
-		}
-
 		if _, err := fmt.Fprintf(w, "%s%s: %s: %s [%s]\n",
-			position, where, f.Severity, f.Message, f.Rule); err != nil {
+			f.Position(), where, f.Severity, f.Message, f.Rule); err != nil {
 			return err
 		}
 	}
