@@ -36,6 +36,8 @@ Moving the gossfile template function library to a maintained one.
 
 ### Fixed
 
+- The gossfile lint workflow now triggers on any `*.go` change rather than a hand-written list of the files the linter happens to use. That list was already wrong: it named `lint.go` and `template.go` but not `store.go`, which the import walk goes through, nor `goss_config.go`, which the schema rule checks against. The job is a build plus a `pip install`, so running it on an unrelated Go change costs very little, while missing one costs a gossfile regression nobody sees
+- Deleted `.github/workflows/codeql.2yml`, a stale copy of the CodeQL workflow. GitHub only loads `.yml`/`.yaml`, so it never ran; it was an older version of `codeql.yml` (pinned to `actions/checkout@v4`, same `devel`-only triggers) left behind after an update
 - The weekly Trivy scan couldn't find the image because it never logged in to GHCR first, unlike every other workflow that scans one
 - `ci/trivyignore-check.sh` was quietly useless. It re-checks every `.trivyignore` entry against what it calls a fresh, unfiltered scan, but Trivy picks up `.trivyignore` from the working directory on its own, so the scan was being filtered by the very file under test. Every entry came back as "no longer found in scan results, consider removing it", which is the opposite of the truth. Passing `--ignorefile /dev/null` gives it the unfiltered scan it always meant to run. It now correctly reports that the one entry we have still applies
 
