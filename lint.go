@@ -6,9 +6,12 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"regexp"
 	"sort"
 	"strings"
 	"sync"
+
+	"gopkg.in/yaml.v3"
 
 	"github.com/krameff/goss/lint"
 	"github.com/krameff/goss/util"
@@ -189,34 +192,104 @@ func lintFile(spec string, c *util.Config, opts LintOptions) ([]lint.Finding, er
 
 	// Only render if the template parses. Rendering a file that failed to
 	// parse just repeats the same error with less context.
-	if !hasRule(findings, lint.RuleTemplateParse) {
-		rendered, renderFindings, err := renderForLint(spec, c, opts, src)
-		if err != nil {
-			return nil, err
-		}
-		findings = append(findings, renderFindings...)
-
-		if rendered != "" {
-			if !lint.YamllintAvailable() && !opts.RequireYamllint {
-				// Say so once, otherwise a clean report looks like the YAML
-				// was checked when it never was.
-				warnYamllintMissing.Do(func() {
-					fmt.Fprintln(os.Stderr, "yamllint not found on PATH, skipping YAML checks (use --require-yamllint to make this an error)")
-				})
-			}
-
-			yamlFindings, err := lint.Yamllint(spec, rendered, lint.YamllintOptions{
-				Config:   yamllintConfig(spec, opts),
-				Required: opts.RequireYamllint,
-			})
-			if err != nil {
-				return nil, err
-			}
-			findings = append(findings, yamlFindings...)
-		}
+	if hasRule(findings, lint.RuleTemplateParse) {
+		return findings, nil
 	}
 
-	return findings, nil
+	rendered, path, renderFindings, err := renderForLint(spec, c, opts, src)
+	if err != nil {
+		return nil, err
+	}
+	findings = append(findings, renderFindings...)
+	if path == "" {
+		return findings, nil
+	}
+
+	// Structural YAML first. If the output doesn't parse, the schema check and
+	// yamllint have nothing to work with and would only restate the same
+	// problem in their own words.
+	if yamlFindings := lint.CheckYAML(spec, path, rendered); len(yamlFindings) > 0 {
+		return append(findings, yamlFindings...), nil
+	}
+
+	findings = append(findings, checkSchema(spec, path, rendered)...)
+
+	if !lint.YamllintAvailable() && !opts.RequireYamllint {
+		// Say so once, otherwise a clean report looks like the style rules
+		// ran when they never did.
+		warnYamllintMissing.Do(func() {
+			fmt.Fprintln(os.Stderr, "yamllint not found on PATH, skipping YAML style checks (use --require-yamllint to make this an error)")
+		})
+	}
+
+	yamlFindings, err := lint.Yamllint(spec, path, lint.YamllintOptions{
+		Config:   yamllintConfig(spec, opts),
+		Required: opts.RequireYamllint,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return append(findings, yamlFindings...), nil
+}
+
+// checkSchema decodes the rendered output into goss's own config types with
+// unknown fields rejected, which catches a resource type or attribute that
+// doesn't exist -- `fille:` for `file:`, `runing:` for `running:`.
+//
+// Deliberately no JSON Schema. docs/schema.yaml exists for editor completion
+// and is maintained by hand, so checking against it would mean the linter
+// disagrees with goss whenever the two drift. The structs below are what goss
+// actually runs on, so they can't drift from it by definition, and a new
+// resource attribute is covered the day it's added.
+//
+// The per-resource attribute check is goss's own (util.ValidateSections, called
+// from each resource map's UnmarshalYAML). It has always run -- but only at
+// validate time, on a real server. All this does is move it forward to
+// authoring time, which is the whole point of the linter.
+func checkSchema(spec, renderedPath string, rendered []byte) []lint.Finding {
+	dec := yaml.NewDecoder(bytes.NewReader(rendered))
+	dec.KnownFields(true)
+
+	err := dec.Decode(NewGossConfig())
+	if err == nil || lint.IsEmptyDocument(err) {
+		return nil
+	}
+
+	// Reusable anchor blocks live at the top level and are not resource types.
+	// See lint.AnchorKeys.
+	anchors := lint.AnchorKeys(rendered)
+
+	var out []lint.Finding
+	for _, f := range lint.FromYAMLError(spec, renderedPath, lint.RuleSchema, err) {
+		if key, ok := unknownResourceType(f.Message); ok {
+			if anchors[key] {
+				continue
+			}
+			f.Message = fmt.Sprintf("unknown resource type %q", key)
+		}
+		out = append(out, f)
+	}
+
+	return out
+}
+
+// unknownFieldRe matches go-yaml's message for a key with no matching struct
+// field, which names the Go type: "field fille not found in type goss.GossConfig".
+var unknownFieldRe = regexp.MustCompile(`^field (\S+) not found in type (\S+)$`)
+
+// unknownResourceType returns the key from a top-level unknown-field message.
+//
+// Only the top level, since that is where resource types live and where the
+// anchor exemption applies. Anything deeper is left with go-yaml's own wording,
+// which at least says which type it was reading.
+func unknownResourceType(msg string) (string, bool) {
+	m := unknownFieldRe.FindStringSubmatch(msg)
+	if m == nil || m[2] != "goss.GossConfig" {
+		return "", false
+	}
+
+	return m[1], true
 }
 
 // applyFixes rewrites the gossfile for the findings that can be corrected
@@ -261,25 +334,26 @@ func applyFixes(spec string, c *util.Config, src []byte, findings []lint.Finding
 }
 
 // renderForLint renders the gossfile and writes the result somewhere yamllint
-// can read it. A render failure is a finding, not an error: it's a problem with
-// the gossfile, which is exactly what the linter is for.
-func renderForLint(spec string, c *util.Config, opts LintOptions, src []byte) (string, []lint.Finding, error) {
+// can read it, returning both the bytes and that path. A render failure is a
+// finding, not an error: it's a problem with the gossfile, which is exactly
+// what the linter is for.
+func renderForLint(spec string, c *util.Config, opts LintOptions, src []byte) ([]byte, string, []lint.Finding, error) {
 	filter, err := NewTemplateFilter(c.VarsFiles, c.VarsInline, nil)
 	if err != nil {
-		return "", nil, err
+		return nil, "", nil, err
 	}
 
 	rendered, err := filter(src)
 	if err != nil {
-		return "", []lint.Finding{lint.FromRenderError(spec, err)}, nil
+		return nil, "", []lint.Finding{lint.FromRenderError(spec, err)}, nil
 	}
 
 	path, err := writeRendered(spec, opts.WriteRendered, rendered)
 	if err != nil {
-		return "", nil, err
+		return nil, "", nil, err
 	}
 
-	return path, nil, nil
+	return rendered, path, nil, nil
 }
 
 // writeRendered puts the rendered YAML where the reported line numbers can

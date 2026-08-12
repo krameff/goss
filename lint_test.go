@@ -149,6 +149,91 @@ func TestLintExitCodes(t *testing.T) {
 	}
 }
 
+// The schema check is goss's own config types, so a resource type or attribute
+// that doesn't exist is caught at authoring time rather than on a server.
+func TestLintSchema(t *testing.T) {
+	tests := []struct {
+		name     string
+		body     string
+		contains string
+	}{
+		{
+			name:     "unknown resource type",
+			body:     "fille:\n  /etc/hosts:\n    exists: true\n",
+			contains: `unknown resource type "fille"`,
+		},
+		{
+			name:     "unknown attribute",
+			body:     "port:\n  tcp:22:\n    runing: true\n",
+			contains: "runing",
+		},
+		{
+			name:     "duplicate key",
+			body:     "port:\n  tcp:22:\n    listening: true\n    listening: false\n",
+			contains: "already defined",
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			dir := writeGossfiles(t, map[string]string{"goss.yaml": tc.body})
+
+			code, out := runLint(t, filepath.Join(dir, "goss.yaml"), LintOptions{})
+
+			if !strings.Contains(out, tc.contains) {
+				t.Errorf("expected %q in:\n%s", tc.contains, out)
+			}
+			if code != LintFindings {
+				t.Errorf("exit %d, want %d", code, LintFindings)
+			}
+		})
+	}
+}
+
+// A top-level block that exists only to be reused through a YAML anchor is not
+// a misspelled resource type. goss ignores it, so the linter must too.
+func TestLintSchemaAllowsAnchorBlocks(t *testing.T) {
+	dir := writeGossfiles(t, map[string]string{
+		"goss.yaml": "defaults: &defaults\n  exists: true\n\nfile:\n  /etc/hosts:\n    <<: *defaults\n",
+	})
+
+	code, out := runLint(t, filepath.Join(dir, "goss.yaml"), LintOptions{})
+
+	if code != LintOK {
+		t.Errorf("exit %d, want %d\n%s", code, LintOK, out)
+	}
+}
+
+// The exemption is only for anchors something actually uses, otherwise it would
+// be a hole big enough to drive a typo through.
+func TestLintSchemaAnchorExemptionIsNarrow(t *testing.T) {
+	dir := writeGossfiles(t, map[string]string{
+		// An anchor nothing aliases, and a plain misspelling.
+		"goss.yaml": "unused: &unused\n  exists: true\nfille:\n  /etc/hosts:\n    exists: true\n",
+	})
+
+	_, out := runLint(t, filepath.Join(dir, "goss.yaml"), LintOptions{})
+
+	for _, want := range []string{`"unused"`, `"fille"`} {
+		if !strings.Contains(out, want) {
+			t.Errorf("expected %s to be reported in:\n%s", want, out)
+		}
+	}
+}
+
+// A gossfile that renders to nothing is legitimate, not a problem to report.
+func TestLintEmptyRenderIsClean(t *testing.T) {
+	dir := writeGossfiles(t, map[string]string{
+		"goss.yaml": "{{ if false }}\nfile:\n  /tmp:\n    exists: true\n{{ end }}\n",
+	})
+
+	code, out := runLint(t, filepath.Join(dir, "goss.yaml"), LintOptions{})
+
+	if code != LintOK {
+		t.Errorf("exit %d, want %d\n%s", code, LintOK, out)
+	}
+}
+
 // --fix rewrites the file on disk, and only for what it can do safely.
 func TestLintFixRewritesFile(t *testing.T) {
 	dir := writeGossfiles(t, map[string]string{

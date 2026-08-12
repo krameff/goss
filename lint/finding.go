@@ -6,7 +6,10 @@
 // move that to authoring time.
 package lint
 
-import "sort"
+import (
+	"fmt"
+	"sort"
+)
 
 // Severity is how much a finding matters. Warnings are reported but, on their
 // own, don't change the exit code.
@@ -49,6 +52,7 @@ const (
 	RuleRender         = "render"
 	RuleImport         = "import"
 	RuleYAML           = "yaml"
+	RuleSchema         = "schema"
 )
 
 // A Finding is one problem found in one gossfile.
@@ -71,6 +75,18 @@ type Finding struct {
 	Symbol      string `json:"-"`
 	Replacement string `json:"-"`
 	Offset      int    `json:"-"`
+}
+
+// Position formats the finding as "file:line" or "file:line:col".
+//
+// Not every source of findings gives a column, and ":0" reads like a real
+// position rather than a missing one.
+func (f Finding) Position() string {
+	if f.Col > 0 {
+		return fmt.Sprintf("%s:%d:%d", f.File, f.Line, f.Col)
+	}
+
+	return fmt.Sprintf("%s:%d", f.File, f.Line)
 }
 
 // Sort orders findings the way someone reads a file: by path, then position,
