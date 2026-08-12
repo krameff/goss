@@ -1092,6 +1092,11 @@ Independent dependency chains still run in parallel; only declared dependencies 
 Goss test files can leverage golang's [text/template](https://golang.org/pkg/text/template/)
 to allow for dynamic or conditional tests.
 
+!!! tip
+    Templated gossfiles are not valid YAML until they are rendered, so ordinary
+    YAML tooling cannot check them. Use [`goss lint`](lint.md) to catch template
+    errors, deprecated function names and YAML problems before you run the tests.
+
 Available variables:
 
 * `{{.Env}}`  - Containing environment variables
@@ -1101,7 +1106,7 @@ Available variables:
 Available functions:
 
 * [built-in text/template functions](https://golang.org/pkg/text/template/#hdr-Functions)
-* [Sprig functions](https://masterminds.github.io/sprig/)
+* [Sprout functions](https://docs.atom.codes/sprout)
 * Custom functions:
 
     `mkSlice "ARG1" "ARG2"`
@@ -1152,8 +1157,16 @@ Available functions:
 
 !!! note
 
-    Some of Sprig functions have the same name as the older Custom Goss functions.
-    The Sprig functions are overwritten by the custom functions for backwards compatibility.
+    Some of Sprout functions have the same name as the older Custom Goss functions.
+    The Sprout functions are overwritten by the custom functions for backwards compatibility.
+
+!!! note
+
+    Sprout renamed a number of functions it inherited from Sprig, and kept the old
+    names working as aliases. `upper`, `camelcase`, `toYaml` and friends still work
+    and are not going away, but the new names are what Sprout documents.
+    [`goss lint`](lint.md) points out any old names in your gossfile and tells you
+    what replaced them.
 
 ### Examples
 
@@ -1179,12 +1192,12 @@ file:
 {{end}}
 ```
 
-Using `upper` function from Sprig.
+Using the `toUpper` function from Sprout.
 
 ```yaml+jinja
 matching:
   sping_basic:
-    content: {{ "hello!" | upper | repeat 5 }}
+    content: {{ "hello!" | toUpper | repeat 5 }}
     matches:
       match-regexp: "HELLO!HELLO!HELLO!HELLO!HELLO!"
 ```

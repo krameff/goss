@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/krameff/goss"
+	"github.com/krameff/goss/lint"
 	"github.com/krameff/goss/outputs"
 	"github.com/krameff/goss/resource"
 	"github.com/krameff/goss/system"
@@ -67,6 +68,8 @@ func timeoutFlag(value time.Duration) *cli.DurationFlag {
 }
 
 func main() {
+	silenceTemplateDeprecationNotices()
+
 	cli.VersionPrinter = func(cmd *cli.Command) {
 		fmt.Fprintf(cmd.Root().Writer, "%v version %v\nKrameff Solutions Ltd\n", cmd.Name, cmd.Version)
 	}
@@ -242,6 +245,60 @@ func main() {
 					}
 
 					fmt.Print(j)
+
+					return nil
+				},
+			},
+			{
+				Name:    "lint",
+				Aliases: []string{"l"},
+				Usage:   "check a gossfile for template and YAML problems",
+				Flags: []cli.Flag{
+					&cli.StringFlag{
+						Name:  "format",
+						Value: lint.FormatText,
+						Usage: fmt.Sprintf("Output format, one of: %s", strings.Join(lint.Formats(), ", ")),
+					},
+					&cli.BoolFlag{
+						Name:  "require-yamllint",
+						Usage: "Fail if yamllint is not installed, instead of skipping the YAML checks",
+					},
+					&cli.StringFlag{
+						Name:  "yamllint-config",
+						Usage: "Path to a yamllint config, overriding the search for a nearby .yamllint",
+					},
+					&cli.StringFlag{
+						Name:  "write-rendered",
+						Usage: "Directory to write the rendered gossfile to, so reported lines can be opened",
+					},
+					&cli.BoolFlag{
+						Name:  "strict",
+						Usage: "Treat warnings as failures",
+					},
+					&cli.BoolFlag{
+						Name:  "no-imports",
+						Usage: "Only check the named gossfile, don't follow its gossfile: imports",
+					},
+					&cli.BoolFlag{
+						Name:  "fix",
+						Usage: "Rewrite gossfiles to correct what can be fixed safely (deprecated function names)",
+					},
+				},
+				Action: func(ctx context.Context, c *cli.Command) error {
+					opts := goss.LintOptions{
+						Format:          c.String("format"),
+						YamllintConfig:  c.String("yamllint-config"),
+						RequireYamllint: c.Bool("require-yamllint"),
+						WriteRendered:   c.String("write-rendered"),
+						Strict:          c.Bool("strict"),
+						NoImports:       c.Bool("no-imports"),
+						Fix:             c.Bool("fix"),
+					}
+					code, err := goss.Lint(newRuntimeConfigFromCLI(c), opts, os.Stdout)
+					if err != nil {
+						color.Red(fmt.Sprintf("Error: %v\n", err))
+					}
+					os.Exit(code)
 
 					return nil
 				},

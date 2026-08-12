@@ -67,6 +67,7 @@ with `|| true`), so `test-short-all`, `pre-push`, and CI's separate lint job agr
 | [`.github/workflows/golangci.yaml`](../.github/workflows/golangci.yaml) | `lint` | golangci-lint |
 | | `coverage` | `make cov`, **`make test-discovery-e2e`**, **`make test-depends-on-e2e`**, **`./ci/security-scan.sh`** |
 | | `integration-test-*` | `make rockylinux9`, `jammy`, darwin, windows, etc. (includes discovery + depends-on E2E) |
+| [`.github/workflows/goss-lint.yaml`](../.github/workflows/goss-lint.yaml) | `lint-gossfiles` | **`make lint-gossfiles`** |
 | [`.github/workflows/codeql.yml`](../.github/workflows/codeql.yml) | `analyze` | CodeQL static analysis for Go and GitHub Actions workflows |
 | [`.github/workflows/docs.yaml`](../.github/workflows/docs.yaml) | `lint` | markdownlint-cli2 on docs |
 | [`.github/workflows/yamllint.yaml`](../.github/workflows/yamllint.yaml) | — | YAML lint |
@@ -133,7 +134,7 @@ reuses the same steps as the host E2E scripts via [`ci/lib/goss-e2e-steps.sh`](.
 Fixtures live under [`integration-tests/goss/examples/`](../integration-tests/goss/examples/) and are
 mounted at `/goss/examples/` inside the test container.
 
-## Go unit and integration tests (283 cases)
+## Go unit and integration tests (308 cases)
 
 ### Package `github.com/krameff/goss` (root)
 
@@ -161,6 +162,36 @@ mounted at `/goss/examples/` inside the test container.
 | `TestServeCacheNegotiatingContent` | `serve_test.go` | Serve cache + negotiation |
 | `Test_varsFromString` | `store_test.go` | Inline vars parsing |
 | `Test_loadVars` | `store_test.go` | Vars file merge |
+
+| `TestLintFollowsGossfileImports` | `lint_test.go` | Linting an entry gossfile reaches problems in imported files |
+| `TestLintNoImports` | `lint_test.go` | `--no-imports` stops at the named file |
+| `TestLintSkipsSkippedImports` | `lint_test.go` | `skip: true` imports are not linted |
+| `TestLintReportsUnmatchedImport` | `lint_test.go` | An import matching no files is an error |
+| `TestLintImportCycle` | `lint_test.go` | Cyclic imports terminate instead of hanging |
+| `TestLintFixRewritesFile` | `lint_test.go` | `--fix` rewrites a deprecated name on disk and clears the finding |
+| `TestLintFixAcrossImports` | `lint_test.go` | `--fix` reaches imported files |
+| `TestLintDoesNotWriteWithoutFix` | `lint_test.go` | Nothing is written without `--fix` |
+| `TestLintExitCodes` | `lint_test.go` | 0 clean, 0 for warnings alone, 1 with `--strict`, 1 on errors |
+
+### Package `lint`
+
+| Test | File | Covers |
+| --- | --- | --- |
+| `TestDeprecatedFuncsComesFromSprout` | `lint/template_test.go` | The deprecated-name list is read from Sprout at runtime and is non-empty |
+| `TestCheckTemplateParseErrors` | `lint/template_test.go` | Unknown functions, unclosed actions, bad pipelines, with source line numbers |
+| `TestCheckTemplateDeprecatedFuncs` | `lint/template_test.go` | Deprecated names in pipelines, `if`, `range`, `define`, `block`, chained field access and variable assignment |
+| `TestCheckTemplateDeprecatedFuncSeverityAndSpace` | `lint/template_test.go` | Deprecated names are warnings against the source file, not errors |
+| `TestRenameFor` | `lint/fix_test.go` | Only "use `X` instead" notices count as renames; signature changes don't |
+| `TestFix` | `lint/fix_test.go` | Deprecated names are replaced in the source |
+| `TestFixMultiplePerLine` | `lint/fix_test.go` | Several fixes on one line apply back to front without corrupting offsets |
+| `TestFixLeavesSignatureChangesAlone` | `lint/fix_test.go` | `dig` is never auto-renamed |
+| `TestFixIgnoresNonDeprecatedFindings` | `lint/fix_test.go` | YAML and parse findings are not fixable |
+| `TestLineIndexPosition` | `lint/template_test.go` | Byte offset to line and column, including line boundaries and empty lines |
+
+`define`, `block` and chained field access are regression cases: each was a
+silent miss, since a `{{define}}` body is parsed into its own template rather
+than the root tree, and a parenthesized pipeline with a field access on the end
+is wrapped in a node the walk originally skipped.
 
 ### Package `matchers`
 
@@ -249,6 +280,26 @@ make test-int-all   # full matrix (slow)
 
 Non-amd64 / darwin / windows via [`integration-tests/run-validate-tests.sh`](../integration-tests/run-validate-tests.sh)
 (find `*.goss.yaml` under platform dirs and run `goss validate`).
+
+## Gossfile lint
+
+```bash
+goss -g <gossfile> lint --require-yamllint
+```
+
+Checks a gossfile rather than the system: template parse errors, deprecated
+template function names, render failures, and yamllint over the rendered
+output. Needs `yamllint` on PATH for the YAML half; `--require-yamllint` turns a
+missing yamllint into a failure instead of a skip, which is what CI wants.
+
+Exit codes are `0` clean, `1` problems found, `2` the linter itself failed.
+
+Runs in CI as its own workflow rather than inside `golangci.yaml`, because that
+workflow ignores `docs/**` and `docs/goss.yaml` is one of the files most worth
+checking. `paths-ignore` has no exception syntax, so the triggers have to be
+separate.
+
+See [Linting gossfiles](lint.md) for the rules and CI examples.
 
 ## Markdown lint
 

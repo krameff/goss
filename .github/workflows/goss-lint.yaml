@@ -1,0 +1,69 @@
+name: Lint gossfiles
+
+# Runs `goss lint` over the gossfiles this repo ships, so our own examples and
+# fixtures can't drift onto deprecated template functions or invalid YAML.
+#
+# This lives apart from `golangci.yaml` because that workflow ignores `docs/**`
+# and `**/*.md`, and `docs/goss.yaml` is one of the files most worth checking.
+# `paths-ignore` has no exception syntax, so the triggers have to differ.
+#
+# The Go filter is `**/*.go` rather than a list of the packages the linter
+# happens to use today. That list was wrong within a week of being written: it
+# named `lint.go` and `template.go` but not `store.go`, which the import walk
+# goes through, and not `goss_config.go`, which the schema rule checks against.
+# A filter that has to be updated whenever a call moves is a filter that will be
+# silently out of date. This job is a build plus a pip install, so running it on
+# a Go change that turns out to be irrelevant costs very little; missing one
+# costs a gossfile regression nobody sees.
+on:
+  push:
+    branches:
+      - main
+      - devel
+    # Keep in step with the pull_request list below. GitHub Actions does not
+    # support YAML anchors, so this has to be written out twice.
+    paths:
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+      - "docs/goss.yaml"
+      - "integration-tests/goss/**"
+      - "ci/lint-gossfiles.sh"
+      - "Makefile"
+      - ".yamllint"
+      - ".github/workflows/goss-lint.yaml"
+  pull_request:
+    paths:
+      - "**/*.go"
+      - "go.mod"
+      - "go.sum"
+      - "docs/goss.yaml"
+      - "integration-tests/goss/**"
+      - "ci/lint-gossfiles.sh"
+      - "Makefile"
+      - ".yamllint"
+      - ".github/workflows/goss-lint.yaml"
+
+permissions:
+  contents: read
+
+jobs:
+  lint-gossfiles:
+    name: lint gossfiles
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-go@v7.0.0
+        with:
+          go-version-file: go.mod
+
+      # The YAML half of `goss lint` shells out to yamllint. --require-yamllint
+      # in the script turns a missing one into a failure rather than a silent
+      # skip, so this step is not optional.
+      - name: Install yamllint
+        run: pip install yamllint
+
+      - name: Lint gossfiles
+        run: make lint-gossfiles

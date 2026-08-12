@@ -181,8 +181,8 @@ mount:
     exists: true
     usage:
       and:
-        - lt: 95
-        - gt: 0
+      - lt: 95
+      - gt: 0
 interface:
   eth0:
     exists: true
@@ -190,28 +190,28 @@ interface:
       contain-element:
         have-prefix: '172.'
 http:
-  {{ if index .Vars .Env.OS "proxy" }}
+  {{- if index .Vars .Env.OS "proxy" }}
   http://httpbin/anything:
     status: 200
     timeout: 60000
     proxy: {{ index .Vars .Env.OS "proxy" }}
-  {{ end }}
+  {{- end }}
   http://httpbin/headers:
     status: 200
     timeout: 60000
     request-headers:
-      - "Foo: bar"
+    - "Foo: bar"
     headers: ["Content-Type: application/json"]
     body:
-      - '"Foo": "bar"'
-      - '/"User-Agent": "goss/.+"/'
+    - '"Foo": "bar"'
+    - '/"User-Agent": "goss/.+"/'
   http://httpbin/headers?host:
     status: 200
     timeout: 60000
     request-headers:
       # This is causing intermittent errors depending on the httpbin server hit
       # need to see if there's a good way around this, maybe local httpbin?
-      - "Host: httpbin"
+    - "Host: httpbin"
     headers: ["Content-Type: application/json"]
     body: ['"Host": "httpbin"']
   http://httpbin/basic-auth/username/secret:
@@ -230,7 +230,7 @@ http:
     timeout: 60000
     request-body: '{"key": "value"}'
     body:
-      - '"key": "value"'
+    - '"key": "value"'
   anything-with-get:
     url: http://httpbin/anything
     status: 200
@@ -250,7 +250,7 @@ matching:
       match-regexp: some str
   has_2:
     content:
-      - 2
+    - 2
     matches:
       contain-element: 2
   has_foo_bar_and_baz:
@@ -259,18 +259,18 @@ matching:
       baz: bing
     matches:
       and:
-        - have-key: baz
+      - have-key: baz
   semver:
     content:
-      - 1.0.1
-      - 1.9.9
+    - 1.0.1
+    - 1.9.9
     matches:
       semver-constraint: ">1.0.0 <2.0.0 !=1.5.0"
   semver2:
     content:
-      - 1.0.1
-      - 1.5.0
-      - 1.9.9
+    - 1.0.1
+    - 1.5.0
+    - 1.9.9
     matches:
       not:
         semver-constraint: ">1.0.0 <2.0.0 !=1.5.0"
@@ -283,6 +283,10 @@ matching:
     matches:
       match-regexp: bar
   sping_basic:
+    # Deliberately uses `upper`, the deprecated Sprig-era alias, rather than
+    # `toUpper`. This is the regression test that Sprout's backward-compatible
+    # alias table still resolves, so `goss lint` warning about it here is
+    # expected. Don't "fix" it.
     content: {{ "hello!" | upper | repeat 5 }}
     matches:
       match-regexp: "HELLO!HELLO!HELLO!HELLO!HELLO!"
