@@ -6,7 +6,7 @@ problems to turn up when you run `goss validate` on a real server.
 Gossfiles are awkward to check with normal tooling. They are Go templates that
 render into YAML, so until they are rendered they are not valid YAML, and
 yamllint cannot read them. `goss lint` handles both halves: it checks the
-template as written, renders it, then hands the result to yamllint.
+template as written, renders it, then checks the result.
 
 ## Quick start
 
@@ -39,7 +39,8 @@ goss --vars vars.yaml --vars-inline '{"env":"prod"}' -g goss.yaml lint
 | `deprecated-func` | warning | Template functions that still work but have been renamed |
 | `render` | error | Failures while rendering, such as a missing vars key |
 | `import` | error | A `gossfile:` import that matches no files |
-| `yaml` | error or warning | Whatever yamllint reports about the rendered YAML |
+| `yaml` | error or warning | Rendered output that isn't valid YAML, plus yamllint's style rules |
+| `schema` | error | A resource type or attribute that goss doesn't have |
 
 ### `template-parse`
 
@@ -158,14 +159,13 @@ for. Use `--no-imports` to check only the named file.
 
 ### `yaml`
 
-Once the gossfile renders, the output goes to
-[yamllint](https://yamllint.readthedocs.io/). This catches duplicate keys,
-inconsistent indentation, bad spacing around colons, and anything that isn't
-valid YAML at all.
+Once the gossfile renders, the output is parsed as YAML. Anything that stops it
+being read at all is reported here: syntax errors, and duplicate keys, which
+YAML treats as an error rather than quietly keeping the last one.
 
 ```console
 $ goss -g goss.yaml lint
-goss.yaml:4:5 (rendered): error: duplication of key "exists" in mapping (key-duplicates) [yaml]
+goss.yaml:4 (rendered): error: mapping key "exists" already defined at line 3 [yaml]
 
 lines marked (rendered) refer to /tmp/goss-lint-3166187359/goss.yaml
 
@@ -174,18 +174,26 @@ lines marked (rendered) refer to /tmp/goss-lint-3166187359/goss.yaml
 
 Note `(rendered)`. See [line numbers](#line-numbers) below.
 
-yamllint is optional. If it is not installed, the YAML checks are skipped, the
-other checks still run, and goss says so on stderr:
+This part is built into goss and always runs. On top of it, if
+[yamllint](https://yamllint.readthedocs.io/) is installed, its style rules run
+too: indentation, spacing around colons, and the rest.
+
+yamllint is optional. Without it you still get the structural checks above, and
+goss says once on stderr what you are missing:
 
 ```console
 $ goss -g goss.yaml lint
-yamllint not found on PATH, skipping YAML checks (use --require-yamllint to make this an error)
+yamllint not found on PATH, skipping YAML style checks (use --require-yamllint to make this an error)
 no problems found
 ```
 
 Install it with `pip install yamllint`. In CI, pass `--require-yamllint` so a
 missing yamllint fails the build instead of quietly checking less than you
 think.
+
+If the rendered output does not parse, the `schema` check and yamllint are
+skipped for that file. Neither has anything to work with, and both would only
+restate the same problem in their own words.
 
 #### Whitespace from template directives
 
@@ -297,6 +305,76 @@ ignore:
   - gossfiles/
 ```
 
+### `schema`
+
+Checks the rendered gossfile against goss's own definition of what a gossfile
+is. A resource type that doesn't exist:
+
+```yaml
+fille:
+  /etc/hosts:
+    exists: true
+```
+
+```console
+$ goss -g goss.yaml lint
+goss.yaml:1 (rendered): error: unknown resource type "fille" [schema]
+```
+
+And an attribute the resource doesn't have:
+
+```yaml
+port:
+  tcp:22:
+    runing: true
+```
+
+```console
+$ goss -g goss.yaml lint
+goss.yaml:1 (rendered): error: invalid Attribute for Port:tcp:22: runing [schema]
+```
+
+Without this, a typo like either of those is silently ignored: the test you
+meant to write never runs, and the suite passes. That is worse than a failure,
+because nothing tells you the check is missing.
+
+The attribute check is goss's own, the same one `goss validate` has always run.
+The linter is not adding a second opinion, it is running the real one earlier,
+on your machine rather than on a server.
+
+It is checked against goss's internal types rather than
+[`docs/schema.yaml`](schema.yaml). That file is maintained by hand for editor
+completion, so checking against it would mean the linter and goss could
+disagree. The types are what goss actually runs on.
+
+Two things this rule does not check: whether a value is the right type for its
+attribute, and whether a matcher is well formed. Both are decided further into
+validation than the linter goes.
+
+#### Reusable anchor blocks
+
+A top-level block that exists only to be shared through a YAML anchor is not
+reported, even though it is not a resource type:
+
+```yaml
+defaults: &defaults
+  exists: true
+
+file:
+  /etc/passwd:
+    <<: *defaults
+  /etc/group:
+    <<: *defaults
+```
+
+YAML gives you nowhere else to put a reusable block, and goss ignores top-level
+keys it does not recognise, so this has always worked.
+
+The exemption is narrow on purpose: the block has to define an anchor that
+something in the same file actually aliases. A key that defines no anchor is
+still reported, and so is one whose anchor nothing uses, which is dead weight
+in the file either way.
+
 ## Fixing problems automatically
 
 `--fix` rewrites your gossfiles to correct deprecated function names:
@@ -332,8 +410,10 @@ is the clear case: it moved from `{{ dig "key" "default" $dict }}` to
 leave a file that still parses but renders differently, so it is reported for
 you to change by hand.
 
-**Parse errors, render failures and broken imports**, which all need a decision
-about intent that a linter has no business making.
+**Parse errors, render failures, broken imports and `schema` findings**, which
+all need a decision about intent that a linter has no business making. A
+misspelled attribute in particular could be corrected several ways, and picking
+one would mean guessing at the test you meant to write.
 
 ### The safety check
 
@@ -375,7 +455,7 @@ less ./rendered/goss.yaml
 | `--strict` | off | Treat warnings as failures |
 | `--no-imports` | off | Check only the named file, don't follow `gossfile:` imports |
 | `--fix` | off | Rewrite gossfiles to correct what can be fixed safely |
-| `--require-yamllint` | off | Fail if yamllint is not installed |
+| `--require-yamllint` | off | Fail if yamllint is not installed, rather than running without its style rules |
 | `--yamllint-config` | search | Path to a yamllint config |
 | `--write-rendered` | temp dir | Where to write the rendered gossfile |
 

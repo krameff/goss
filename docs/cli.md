@@ -65,7 +65,7 @@ GLOBAL OPTIONS:
 Commands are the actions goss can run.
 * [add](#add): add a single test for a resource
 * [autoadd](#autoadd): automatically add multiple tests for a resource
-* [lint](#lint): check a gossfile for template and YAML problems before running it
+* [lint](#lint): check a gossfile for template, YAML and schema problems before running it
 * [render](#render): renders and outputs the gossfile, importing all included gossfiles
 * [serve](#serve): serves the gossfile validation as an HTTP endpoint on a specified address and port,
     so you can use your gossfile as a health report for the host
@@ -198,9 +198,9 @@ Will **NOT** automatically add:
     ```
 
 Checks a gossfile without running any tests against the system. It parses the
-template, flags deprecated template function names, renders the file, and runs
-the result through [yamllint](https://yamllint.readthedocs.io/) if it is
-installed.
+template, flags deprecated template function names, renders the file, checks
+that the result is valid YAML describing resources goss actually has, and runs
+[yamllint](https://yamllint.readthedocs.io/) over it as well if it is installed.
 
 Follows the `gossfile:` imports in the file it is given, the same way `validate`
 and `render` do, so one command covers a whole suite.
@@ -226,7 +226,8 @@ to render the file the same way `validate` would.
     for what is deliberately left alone.
 
 `--require-yamllint`
-:   Fail if yamllint is not installed, rather than skipping the YAML checks.
+:   Fail if yamllint is not installed, rather than running without its style
+    rules. The structural YAML checks are built in and run either way.
     Recommended in CI.
 
 `--yamllint-config`

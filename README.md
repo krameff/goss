@@ -198,7 +198,7 @@ Count: 15, Failed: 0
 goss --vars vars.yaml validate
 ```
 
-* check the gossfile itself for template and YAML problems, without touching the system
+* check the gossfile itself for template, YAML and schema problems, without touching the system
 
 ```console
 goss lint
