@@ -6,6 +6,26 @@
 </p>
 <!-- markdownlint-enable no-inline-html -->
 
+> ## This project is now Syver
+>
+> Goss has been renamed to **Syver** and all development has moved to
+> **[github.com/krameff/syver](https://github.com/krameff/syver)**.
+>
+> This repository is frozen at **v0.6.0**. It will not get any further releases,
+> fixes, or security updates, so please switch over to Syver.
+>
+> Your existing gossfiles carry across as they are. Syver still reads `goss.yaml`
+> and the `gossfile:` key, so in most cases migrating just means installing the
+> new binary and swapping `goss` for `syver` in whatever runs it.
+>
+> Why the rename: this fork has diverged a fair way from upstream
+> [goss-org/goss](https://github.com/goss-org/goss), and sharing a binary name,
+> config filename and release artifact names with it makes the two hard to tell
+> apart. Its own name keeps them distinct, and keeps issues pointed at the right
+> tracker.
+
+---
+
 > **Note:** This is a fork of the original [goss-org/goss](https://github.com/goss-org/goss) project created and
 > maintained by [@aelsabbahy](https://github.com/aelsabbahy). All original work remains under the Apache 2.0 license
 > and full credit goes to the original author for building such a solid foundation. This fork exists to enable newer
